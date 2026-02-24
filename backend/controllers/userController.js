@@ -47,10 +47,12 @@ exports.createUser = async (req, res) => {
 
 exports.getUsers = async (req, res) => {
   try {
-    const { role, search } = req.query;
+    const { role, search, class: className, section } = req.query;
     let query = {};
 
     if (role) query.role = role;
+    if (className) query.class = className;
+    if (section) query.section = section;
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } },

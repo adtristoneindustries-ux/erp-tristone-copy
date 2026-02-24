@@ -11,6 +11,8 @@ import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminStudents from "./pages/AdminStudents";
 import AdminStaff from "./pages/AdminStaff";
+import AdminUserManagement from "./pages/AdminUserManagement";
+import AttendanceManagement from "./pages/AttendanceManagement";
 import AdminSubjects from "./pages/AdminSubjects";
 import AdminStudentAttendance from "./pages/AdminStudentAttendance";
 import AdminStaffAttendance from "./pages/AdminStaffAttendance";
@@ -18,6 +20,9 @@ import AdminClasses from "./pages/AdminClasses";
 import AdminMarks from "./pages/AdminMarks";
 import AdminAnnouncements from "./pages/AdminAnnouncements";
 import AdminLeaves from "./pages/AdminLeaves";
+import AdminFinance from "./pages/AdminFinance";
+import AdminDiscipline from "./pages/AdminDiscipline";
+import AdminEvents from "./pages/AdminEvents";
 import StaffDashboard from "./pages/StaffDashboard";
 import StaffMarks from "./pages/StaffMarks";
 import StaffAttendance from "./pages/StaffAttendance";
@@ -117,6 +122,14 @@ function App() {
           }
         />
         <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminUserManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/subjects"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
@@ -129,6 +142,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminClasses />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/attendance-management"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AttendanceManagement />
             </ProtectedRoute>
           }
         />
@@ -193,6 +214,30 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <TimetableModule />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/finance"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminFinance />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/discipline"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDiscipline />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/events"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminEvents />
             </ProtectedRoute>
           }
         />

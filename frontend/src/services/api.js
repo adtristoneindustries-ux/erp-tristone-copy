@@ -169,4 +169,10 @@ export const dashboardAPI = {
   getStaffStats: () => API.get('/dashboard/staff')
 };
 
+export const disciplineAPI = {
+  addDisciplineRecord: (data) => API.post('/discipline', data),
+  getDisciplineRecords: (params) => API.get('/discipline', { params }),
+  getUserDisciplineRecords: (userId) => API.get(`/discipline/user/${userId}`)
+};
+
 export default API;

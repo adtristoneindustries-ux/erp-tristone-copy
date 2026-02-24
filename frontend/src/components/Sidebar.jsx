@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X } from 'lucide-react';
+import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, DollarSign, AlertTriangle } from 'lucide-react';
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { materialAPI } from '../services/api';
@@ -12,15 +12,16 @@ const Sidebar = () => {
 
   const adminLinks = [
     { to: '/admin', icon: Home, label: 'Dashboard' },
-    { to: '/admin/students', icon: Users, label: 'Students' },
-    { to: '/admin/staff', icon: Users, label: 'Staff' },
+    { to: '/admin/users', icon: Users, label: 'User Management' },
     { to: '/admin/subjects', icon: BookOpen, label: 'Subjects' },
     { to: '/admin/classes', icon: Users, label: 'Classes' },
-    { to: '/admin/attendance', icon: ClipboardList, label: 'Student Attendance' },
-    { to: '/admin/staff-attendance', icon: ClipboardList, label: 'Staff Attendance' },
+    { to: '/admin/attendance-management', icon: ClipboardList, label: 'Attendance Management' },
     { to: '/admin/marks', icon: Award, label: 'Marks' },
     { to: '/admin/leaves', icon: Calendar, label: 'Leave Requests' },
     { to: '/admin/timetable', icon: Calendar, label: 'Timetable Module' },
+    { to: '/admin/finance', icon: DollarSign, label: 'Finance Management' },
+    { to: '/admin/discipline', icon: AlertTriangle, label: 'Discipline Oversight' },
+    { to: '/admin/events', icon: Calendar, label: 'Events Management' },
     { to: '/admin/announcements', icon: Bell, label: 'Announcements' }
   ];
 

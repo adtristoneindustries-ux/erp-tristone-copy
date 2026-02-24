@@ -40,6 +40,14 @@ const userSchema = new mongoose.Schema({
     contentType: String,
     size: Number,
     uploadDate: { type: Date, default: Date.now }
+  }],
+  // Discipline records
+  disciplineRecords: [{
+    offenseType: String,
+    actionStatus: String,
+    description: String,
+    date: { type: Date, default: Date.now },
+    addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
   }]
 }, { timestamps: true });
 
