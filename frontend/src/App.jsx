@@ -28,6 +28,8 @@ import StaffLeaves from "./pages/StaffLeaves";
 import StaffStudentLeaves from "./pages/StaffStudentLeaves";
 import StudentLeaveRequests from "./pages/StudentLeaveRequests";
 import StudentLeaveRequest from "./pages/StudentLeaveRequest";
+import StaffHomework from "./pages/StaffHomework";
+import StudentHomework from "./pages/StudentHomework";
 
 import StudentDashboard from "./pages/StudentDashboard";
 import StudentMarks from "./pages/StudentMarks";
@@ -269,6 +271,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/staff/homework"
+          element={
+            <ProtectedRoute allowedRoles={["staff"]}>
+              <StaffHomework />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/student"
@@ -331,6 +341,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentAnnouncements />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/homework"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentHomework />
             </ProtectedRoute>
           }
         />
