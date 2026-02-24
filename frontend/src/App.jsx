@@ -37,6 +37,9 @@ import StudentAttendance from "./pages/StudentAttendance";
 import StudentMaterials from "./pages/StudentMaterials";
 import StudentTimetable from "./pages/StudentTimetable";
 import StudentAnnouncements from "./pages/StudentAnnouncements";
+import StudentCafeteria from "./pages/StudentCafeteria";
+import StudentTransport from "./pages/StudentTransport";
+import StudentHostel from "./pages/StudentHostel";
 import AdminTimetable from "./pages/AdminTimetable";
 import AdminStudentTimetable from "./pages/AdminStudentTimetable";
 import AdminStaffTimetable from "./pages/AdminStaffTimetable";
@@ -349,6 +352,30 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentHomework />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/cafeteria"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentCafeteria />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/transport"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentTransport />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/hostel"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentHostel />
             </ProtectedRoute>
           }
         />

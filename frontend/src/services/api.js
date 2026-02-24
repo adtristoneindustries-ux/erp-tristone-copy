@@ -169,4 +169,34 @@ export const dashboardAPI = {
   getStaffStats: () => API.get('/dashboard/staff')
 };
 
+export const cafeteriaAPI = {
+  getWeeklyMenu: () => API.get('/cafeteria/menu'),
+  getWallet: () => API.get('/cafeteria/wallet'),
+  addMoney: (data) => API.post('/cafeteria/wallet/add', data),
+  getTransactionHistory: () => API.get('/cafeteria/wallet/history'),
+  getTodaySpecials: () => API.get('/cafeteria/specials'),
+  placeOrder: (data) => API.post('/cafeteria/order', data),
+  getOrderHistory: () => API.get('/cafeteria/orders')
+};
+
+export const transportAPI = {
+  getMyTransport: () => API.get('/transport/my-transport'),
+  getAllRoutes: () => API.get('/transport/routes'),
+  trackBusLocation: () => API.get('/transport/track'),
+  assignTransport: (data) => API.post('/transport/assign', data),
+  createRoute: (data) => API.post('/transport/routes', data),
+  updateRoute: (id, data) => API.put(`/transport/routes/${id}`, data)
+};
+
+export const hostelAPI = {
+  getMyHostel: () => API.get('/hostel/my-hostel'),
+  raiseIssue: (data) => API.post('/hostel/issues', data),
+  getMyIssues: () => API.get('/hostel/my-issues'),
+  getAllHostels: () => API.get('/hostel'),
+  createHostel: (data) => API.post('/hostel', data),
+  updateHostel: (id, data) => API.put(`/hostel/${id}`, data),
+  getAllIssues: () => API.get('/hostel/issues/all'),
+  updateIssueStatus: (id, data) => API.put(`/hostel/issues/${id}`, data)
+};
+
 export default API;

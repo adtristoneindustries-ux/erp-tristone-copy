@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X } from 'lucide-react';
+import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2 } from 'lucide-react';
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { materialAPI } from '../services/api';
@@ -68,6 +68,9 @@ const Sidebar = () => {
     { to: '/student/leave-requests', icon: Calendar, label: 'Leave Requests' },
     { to: '/student/timetable', icon: Calendar, label: 'Timetable' },
     { to: '/student/materials', icon: FileText, label: 'Materials', hasNotification: newMaterialsCount > 0 },
+    { to: '/student/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },
+    { to: '/student/transport', icon: Bus, label: 'Transport' },
+    { to: '/student/hostel', icon: Building2, label: 'Hostel' },
     { to: '/student/announcements', icon: Bell, label: 'Announcements' }
   ];
 
