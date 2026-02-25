@@ -10,12 +10,11 @@ router.route('/')
   .get(getUsers)
   .post(authorize('admin'), createUser);
 
-// New route for staff creation with documents
 router.post('/staff-with-docs', authorize('admin'), uploadMiddleware, createStaffWithDocs);
 
 router.route('/:id')
   .get(getUser)
-  .put(authorize('admin'), updateUser)
+  .put(updateUser)
   .delete(authorize('admin'), deleteUser);
 
 module.exports = router;

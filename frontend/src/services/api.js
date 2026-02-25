@@ -53,6 +53,7 @@ export const authAPI = {
 export const userAPI = {
   getUsers: (params) => API.get('/users', { params }),
   getUser: (id) => API.get(`/users/${id}`),
+  getUserById: (id) => API.get(`/users/${id}`),
   createUser: (data) => API.post('/users', data),
   createStaffWithDocs: (formData) => {
     return axios.create({
@@ -197,6 +198,13 @@ export const hostelAPI = {
   updateHostel: (id, data) => API.put(`/hostel/${id}`, data),
   getAllIssues: () => API.get('/hostel/issues/all'),
   updateIssueStatus: (id, data) => API.put(`/hostel/issues/${id}`, data)
+};
+
+export const feedbackAPI = {
+  sendFeedback: (data) => API.post('/feedback', data),
+  getReceivedFeedback: () => API.get('/feedback/received'),
+  getSentFeedback: () => API.get('/feedback/sent'),
+  markAsRead: () => API.put('/feedback/mark-read')
 };
 
 export default API;

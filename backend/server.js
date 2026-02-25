@@ -58,6 +58,7 @@ app.use('/api/homework', require('./routes/homeworkRoutes'));
 app.use('/api/cafeteria', require('./routes/cafeteriaRoutes'));
 app.use('/api/transport', require('./routes/transportRoutes'));
 app.use('/api/hostel', require('./routes/hostelRoutes'));
+app.use('/api/feedback', require('./routes/feedbackRoutes'));
 
 // Health check endpoint
 app.get('/', (req, res) => {

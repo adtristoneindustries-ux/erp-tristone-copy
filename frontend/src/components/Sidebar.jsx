@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2 } from 'lucide-react';
+import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare } from 'lucide-react';
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { materialAPI } from '../services/api';
@@ -21,7 +21,8 @@ const Sidebar = () => {
     { to: '/admin/marks', icon: Award, label: 'Marks' },
     { to: '/admin/leaves', icon: Calendar, label: 'Leave Requests' },
     { to: '/admin/timetable', icon: Calendar, label: 'Timetable Module' },
-    { to: '/admin/announcements', icon: Bell, label: 'Announcements' }
+    { to: '/admin/announcements', icon: Bell, label: 'Announcements' },
+    { to: '/admin/feedback', icon: MessageSquare, label: 'Feedback' }
   ];
 
   const staffLinks = [
@@ -34,7 +35,8 @@ const Sidebar = () => {
     { to: '/staff/student-leaves', icon: ClipboardList, label: 'Student Leaves' },
     { to: '/staff/materials', icon: FileText, label: 'Materials' },
     { to: '/staff/announcements', icon: Bell, label: 'Announcements' },
-    { to: '/staff/timetable', icon: Calendar, label: 'My Timetable' }
+    { to: '/staff/timetable', icon: Calendar, label: 'My Timetable' },
+    { to: '/staff/feedback', icon: MessageSquare, label: 'Feedback' }
   ];
 
   // Fetch new materials count for students
@@ -62,12 +64,15 @@ const Sidebar = () => {
 
   const studentLinks = [
     { to: '/student', icon: Home, label: 'Dashboard' },
+    { to: '/student/profile', icon: User, label: 'Profile' },
     { to: '/student/marks', icon: Award, label: 'My Marks' },
     { to: '/student/attendance', icon: ClipboardList, label: 'My Attendance' },
     { to: '/student/homework', icon: FileText, label: 'Homework' },
     { to: '/student/leave-requests', icon: Calendar, label: 'Leave Requests' },
     { to: '/student/timetable', icon: Calendar, label: 'Timetable' },
     { to: '/student/materials', icon: FileText, label: 'Materials', hasNotification: newMaterialsCount > 0 },
+    { to: '/student/medical-reports', icon: Activity, label: 'Medical Reports' },
+    { to: '/student/feedback', icon: MessageSquare, label: 'Feedback' },
     { to: '/student/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },
     { to: '/student/transport', icon: Bus, label: 'Transport' },
     { to: '/student/hostel', icon: Building2, label: 'Hostel' },

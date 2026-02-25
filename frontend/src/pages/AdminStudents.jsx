@@ -21,7 +21,12 @@ const AdminStudents = () => {
   const [filterSection, setFilterSection] = useState('');
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [formData, setFormData] = useState({
-    name: '', email: '', password: '', phone: '', class: '', section: '', rollNumber: ''
+    name: '', email: '', password: '', phone: '', class: '', section: '', rollNumber: '',
+    dateOfBirth: '', gender: '', bloodGroup: '', address: '',
+    fatherName: '', fatherOccupation: '', fatherPhone: '', fatherEmail: '',
+    motherName: '', motherOccupation: '', motherPhone: '', motherEmail: '',
+    religion: '', nationality: '', emergencyContact: '', medicalConditions: '',
+    admissionDate: '', admissionNumber: ''
   });
 
   useEffect(() => {
@@ -88,7 +93,14 @@ const AdminStudents = () => {
   };
 
   const resetForm = () => {
-    setFormData({ name: '', email: '', password: '', phone: '', class: '', section: '', rollNumber: '' });
+    setFormData({
+      name: '', email: '', password: '', phone: '', class: '', section: '', rollNumber: '',
+      dateOfBirth: '', gender: '', bloodGroup: '', address: '',
+      fatherName: '', fatherOccupation: '', fatherPhone: '', fatherEmail: '',
+      motherName: '', motherOccupation: '', motherPhone: '', motherEmail: '',
+      religion: '', nationality: '', emergencyContact: '', medicalConditions: '',
+      admissionDate: '', admissionNumber: ''
+    });
     setSelectedClassName('');
     setAvailableSections([]);
     setEditingStudent(null);
@@ -356,29 +368,29 @@ const AdminStudents = () => {
           </div>
 
           <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingStudent ? 'Edit Student' : 'Add Student'}>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
-                <input
-                  type="text"
-                  placeholder="Enter student name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-3 min-h-[48px] text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
-                <input
-                  type="email"
-                  placeholder="Enter email address"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-3 min-h-[48px] text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
+            <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
               </div>
               
               {!editingStudent && (
@@ -386,24 +398,91 @@ const AdminStudents = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Password *</label>
                   <input
                     type="password"
-                    placeholder="Enter password"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="w-full px-4 py-3 min-h-[48px] text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
                     required
                   />
                 </div>
               )}
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Profile Picture</label>
                 <input
-                  type="tel"
-                  placeholder="Enter phone number"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full px-4 py-3 min-h-[48px] text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setFormData({ ...formData, profilePicture: reader.result });
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                  className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
+                {formData.profilePicture && (
+                  <img src={formData.profilePicture} alt="Preview" className="mt-2 w-20 h-20 rounded-full object-cover" />
+                )}
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                  <input
+                    type="date"
+                    value={formData.dateOfBirth}
+                    onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                  <select
+                    value={formData.gender}
+                    onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Blood Group</label>
+                  <select
+                    value={formData.bloodGroup}
+                    onChange={(e) => setFormData({ ...formData, bloodGroup: e.target.value })}
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select Blood Group</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                  </select>
+                </div>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -412,14 +491,12 @@ const AdminStudents = () => {
                   <select
                     value={selectedClassName}
                     onChange={(e) => handleClassNameSelection(e.target.value)}
-                    className="w-full px-4 py-3 min-h-[48px] text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
                     required
                   >
                     <option value="">Select Class</option>
                     {[...new Set(classes.map(cls => cls.className).filter(Boolean))].sort().map(className => (
-                      <option key={className} value={className}>
-                        Class {className}
-                      </option>
+                      <option key={className} value={className}>Class {className}</option>
                     ))}
                   </select>
                 </div>
@@ -429,42 +506,187 @@ const AdminStudents = () => {
                   <select
                     value={formData.section}
                     onChange={(e) => handleSectionSelection(e.target.value)}
-                    className="w-full px-4 py-3 min-h-[48px] text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
                     required
                     disabled={!selectedClassName}
                   >
                     <option value="">Select Section</option>
                     {availableSections.map(section => (
-                      <option key={section} value={section}>
-                        Section {section}
-                      </option>
+                      <option key={section} value={section}>Section {section}</option>
                     ))}
                   </select>
                 </div>
               </div>
               
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Roll Number</label>
+                  <input
+                    type="text"
+                    value={formData.rollNumber}
+                    onChange={(e) => setFormData({ ...formData, rollNumber: e.target.value })}
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Admission Number</label>
+                  <input
+                    type="text"
+                    value={formData.admissionNumber}
+                    onChange={(e) => setFormData({ ...formData, admissionNumber: e.target.value })}
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Roll Number</label>
-                <input
-                  type="text"
-                  placeholder="Enter roll number"
-                  value={formData.rollNumber}
-                  onChange={(e) => setFormData({ ...formData, rollNumber: e.target.value })}
-                  className="w-full px-4 py-3 min-h-[48px] text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                <textarea
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  rows="2"
                 />
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <div className="border-t pt-4">
+                <h3 className="font-semibold text-gray-700 mb-3">Father's Details</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Father's Name</label>
+                    <input
+                      type="text"
+                      value={formData.fatherName}
+                      onChange={(e) => setFormData({ ...formData, fatherName: e.target.value })}
+                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Occupation</label>
+                    <input
+                      type="text"
+                      value={formData.fatherOccupation}
+                      onChange={(e) => setFormData({ ...formData, fatherOccupation: e.target.value })}
+                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                    <input
+                      type="tel"
+                      value={formData.fatherPhone}
+                      onChange={(e) => setFormData({ ...formData, fatherPhone: e.target.value })}
+                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input
+                      type="email"
+                      value={formData.fatherEmail}
+                      onChange={(e) => setFormData({ ...formData, fatherEmail: e.target.value })}
+                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="border-t pt-4">
+                <h3 className="font-semibold text-gray-700 mb-3">Mother's Details</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Mother's Name</label>
+                    <input
+                      type="text"
+                      value={formData.motherName}
+                      onChange={(e) => setFormData({ ...formData, motherName: e.target.value })}
+                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Occupation</label>
+                    <input
+                      type="text"
+                      value={formData.motherOccupation}
+                      onChange={(e) => setFormData({ ...formData, motherOccupation: e.target.value })}
+                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                    <input
+                      type="tel"
+                      value={formData.motherPhone}
+                      onChange={(e) => setFormData({ ...formData, motherPhone: e.target.value })}
+                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input
+                      type="email"
+                      value={formData.motherEmail}
+                      onChange={(e) => setFormData({ ...formData, motherEmail: e.target.value })}
+                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="border-t pt-4">
+                <h3 className="font-semibold text-gray-700 mb-3">Additional Information</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Religion</label>
+                    <input
+                      type="text"
+                      value={formData.religion}
+                      onChange={(e) => setFormData({ ...formData, religion: e.target.value })}
+                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Nationality</label>
+                    <input
+                      type="text"
+                      value={formData.nationality}
+                      onChange={(e) => setFormData({ ...formData, nationality: e.target.value })}
+                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Emergency Contact</label>
+                    <input
+                      type="tel"
+                      value={formData.emergencyContact}
+                      onChange={(e) => setFormData({ ...formData, emergencyContact: e.target.value })}
+                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Medical Conditions</label>
+                    <input
+                      type="text"
+                      value={formData.medicalConditions}
+                      onChange={(e) => setFormData({ ...formData, medicalConditions: e.target.value })}
+                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex gap-3 pt-4 sticky bottom-0 bg-white">
                 <button 
                   type="submit" 
-                  className="flex-1 bg-blue-500 text-white py-3 min-h-[48px] text-base font-medium rounded-lg hover:bg-blue-600 active:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="flex-1 bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600"
                 >
                   {editingStudent ? 'Update Student' : 'Create Student'}
                 </button>
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 sm:flex-none sm:px-6 bg-gray-300 text-gray-700 py-3 min-h-[48px] text-base font-medium rounded-lg hover:bg-gray-400 active:bg-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                  className="px-6 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400"
                 >
                   Cancel
                 </button>

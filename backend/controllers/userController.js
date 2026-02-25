@@ -82,12 +82,23 @@ exports.getUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    }).select("-password");
+    // Check if user is updating their own profile or is admin
+    if (req.user.role !== 'admin' && req.user.id !== req.params.id) {
+      return res.status(403).json({ message: 'Not authorized to update this profile' });
+    }
+
+    const updateData = { ...req.body };
+    delete updateData.password;
+    delete updateData.role; // Prevent role changes
+    
+    const user = await User.findByIdAndUpdate(
+      req.params.id, 
+      updateData,
+      { new: true, runValidators: false }
+    ).select("-password");
+    
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Emit real-time update for student profile changes
     if (user.role === "student") {
       req.io.emit("studentUpdate", {
         studentId: user._id,
