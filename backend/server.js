@@ -55,6 +55,7 @@ app.use('/api/announcements', require('./routes/announcementRoutes'));
 app.use('/api/timetable', require('./routes/timetableRoutes'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 app.use('/api/discipline', require('./routes/disciplineRoutes'));
+app.use('/api/settings', require('./routes/settingsRoutes'));
 
 // Health check endpoint
 app.get('/', (req, res) => {

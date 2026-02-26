@@ -175,4 +175,9 @@ export const disciplineAPI = {
   getUserDisciplineRecords: (userId) => API.get(`/discipline/user/${userId}`)
 };
 
+export const settingsAPI = {
+  getSettings: () => API.get('/settings'),
+  updateSettings: (data) => API.put('/settings', data)
+};
+
 export default API;

@@ -23,7 +23,9 @@ import AdminLeaves from "./pages/AdminLeaves";
 import AdminFinance from "./pages/AdminFinance";
 import AdminDiscipline from "./pages/AdminDiscipline";
 import AdminEvents from "./pages/AdminEvents";
+import AdminSettings from "./pages/AdminSettings";
 import StaffDashboard from "./pages/StaffDashboard";
+import StaffProfile from "./pages/StaffProfile";
 import StaffMarks from "./pages/StaffMarks";
 import StaffAttendance from "./pages/StaffAttendance";
 import StaffMyAttendance from "./pages/StaffMyAttendance";
@@ -241,12 +243,28 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/settings"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminSettings />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/staff"
           element={
             <ProtectedRoute allowedRoles={["staff"]}>
               <StaffDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/profile"
+          element={
+            <ProtectedRoute allowedRoles={["staff"]}>
+              <StaffProfile />
             </ProtectedRoute>
           }
         />

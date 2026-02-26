@@ -1,11 +1,13 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, DollarSign, AlertTriangle } from 'lucide-react';
+import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, DollarSign, AlertTriangle, Settings } from 'lucide-react';
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { SettingsContext } from '../context/SettingsContext';
 import { materialAPI } from '../services/api';
 
 const Sidebar = () => {
   const { user, logout } = useContext(AuthContext);
+  const { settings } = useContext(SettingsContext);
   const location = useLocation();
   const [newMaterialsCount, setNewMaterialsCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -22,11 +24,13 @@ const Sidebar = () => {
     { to: '/admin/finance', icon: DollarSign, label: 'Finance Management' },
     { to: '/admin/discipline', icon: AlertTriangle, label: 'Discipline Oversight' },
     { to: '/admin/events', icon: Calendar, label: 'Events Management' },
-    { to: '/admin/announcements', icon: Bell, label: 'Announcements' }
+    { to: '/admin/announcements', icon: Bell, label: 'Announcements' },
+    { to: '/admin/settings', icon: Settings, label: 'Settings' }
   ];
 
   const staffLinks = [
     { to: '/staff', icon: Home, label: 'Dashboard' },
+    { to: '/staff/profile', icon: Users, label: 'My Profile' },
     { to: '/staff/attendance', icon: ClipboardList, label: 'Mark Attendance' },
     { to: '/staff/my-attendance', icon: Calendar, label: 'My Attendance' },
     { to: '/staff/marks', icon: Award, label: 'Marks' },
@@ -107,17 +111,24 @@ const Sidebar = () => {
       )}
 
       {/* Sidebar */}
-      <div className={`
-        fixed left-0 top-0 h-full bg-blue-600 text-white overflow-y-auto z-40 transition-transform duration-300 ease-in-out shadow-2xl
-        w-64 lg:w-64
-        ${
-          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        }
-      `}>
+      <div 
+        className={`
+          fixed left-0 top-0 h-full text-white overflow-y-auto z-40 transition-transform duration-300 ease-in-out shadow-2xl
+          w-64 lg:w-64
+          ${
+            isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          }
+        `}
+        style={{ backgroundColor: settings.sidebarColor || '#2563EB' }}
+      >
         <div className="p-4 lg:p-6 border-b border-blue-500">
           <div className="flex items-center justify-between">
             <div className="pt-12 lg:pt-0">
-              <h1 className="text-xl font-bold">School ERP</h1>
+              {settings.logoUrl ? (
+                <img src={settings.logoUrl} alt={settings.schoolName} className="h-10 w-auto object-contain" />
+              ) : (
+                <h1 className="text-xl font-bold">{settings.schoolName}</h1>
+              )}
               <p className="text-xs text-blue-200 mt-1 font-medium">{user?.role?.toUpperCase()}</p>
             </div>
           </div>
