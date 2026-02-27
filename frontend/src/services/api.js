@@ -207,4 +207,14 @@ export const feedbackAPI = {
   markAsRead: () => API.put('/feedback/mark-read')
 };
 
+export const examAPI = {
+  getExams: (params) => API.get('/exams', { params }),
+  getExam: (id) => API.get(`/exams/${id}`),
+  createExam: (data) => API.post('/exams', data),
+  updateExam: (id, data) => API.put(`/exams/${id}`, data),
+  deleteExam: (id) => API.delete(`/exams/${id}`),
+  getUpcomingExams: () => API.get('/exams/upcoming'),
+  getExamStats: () => API.get('/exams/stats')
+};
+
 export default API;

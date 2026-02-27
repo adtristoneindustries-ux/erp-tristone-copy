@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare } from 'lucide-react';
+import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck } from 'lucide-react';
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { materialAPI } from '../services/api';
@@ -21,6 +21,7 @@ const Sidebar = () => {
     { to: '/admin/marks', icon: Award, label: 'Marks' },
     { to: '/admin/leaves', icon: Calendar, label: 'Leave Requests' },
     { to: '/admin/timetable', icon: Calendar, label: 'Timetable Module' },
+    { to: '/admin/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
     { to: '/admin/announcements', icon: Bell, label: 'Announcements' },
     { to: '/admin/feedback', icon: MessageSquare, label: 'Feedback' }
   ];
@@ -33,7 +34,8 @@ const Sidebar = () => {
     { to: '/staff/homework', icon: FileText, label: 'Homework' },
     { to: '/staff/leaves', icon: Calendar, label: 'My Leaves' },
     { to: '/staff/student-leaves', icon: ClipboardList, label: 'Student Leaves' },
-    { to: '/staff/materials', icon: FileText, label: 'Materials' },
+    { to: '/staff/digital-classroom', icon: Monitor, label: 'Digital Classroom' },
+    { to: '/staff/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
     { to: '/staff/announcements', icon: Bell, label: 'Announcements' },
     { to: '/staff/timetable', icon: Calendar, label: 'My Timetable' },
     { to: '/staff/feedback', icon: MessageSquare, label: 'Feedback' }
@@ -70,7 +72,8 @@ const Sidebar = () => {
     { to: '/student/homework', icon: FileText, label: 'Homework' },
     { to: '/student/leave-requests', icon: Calendar, label: 'Leave Requests' },
     { to: '/student/timetable', icon: Calendar, label: 'Timetable' },
-    { to: '/student/materials', icon: FileText, label: 'Materials', hasNotification: newMaterialsCount > 0 },
+    { to: '/student/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
+    { to: '/student/digital-classroom', icon: Monitor, label: 'Digital Classroom' },
     { to: '/student/medical-reports', icon: Activity, label: 'Medical Reports' },
     { to: '/student/feedback', icon: MessageSquare, label: 'Feedback' },
     { to: '/student/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },

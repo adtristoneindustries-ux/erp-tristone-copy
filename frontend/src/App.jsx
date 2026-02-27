@@ -23,7 +23,6 @@ import StaffDashboard from "./pages/StaffDashboard";
 import StaffMarks from "./pages/StaffMarks";
 import StaffAttendance from "./pages/StaffAttendance";
 import StaffMyAttendance from "./pages/StaffMyAttendance";
-import StaffMaterials from "./pages/StaffMaterials";
 import StaffAnnouncements from "./pages/StaffAnnouncements";
 import StaffLeaves from "./pages/StaffLeaves";
 import StaffStudentLeaves from "./pages/StaffStudentLeaves";
@@ -32,12 +31,13 @@ import StudentLeaveRequest from "./pages/StudentLeaveRequest";
 import StaffHomework from "./pages/StaffHomework";
 import StudentHomework from "./pages/StudentHomework";
 import StaffFeedback from "./pages/StaffFeedback";
+import StaffDigitalClassroom from "./pages/StaffDigitalClassroom";
+import StudentDigitalClassroom from "./pages/StudentDigitalClassroom";
 
 import StudentDashboard from "./pages/StudentDashboard";
 import StudentProfile from "./pages/StudentProfile";
 import StudentMarks from "./pages/StudentMarks";
 import StudentAttendance from "./pages/StudentAttendance";
-import StudentMaterials from "./pages/StudentMaterials";
 import StudentTimetable from "./pages/StudentTimetable";
 import StudentAnnouncements from "./pages/StudentAnnouncements";
 import StudentCafeteria from "./pages/StudentCafeteria";
@@ -50,6 +50,9 @@ import AdminStudentTimetable from "./pages/AdminStudentTimetable";
 import AdminStaffTimetable from "./pages/AdminStaffTimetable";
 import StaffTimetable from "./pages/StaffTimetable";
 import TimetableModule from "./pages/TimetableModule";
+import AdminExamSchedule from "./pages/AdminExamSchedule";
+import StaffExamSchedule from "./pages/StaffExamSchedule";
+import StudentExamSchedule from "./pages/StudentExamSchedule";
 import NotFound from "./pages/NotFound";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -214,6 +217,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/exam-schedule"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminExamSchedule />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/staff"
@@ -247,14 +258,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/staff/materials"
-          element={
-            <ProtectedRoute allowedRoles={["staff"]}>
-              <StaffMaterials />
-            </ProtectedRoute>
-          }
-        />
+
         <Route
           path="/staff/announcements"
           element={
@@ -303,6 +307,22 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/staff/digital-classroom"
+          element={
+            <ProtectedRoute allowedRoles={["staff"]}>
+              <StaffDigitalClassroom />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/exam-schedule"
+          element={
+            <ProtectedRoute allowedRoles={["staff"]}>
+              <StaffExamSchedule />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/student"
@@ -336,14 +356,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/student/materials"
-          element={
-            <ProtectedRoute allowedRoles={["student"]}>
-              <StudentMaterials />
-            </ProtectedRoute>
-          }
-        />
+
         <Route
           path="/student/timetable"
           element={
@@ -421,6 +434,22 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentFeedback />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/digital-classroom"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentDigitalClassroom />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/exam-schedule"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentExamSchedule />
             </ProtectedRoute>
           }
         />

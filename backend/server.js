@@ -41,6 +41,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Make io available to controllers
+app.set('io', io);
+
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
@@ -59,6 +62,7 @@ app.use('/api/cafeteria', require('./routes/cafeteriaRoutes'));
 app.use('/api/transport', require('./routes/transportRoutes'));
 app.use('/api/hostel', require('./routes/hostelRoutes'));
 app.use('/api/feedback', require('./routes/feedbackRoutes'));
+app.use('/api/exams', require('./routes/examRoutes'));
 
 // Health check endpoint
 app.get('/', (req, res) => {
