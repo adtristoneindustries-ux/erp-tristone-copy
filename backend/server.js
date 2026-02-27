@@ -41,6 +41,8 @@ app.use((req, res, next) => {
   next();
 });
 
+app.set('io', io);
+
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
@@ -56,6 +58,8 @@ app.use('/api/timetable', require('./routes/timetableRoutes'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 app.use('/api/discipline', require('./routes/disciplineRoutes'));
 app.use('/api/settings', require('./routes/settingsRoutes'));
+app.use('/api/scholarships', require('./routes/scholarshipRoutes'));
+app.use('/api/finance', require('./routes/financeRoutes'));
 
 // Health check endpoint
 app.get('/', (req, res) => {

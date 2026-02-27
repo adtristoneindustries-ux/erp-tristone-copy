@@ -22,6 +22,8 @@ const Sidebar = () => {
     { to: '/admin/leaves', icon: Calendar, label: 'Leave Requests' },
     { to: '/admin/timetable', icon: Calendar, label: 'Timetable Module' },
     { to: '/admin/finance', icon: DollarSign, label: 'Finance Management' },
+    { to: '/admin/fee-scholarships', icon: DollarSign, label: 'Fee & Scholarships' },
+    { to: '/admin/scholarships', icon: Award, label: 'Scholarships' },
     { to: '/admin/discipline', icon: AlertTriangle, label: 'Discipline Oversight' },
     { to: '/admin/events', icon: Calendar, label: 'Events Management' },
     { to: '/admin/announcements', icon: Bell, label: 'Announcements' },
@@ -36,6 +38,7 @@ const Sidebar = () => {
     { to: '/staff/marks', icon: Award, label: 'Marks' },
     { to: '/staff/leaves', icon: Calendar, label: 'My Leaves' },
     { to: '/staff/student-leaves', icon: ClipboardList, label: 'Student Leaves' },
+    { to: '/staff/scholarships', icon: Award, label: 'Scholarships' },
     { to: '/staff/materials', icon: FileText, label: 'Materials' },
     { to: '/staff/announcements', icon: Bell, label: 'Announcements' },
     { to: '/staff/timetable', icon: Calendar, label: 'My Timetable' }
@@ -69,6 +72,8 @@ const Sidebar = () => {
     { to: '/student/marks', icon: Award, label: 'My Marks' },
     { to: '/student/attendance', icon: ClipboardList, label: 'My Attendance' },
     { to: '/student/leave-requests', icon: Calendar, label: 'Leave Requests' },
+    { to: '/student/scholarships', icon: Award, label: 'Scholarships' },
+    { to: '/student/finance', icon: DollarSign, label: 'Fee & Finance' },
     { to: '/student/timetable', icon: Calendar, label: 'Timetable' },
     { to: '/student/materials', icon: FileText, label: 'Materials', hasNotification: newMaterialsCount > 0 },
     { to: '/student/announcements', icon: Bell, label: 'Announcements' }

@@ -10,12 +10,7 @@ const AdminEvents = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [events, setEvents] = useState([
-    { id: 1, title: 'Annual Sports Day', date: '2024-02-15', location: 'Main Ground', coordinator: 'John Smith', status: 'Upcoming', description: 'Annual sports competition for all grades' },
-    { id: 2, title: 'Science Exhibition', date: '2024-02-20', location: 'Science Lab', coordinator: 'Sarah Johnson', status: 'Planning', description: 'Student science projects showcase' },
-    { id: 3, title: 'Parent-Teacher Meeting', date: '2024-02-25', location: 'Auditorium', coordinator: 'Mike Davis', status: 'Upcoming', description: 'Quarterly parent-teacher conference' },
-    { id: 4, title: 'Cultural Fest', date: '2024-03-05', location: 'Main Hall', coordinator: 'Emily Brown', status: 'Planning', description: 'Cultural performances and activities' },
-    { id: 5, title: 'Annual Day Celebration', date: '2024-03-15', location: 'Auditorium', coordinator: 'David Wilson', status: 'Upcoming', description: 'School annual day celebration' },
-    { id: 6, title: 'Career Guidance Workshop', date: '2024-03-20', location: 'Conference Room', coordinator: 'Lisa Anderson', status: 'Planning', description: 'Career counseling for senior students' }
+   
   ]);
   const [formData, setFormData] = useState({ title: '', date: '', location: '', coordinator: '', status: 'Planning', description: '' });
 

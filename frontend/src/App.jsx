@@ -21,9 +21,11 @@ import AdminMarks from "./pages/AdminMarks";
 import AdminAnnouncements from "./pages/AdminAnnouncements";
 import AdminLeaves from "./pages/AdminLeaves";
 import AdminFinance from "./pages/AdminFinance";
+import AdminFinanceManagement from "./pages/AdminFinanceManagement";
 import AdminDiscipline from "./pages/AdminDiscipline";
 import AdminEvents from "./pages/AdminEvents";
 import AdminSettings from "./pages/AdminSettings";
+import AdminScholarship from "./pages/AdminScholarship";
 import StaffDashboard from "./pages/StaffDashboard";
 import StaffProfile from "./pages/StaffProfile";
 import StaffMarks from "./pages/StaffMarks";
@@ -33,6 +35,7 @@ import StaffMaterials from "./pages/StaffMaterials";
 import StaffAnnouncements from "./pages/StaffAnnouncements";
 import StaffLeaves from "./pages/StaffLeaves";
 import StaffStudentLeaves from "./pages/StaffStudentLeaves";
+import StaffScholarship from "./pages/StaffScholarship";
 import StudentLeaveRequests from "./pages/StudentLeaveRequests";
 import StudentLeaveRequest from "./pages/StudentLeaveRequest";
 
@@ -42,6 +45,8 @@ import StudentAttendance from "./pages/StudentAttendance";
 import StudentMaterials from "./pages/StudentMaterials";
 import StudentTimetable from "./pages/StudentTimetable";
 import StudentAnnouncements from "./pages/StudentAnnouncements";
+import StudentScholarship from "./pages/StudentScholarship";
+import StudentFinance from "./pages/StudentFinance";
 import AdminTimetable from "./pages/AdminTimetable";
 import AdminStudentTimetable from "./pages/AdminStudentTimetable";
 import AdminStaffTimetable from "./pages/AdminStaffTimetable";
@@ -228,6 +233,14 @@ function App() {
           }
         />
         <Route
+          path="/admin/fee-scholarships"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminFinanceManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/discipline"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
@@ -248,6 +261,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminSettings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/scholarships"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminScholarship />
             </ProtectedRoute>
           }
         />
@@ -332,6 +353,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/staff/scholarships"
+          element={
+            <ProtectedRoute allowedRoles={["staff"]}>
+              <StaffScholarship />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/student"
@@ -394,6 +423,22 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentAnnouncements />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/scholarships"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentScholarship />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/finance"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentFinance />
             </ProtectedRoute>
           }
         />
