@@ -25,6 +25,13 @@ const userSchema = new mongoose.Schema({
   nationality: String,
   emergencyContact: String,
   medicalConditions: String,
+  
+  // Enhanced Student Details
+  aadhaarNumber: String,
+  emisNumber: String,
+  casteCategory: { type: String, enum: ['OC', 'BC', 'MBC', 'SC', 'ST', ''] },
+  
+  // Parent/Guardian Details
   fatherName: String,
   fatherOccupation: String,
   fatherPhone: String,
@@ -33,6 +40,37 @@ const userSchema = new mongoose.Schema({
   motherOccupation: String,
   motherPhone: String,
   motherEmail: String,
+  guardianName: String,
+  guardianContact: String,
+  
+  // Address Details
+  permanentAddress: String,
+  currentAddress: String,
+  city: String,
+  district: String,
+  state: String,
+  pincode: String,
+  
+  // Academic Details
+  previousSchool: String,
+  previousClass: String,
+  mediumOfInstruction: String,
+  secondLanguage: String,
+  
+  // Transport Details
+  busRoute: String,
+  boardingPoint: String,
+  dropPoint: String,
+  
+  // Hostel Details
+  roomNumber: String,
+  wardenName: String,
+  messType: String,
+  parentConsentForm: Boolean,
+  
+  // Auto-generated fields
+  studentId: String,
+  rfidCode: String,
   // Staff-specific fields
   gender: String,
   dob: Date,
@@ -50,7 +88,12 @@ const userSchema = new mongoose.Schema({
     uploadDate: { type: Date, default: Date.now }
   },
   documents: [{
-    type: { type: String, enum: ['idProof', 'certification', 'experience', 'resume', 'other'] },
+    type: { 
+      type: String, 
+      enum: ['birthCertificate', 'aadhaarCard', 'communityCertificate', 'incomeCertificate', 
+             'passportPhoto', 'previousMarksheet', 'transferCertificate', 'bankPassbook',
+             'idProof', 'certification', 'experience', 'resume', 'other'] 
+    },
     name: String,
     filename: String,
     data: String, // base64 encoded for images/small files

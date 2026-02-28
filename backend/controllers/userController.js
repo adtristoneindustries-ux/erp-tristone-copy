@@ -25,11 +25,21 @@ const upload = multer({
 exports.createUser = async (req, res) => {
   try {
     const userData = { ...req.body };
+    
+    // Auto-generate staff ID
     if (userData.role === "staff" && !userData.staffId) {
       const year = new Date().getFullYear();
       const count = (await User.countDocuments({ role: "staff" })) + 1;
       userData.staffId = `ST-${year}-${String(count).padStart(3, "0")}`;
     }
+    
+    // Auto-generate student ID
+    if (userData.role === "student" && !userData.studentId) {
+      const year = new Date().getFullYear();
+      const count = (await User.countDocuments({ role: "student" })) + 1;
+      userData.studentId = `STU-${year}-${String(count).padStart(4, "0")}`;
+    }
+    
     const user = await User.create(userData);
 
     if (user.role === "student") {

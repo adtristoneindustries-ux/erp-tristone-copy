@@ -19,6 +19,7 @@ import AdminMarks from "./pages/AdminMarks";
 import AdminAnnouncements from "./pages/AdminAnnouncements";
 import AdminLeaves from "./pages/AdminLeaves";
 import AdminFeedback from "./pages/AdminFeedback";
+import StaffStudents from "./pages/StaffStudents";
 import StaffDashboard from "./pages/StaffDashboard";
 import StaffMarks from "./pages/StaffMarks";
 import StaffAttendance from "./pages/StaffAttendance";
@@ -231,6 +232,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["staff"]}>
               <StaffDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/students"
+          element={
+            <ProtectedRoute allowedRoles={["staff"]}>
+              <StaffStudents />
             </ProtectedRoute>
           }
         />

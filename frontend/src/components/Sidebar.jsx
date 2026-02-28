@@ -28,6 +28,7 @@ const Sidebar = () => {
 
   const staffLinks = [
     { to: '/staff', icon: Home, label: 'Dashboard' },
+    { to: '/staff/students', icon: Users, label: 'My Students' },
     { to: '/staff/attendance', icon: ClipboardList, label: 'Mark Attendance' },
     { to: '/staff/my-attendance', icon: Calendar, label: 'My Attendance' },
     { to: '/staff/marks', icon: Award, label: 'Marks' },
