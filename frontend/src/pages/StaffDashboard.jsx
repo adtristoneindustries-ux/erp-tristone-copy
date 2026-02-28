@@ -18,6 +18,8 @@ import {
   Plus,
   Eye,
   UserX,
+  Edit2,
+  Trash2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
@@ -29,8 +31,9 @@ import {
   materialAPI,
   markAPI,
   attendanceAPI,
-  dashboardAPI,
-} from "../services/api";
+  examAPI,
+  dashboardAPI,} from "../services/api";
+import { toast } from 'react-hot-toast';
 
 const StaffDashboard = () => {
   const { user } = useContext(AuthContext);
@@ -47,7 +50,9 @@ const StaffDashboard = () => {
   const [monthlyAttendance, setMonthlyAttendance] = useState(0);
   const [averageClassStrength, setAverageClassStrength] = useState(0);
   const [recentMarkUpdates, setRecentMarkUpdates] = useState([]);
+  const [myExamSchedules, setMyExamSchedules] = useState([]);
   const [todaySchedule, setTodaySchedule] = useState([]);
+
 
   useEffect(() => {
     fetchDashboardData();
@@ -113,7 +118,45 @@ const StaffDashboard = () => {
         console.error("Error fetching announcements:", error);
       }
 
-      // Calculate average class strength from recent attendance data
+      // Fetch my exam schedules (only created by current user)
+      try {
+        const examsRes = await examAPI.getExams();
+        const exams = examsRes.data;
+        
+        const grouped = {};
+        exams.forEach(exam => {
+          // Show all exams, not just current user's
+          if (!grouped[exam.examName]) {
+            grouped[exam.examName] = {
+              examName: exam.examName,
+              exams: [],
+              startDate: exam.date,
+              endDate: exam.date,
+              class: exam.class,
+              createdBy: exam.createdBy
+            };
+          }
+          grouped[exam.examName].exams.push(exam);
+          
+          const examDate = new Date(exam.date);
+          if (examDate < new Date(grouped[exam.examName].startDate)) {
+            grouped[exam.examName].startDate = exam.date;
+          }
+          if (examDate > new Date(grouped[exam.examName].endDate)) {
+            grouped[exam.examName].endDate = exam.date;
+          }
+        });
+
+        const schedules = Object.values(grouped).sort((a, b) => {
+          const aTime = Math.max(...a.exams.map(e => new Date(e.updatedAt || e.createdAt).getTime()));
+          const bTime = Math.max(...b.exams.map(e => new Date(e.updatedAt || e.createdAt).getTime()));
+          return bTime - aTime;
+        }).slice(0, 3);
+        
+        setMyExamSchedules(schedules);
+      } catch (error) {
+        console.error("Error fetching exam schedules:", error);
+      }
       try {
         const attendanceRes = await attendanceAPI.getAttendance({
           teacherId: user?.id,
@@ -131,6 +174,8 @@ const StaffDashboard = () => {
       } catch (error) {
         console.error("Error calculating class strength:", error);
       }
+
+
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
       // Set default values on error
@@ -143,6 +188,27 @@ const StaffDashboard = () => {
       setRecentMarkUpdates([]);
     }
   };
+
+
+
+  const handleEditSchedule = (schedule) => {
+    window.location.href = '/staff/exam-schedule';
+  };
+
+  const handleDeleteSchedule = async (schedule) => {
+    if (!window.confirm(`Delete ${schedule.examName}?`)) return;
+
+    try {
+      for (const exam of schedule.exams) {
+        await examAPI.deleteExam(exam._id);
+      }
+      toast.success('Schedule deleted successfully');
+      fetchDashboardData();
+    } catch (error) {
+      toast.error('Failed to delete schedule');
+    }
+  };
+
 
   const quickActions = [
     {
@@ -162,6 +228,12 @@ const StaffDashboard = () => {
       icon: FileText,
       link: "/staff/materials",
       color: "bg-purple-500",
+    },
+    {
+      title: "Exam Schedule",
+      icon: Calendar,
+      link: "/staff/exam-schedule",
+      color: "bg-orange-500",
     },
   ];
 
@@ -281,24 +353,67 @@ const StaffDashboard = () => {
             </div>
           </div>
 
-          {/* Quick Shortcuts */}
+          {/* My Exam Schedules Section */}
           <div className="mb-6">
-            <h2 className="text-lg font-semibold mb-4">Quick Shortcuts</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {quickShortcuts.map((shortcut, idx) => (
-                <Link
-                  key={idx}
-                  to={shortcut.link}
-                  className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-all duration-200 flex items-center"
-                >
-                  <div
-                    className={`bg-${shortcut.color}-500 p-3 rounded-full mr-4`}
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Exam Schedules ({myExamSchedules.length})</h2>
+            </div>
+            <div className="bg-white rounded-lg shadow-md p-4">
+              {myExamSchedules.length > 0 ? (
+                <div className="space-y-4">
+                  {myExamSchedules.map((schedule, idx) => (
+                    <div key={idx} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-800">{schedule.examName}</h3>
+                          <p className="text-sm text-gray-600 mt-1">
+                            Class {schedule.class?.className || 'N/A'} - {schedule.class?.section || 'N/A'}
+                          </p>
+                          <p className="text-sm text-gray-500 mt-1">
+                            {new Date(schedule.startDate).toLocaleDateString()} - {new Date(schedule.endDate).toLocaleDateString()}
+                          </p>
+                          <span className={`inline-block text-xs px-2 py-1 rounded-full mt-2 ${
+                            schedule.createdBy?._id === user?.id 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            Created by {schedule.createdBy?._id === user?.id ? 'me (Staff)' : `${schedule.createdBy?.name || 'Unknown'} (${schedule.createdBy?.role === 'admin' ? 'Admin' : 'Staff'})`}
+                          </span>
+                        </div>
+                        {schedule.createdBy?._id === user?.id && (
+                          <div className="flex gap-2 ml-4">
+                            <button
+                              onClick={() => handleEditSchedule(schedule)}
+                              className="flex items-center gap-1 bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded text-sm transition-colors"
+                            >
+                              <Edit2 size={14} />
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteSchedule(schedule)}
+                              className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded text-sm transition-colors"
+                            >
+                              <Trash2 size={14} />
+                              Delete
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Calendar size={48} className="mx-auto text-gray-400 mb-3" />
+                  <p className="text-gray-500">No exam schedules created yet</p>
+                  <Link
+                    to="/staff/exam-schedule"
+                    className="inline-block mt-2 text-blue-600 hover:text-blue-800 text-sm"
                   >
-                    <shortcut.icon size={20} className="text-white" />
-                  </div>
-                  <span className="font-medium">{shortcut.title}</span>
-                </Link>
-              ))}
+                    Create your first schedule
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
 

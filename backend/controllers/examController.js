@@ -11,7 +11,13 @@ exports.getExams = async (req, res) => {
 
     if (req.user.role === 'student') {
       const student = await User.findById(req.user.id);
-      filter.class = student.class;
+      if (student.class) {
+        // Find class by className
+        const classDoc = await Class.findOne({ className: student.class });
+        if (classDoc) {
+          filter.class = classDoc._id;
+        }
+      }
     } else if (classId) {
       filter.class = classId;
     }
@@ -25,13 +31,14 @@ exports.getExams = async (req, res) => {
 
     const exams = await Exam.find(filter)
       .populate('subject', 'name code')
-      .populate('class', 'name section')
+      .populate('class', 'className section')
       .populate('invigilators', 'name email')
-      .populate('createdBy', 'name')
-      .sort({ date: -1, createdAt: -1 });
+      .populate('createdBy', '_id name email')
+      .sort({ date: 1, startTime: 1 });
 
     res.json(exams);
   } catch (error) {
+    console.error('Error fetching exams:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -41,9 +48,9 @@ exports.getExam = async (req, res) => {
   try {
     const exam = await Exam.findById(req.params.id)
       .populate('subject', 'name code')
-      .populate('class', 'name section')
+      .populate('class', 'className section')
       .populate('invigilators', 'name email phone')
-      .populate('createdBy', 'name');
+      .populate('createdBy', '_id name email');
 
     if (!exam) {
       return res.status(404).json({ message: 'Exam not found' });
@@ -51,6 +58,7 @@ exports.getExam = async (req, res) => {
 
     res.json(exam);
   } catch (error) {
+    console.error('Error fetching exam:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -119,9 +127,9 @@ exports.createExam = async (req, res) => {
     
     const populatedExam = await Exam.findById(exam._id)
       .populate('subject', 'name code')
-      .populate('class', 'name section')
+      .populate('class', 'className section')
       .populate('invigilators', 'name email')
-      .populate('createdBy', 'name');
+      .populate('createdBy', '_id name email');
 
     // Emit socket event
     if (req.app.get('io')) {
@@ -143,8 +151,12 @@ exports.updateExam = async (req, res) => {
       return res.status(404).json({ message: 'Exam not found' });
     }
 
-    // Staff can only update their own created exams
-    if (req.user.role === 'staff' && exam.createdBy.toString() !== req.user.id) {
+    // Admin can update any exam, creator can update their own
+    if (req.user.role === 'admin') {
+      // Admin access granted
+    } else if (exam.createdBy.toString() === req.user.id) {
+      // Creator access granted
+    } else {
       return res.status(403).json({ message: 'Not authorized to update this exam' });
     }
 
@@ -176,9 +188,9 @@ exports.updateExam = async (req, res) => {
 
     const updatedExam = await Exam.findById(exam._id)
       .populate('subject', 'name code')
-      .populate('class', 'name section')
+      .populate('class', 'className section')
       .populate('invigilators', 'name email')
-      .populate('createdBy', 'name');
+      .populate('createdBy', '_id name email');
 
     // Emit socket event
     if (req.app.get('io')) {
@@ -194,14 +206,25 @@ exports.updateExam = async (req, res) => {
 // Delete exam
 exports.deleteExam = async (req, res) => {
   try {
+    console.log('Delete request - User:', req.user.id, 'Role:', req.user.role);
+    
     const exam = await Exam.findById(req.params.id);
 
     if (!exam) {
       return res.status(404).json({ message: 'Exam not found' });
     }
 
-    // Staff can only delete their own created exams
-    if (req.user.role === 'staff' && exam.createdBy.toString() !== req.user.id) {
+    console.log('Exam createdBy:', exam.createdBy.toString());
+    console.log('User ID:', req.user.id);
+    console.log('User role:', req.user.role);
+
+    // Admin can delete any exam, creator can delete their own
+    if (req.user.role === 'admin') {
+      console.log('Admin access granted');
+    } else if (exam.createdBy.toString() === req.user.id) {
+      console.log('Creator access granted');
+    } else {
+      console.log('Access denied');
       return res.status(403).json({ message: 'Not authorized to delete this exam' });
     }
 
@@ -214,6 +237,7 @@ exports.deleteExam = async (req, res) => {
 
     res.json({ message: 'Exam deleted successfully' });
   } catch (error) {
+    console.error('Delete error:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -221,25 +245,35 @@ exports.deleteExam = async (req, res) => {
 // Get upcoming exams
 exports.getUpcomingExams = async (req, res) => {
   try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
     const filter = {
-      date: { $gte: new Date() },
+      date: { $gte: today },
       status: 'Scheduled'
     };
 
     if (req.user.role === 'student') {
       const student = await User.findById(req.user.id);
-      filter.class = student.class;
+      if (student.class) {
+        // Find class by className
+        const classDoc = await Class.findOne({ className: student.class });
+        if (classDoc) {
+          filter.class = classDoc._id;
+        }
+      }
     }
 
     const exams = await Exam.find(filter)
       .populate('subject', 'name code')
-      .populate('class', 'name section')
+      .populate('class', 'className section')
       .populate('invigilators', 'name')
       .sort({ date: 1, startTime: 1 })
       .limit(10);
 
     res.json(exams);
   } catch (error) {
+    console.error('Error fetching upcoming exams:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -251,20 +285,29 @@ exports.getExamStats = async (req, res) => {
     
     if (req.user.role === 'student') {
       const student = await User.findById(req.user.id);
-      filter.class = student.class;
+      if (student.class) {
+        const classDoc = await Class.findOne({ className: student.class });
+        if (classDoc) {
+          filter.class = classDoc._id;
+        }
+      }
     }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     const total = await Exam.countDocuments(filter);
     const scheduled = await Exam.countDocuments({ ...filter, status: 'Scheduled' });
     const completed = await Exam.countDocuments({ ...filter, status: 'Completed' });
     const upcoming = await Exam.countDocuments({
       ...filter,
-      date: { $gte: new Date() },
+      date: { $gte: today },
       status: 'Scheduled'
     });
 
     res.json({ total, scheduled, completed, upcoming });
   } catch (error) {
+    console.error('Error fetching exam stats:', error);
     res.status(500).json({ message: error.message });
   }
 };
