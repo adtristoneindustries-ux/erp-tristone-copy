@@ -23,13 +23,12 @@ const Sidebar = () => {
     { to: '/admin/timetable', icon: Calendar, label: 'Timetable Module' },
     { to: '/admin/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
     { to: '/admin/announcements', icon: Bell, label: 'Announcements' },
-    { to: '/admin/feedback', icon: MessageSquare, label: 'Feedback' }
+    { to: '/admin/feedback', icon: MessageSquare, label: 'Feedback' },
     { to: '/admin/finance', icon: DollarSign, label: 'Finance Management' },
     { to: '/admin/fee-scholarships', icon: DollarSign, label: 'Fee & Scholarships' },
     { to: '/admin/scholarships', icon: Award, label: 'Scholarships' },
     { to: '/admin/discipline', icon: AlertTriangle, label: 'Discipline Oversight' },
     { to: '/admin/events', icon: Calendar, label: 'Events Management' },
-    { to: '/admin/announcements', icon: Bell, label: 'Announcements' },
     { to: '/admin/settings', icon: Settings, label: 'Settings' }
   ];
 
@@ -87,6 +86,7 @@ const Sidebar = () => {
     { to: '/student/timetable', icon: Calendar, label: 'Timetable' },
     { to: '/student/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
     { to: '/student/digital-classroom', icon: Monitor, label: 'Digital Classroom' },
+    { to: '/student/materials', icon: FileText, label: 'Materials', hasNotification: newMaterialsCount > 0 },
     { to: '/student/medical-reports', icon: Activity, label: 'Medical Reports' },
     { to: '/student/feedback', icon: MessageSquare, label: 'Feedback' },
     { to: '/student/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },

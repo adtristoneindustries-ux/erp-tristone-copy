@@ -1,68 +1,53 @@
 import { createContext, useState, useEffect } from 'react';
-import api from '../services/api';
 
 export const SettingsContext = createContext();
 
 export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState({
-    schoolName: 'School ERP System',
-    tagline: 'Manage your school efficiently',
+    schoolName: 'School ERP',
     logoUrl: '',
-    faviconUrl: '',
-    address: '',
-    email: '',
-    phone: '',
-    primaryColor: '#3B82F6',
     sidebarColor: '#2563EB',
-    buttonColor: '#3B82F6',
-    loginBackgroundUrl: '',
-    welcomeMessage: 'Welcome Back!',
-    enableStudentLogin: true,
-    enableStaffLogin: true,
-    enableNotifications: true,
-    academicYear: '2024-2025'
+    primaryColor: '#3B82F6',
+    theme: 'light'
   });
-  const [loading, setLoading] = useState(true);
 
+  // Load settings from localStorage on mount
   useEffect(() => {
-    fetchSettings();
+    const savedSettings = localStorage.getItem('schoolSettings');
+    if (savedSettings) {
+      setSettings(JSON.parse(savedSettings));
+    }
   }, []);
 
-  const fetchSettings = async () => {
-    try {
-      const { data } = await api.get('/settings');
-      setSettings(data);
-      applySettings(data);
-    } catch (error) {
-      console.error('Error fetching settings:', error);
-    } finally {
-      setLoading(false);
-    }
+  // Save settings to localStorage whenever they change
+  const updateSettings = (newSettings) => {
+    const updatedSettings = { ...settings, ...newSettings };
+    setSettings(updatedSettings);
+    localStorage.setItem('schoolSettings', JSON.stringify(updatedSettings));
   };
 
-  const applySettings = (data) => {
-    if (data.faviconUrl) {
-      let link = document.querySelector("link[rel~='icon']");
-      if (!link) {
-        link = document.createElement('link');
-        link.rel = 'icon';
-        document.head.appendChild(link);
-      }
-      link.href = data.faviconUrl;
-    }
-
-    document.documentElement.style.setProperty('--primary-color', data.primaryColor);
-    document.documentElement.style.setProperty('--sidebar-color', data.sidebarColor);
-    document.documentElement.style.setProperty('--button-color', data.buttonColor);
-    document.title = data.schoolName || 'School ERP System';
-  };
-
+  // Refresh settings from localStorage or API
   const refreshSettings = async () => {
-    await fetchSettings();
+    try {
+      // Try to get from API first (if available)
+      const response = await fetch('/api/settings');
+      if (response.ok) {
+        const data = await response.json();
+        const updatedSettings = { ...settings, ...data };
+        setSettings(updatedSettings);
+        localStorage.setItem('schoolSettings', JSON.stringify(updatedSettings));
+      }
+    } catch (error) {
+      // Fallback to localStorage
+      const savedSettings = localStorage.getItem('schoolSettings');
+      if (savedSettings) {
+        setSettings(JSON.parse(savedSettings));
+      }
+    }
   };
 
   return (
-    <SettingsContext.Provider value={{ settings, loading, refreshSettings }}>
+    <SettingsContext.Provider value={{ settings, updateSettings, refreshSettings }}>
       {children}
     </SettingsContext.Provider>
   );

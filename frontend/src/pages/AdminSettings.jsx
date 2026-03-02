@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { Settings as SettingsIcon, Upload, Save, Image, Palette, Globe, Shield, CheckCircle, RotateCcw, Trash2 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
-import api from '../services/api';
+import { settingsAPI } from '../services/api';
 import { SettingsContext } from '../context/SettingsContext';
 
 const AdminSettings = () => {
@@ -36,7 +36,7 @@ const AdminSettings = () => {
 
   const fetchSettings = async () => {
     try {
-      const { data } = await api.get('/settings');
+      const { data } = await settingsAPI.getSettings();
       setFormData(data);
     } catch (error) {
       console.error('Error fetching settings:', error);
@@ -99,9 +99,17 @@ const AdminSettings = () => {
     setMessage('');
 
     try {
-      await api.put('/settings', formData);
-      setMessage('Settings saved successfully!');
+      // Save to localStorage immediately
+      localStorage.setItem('schoolSettings', JSON.stringify(formData));
+      
+      // Then save to API
+      await settingsAPI.updateSettings(formData);
+      
+      // Refresh settings context
       await refreshSettings();
+      
+      setMessage('Settings saved successfully!');
+      
       setTimeout(() => {
         setMessage('');
         window.location.reload();
