@@ -20,6 +20,8 @@ import AdminClasses from "./pages/AdminClasses";
 import AdminMarks from "./pages/AdminMarks";
 import AdminAnnouncements from "./pages/AdminAnnouncements";
 import AdminLeaves from "./pages/AdminLeaves";
+import AdminFeedback from "./pages/AdminFeedback";
+import StaffStudents from "./pages/StaffStudents";
 import AdminFinance from "./pages/AdminFinance";
 import AdminFinanceManagement from "./pages/AdminFinanceManagement";
 import AdminDiscipline from "./pages/AdminDiscipline";
@@ -31,20 +33,29 @@ import StaffProfile from "./pages/StaffProfile";
 import StaffMarks from "./pages/StaffMarks";
 import StaffAttendance from "./pages/StaffAttendance";
 import StaffMyAttendance from "./pages/StaffMyAttendance";
-import StaffMaterials from "./pages/StaffMaterials";
 import StaffAnnouncements from "./pages/StaffAnnouncements";
 import StaffLeaves from "./pages/StaffLeaves";
 import StaffStudentLeaves from "./pages/StaffStudentLeaves";
 import StaffScholarship from "./pages/StaffScholarship";
 import StudentLeaveRequests from "./pages/StudentLeaveRequests";
 import StudentLeaveRequest from "./pages/StudentLeaveRequest";
+import StaffHomework from "./pages/StaffHomework";
+import StudentHomework from "./pages/StudentHomework";
+import StaffFeedback from "./pages/StaffFeedback";
+import StaffDigitalClassroom from "./pages/StaffDigitalClassroom";
+import StudentDigitalClassroom from "./pages/StudentDigitalClassroom";
 
 import StudentDashboard from "./pages/StudentDashboard";
+import StudentProfile from "./pages/StudentProfile";
 import StudentMarks from "./pages/StudentMarks";
 import StudentAttendance from "./pages/StudentAttendance";
-import StudentMaterials from "./pages/StudentMaterials";
 import StudentTimetable from "./pages/StudentTimetable";
 import StudentAnnouncements from "./pages/StudentAnnouncements";
+import StudentCafeteria from "./pages/StudentCafeteria";
+import StudentTransport from "./pages/StudentTransport";
+import StudentHostel from "./pages/StudentHostel";
+import StudentMedicalReports from "./pages/StudentMedicalReports";
+import StudentFeedback from "./pages/StudentFeedback";
 import StudentScholarship from "./pages/StudentScholarship";
 import StudentFinance from "./pages/StudentFinance";
 import AdminTimetable from "./pages/AdminTimetable";
@@ -52,6 +63,9 @@ import AdminStudentTimetable from "./pages/AdminStudentTimetable";
 import AdminStaffTimetable from "./pages/AdminStaffTimetable";
 import StaffTimetable from "./pages/StaffTimetable";
 import TimetableModule from "./pages/TimetableModule";
+import AdminExamSchedule from "./pages/AdminExamSchedule";
+import StaffExamSchedule from "./pages/StaffExamSchedule";
+import StudentExamSchedule from "./pages/StudentExamSchedule";
 import NotFound from "./pages/NotFound";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -225,6 +239,10 @@ function App() {
           }
         />
         <Route
+          path="/admin/feedback"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminFeedback />
           path="/admin/finance"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
@@ -233,6 +251,10 @@ function App() {
           }
         />
         <Route
+          path="/admin/exam-schedule"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminExamSchedule />
           path="/admin/fee-scholarships"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
@@ -282,10 +304,19 @@ function App() {
           }
         />
         <Route
+          path="/staff/students"
           path="/staff/profile"
           element={
             <ProtectedRoute allowedRoles={["staff"]}>
               <StaffProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/marks"
+          element={
+            <ProtectedRoute allowedRoles={["staff"]}>
+              <StaffStudents />
             </ProtectedRoute>
           }
         />
@@ -313,14 +344,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/staff/materials"
-          element={
-            <ProtectedRoute allowedRoles={["staff"]}>
-              <StaffMaterials />
-            </ProtectedRoute>
-          }
-        />
+
         <Route
           path="/staff/announcements"
           element={
@@ -354,6 +378,34 @@ function App() {
           }
         />
         <Route
+          path="/staff/homework"
+          element={
+            <ProtectedRoute allowedRoles={["staff"]}>
+              <StaffHomework />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/feedback"
+          element={
+            <ProtectedRoute allowedRoles={["staff"]}>
+              <StaffFeedback />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/digital-classroom"
+          element={
+            <ProtectedRoute allowedRoles={["staff"]}>
+              <StaffDigitalClassroom />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/exam-schedule"
+          element={
+            <ProtectedRoute allowedRoles={["staff"]}>
+              <StaffExamSchedule />
           path="/staff/scholarships"
           element={
             <ProtectedRoute allowedRoles={["staff"]}>
@@ -367,6 +419,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/profile"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentProfile />
             </ProtectedRoute>
           }
         />
@@ -386,14 +446,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/student/materials"
-          element={
-            <ProtectedRoute allowedRoles={["student"]}>
-              <StudentMaterials />
-            </ProtectedRoute>
-          }
-        />
+
         <Route
           path="/student/timetable"
           element={
@@ -427,6 +480,10 @@ function App() {
           }
         />
         <Route
+          path="/student/homework"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentHomework />
           path="/student/scholarships"
           element={
             <ProtectedRoute allowedRoles={["student"]}>
@@ -435,6 +492,58 @@ function App() {
           }
         />
         <Route
+          path="/student/cafeteria"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentCafeteria />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/transport"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentTransport />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/hostel"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentHostel />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/medical-reports"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentMedicalReports />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/feedback"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentFeedback />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/digital-classroom"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentDigitalClassroom />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/exam-schedule"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentExamSchedule />
           path="/student/finance"
           element={
             <ProtectedRoute allowedRoles={["student"]}>

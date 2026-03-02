@@ -53,6 +53,7 @@ export const authAPI = {
 export const userAPI = {
   getUsers: (params) => API.get('/users', { params }),
   getUser: (id) => API.get(`/users/${id}`),
+  getUserById: (id) => API.get(`/users/${id}`),
   createUser: (data) => API.post('/users', data),
   createStaffWithDocs: (formData) => {
     return axios.create({
@@ -169,6 +170,51 @@ export const dashboardAPI = {
   getStaffStats: () => API.get('/dashboard/staff')
 };
 
+export const cafeteriaAPI = {
+  getWeeklyMenu: () => API.get('/cafeteria/menu'),
+  getWallet: () => API.get('/cafeteria/wallet'),
+  addMoney: (data) => API.post('/cafeteria/wallet/add', data),
+  getTransactionHistory: () => API.get('/cafeteria/wallet/history'),
+  getTodaySpecials: () => API.get('/cafeteria/specials'),
+  placeOrder: (data) => API.post('/cafeteria/order', data),
+  getOrderHistory: () => API.get('/cafeteria/orders')
+};
+
+export const transportAPI = {
+  getMyTransport: () => API.get('/transport/my-transport'),
+  getAllRoutes: () => API.get('/transport/routes'),
+  trackBusLocation: () => API.get('/transport/track'),
+  assignTransport: (data) => API.post('/transport/assign', data),
+  createRoute: (data) => API.post('/transport/routes', data),
+  updateRoute: (id, data) => API.put(`/transport/routes/${id}`, data)
+};
+
+export const hostelAPI = {
+  getMyHostel: () => API.get('/hostel/my-hostel'),
+  raiseIssue: (data) => API.post('/hostel/issues', data),
+  getMyIssues: () => API.get('/hostel/my-issues'),
+  getAllHostels: () => API.get('/hostel'),
+  createHostel: (data) => API.post('/hostel', data),
+  updateHostel: (id, data) => API.put(`/hostel/${id}`, data),
+  getAllIssues: () => API.get('/hostel/issues/all'),
+  updateIssueStatus: (id, data) => API.put(`/hostel/issues/${id}`, data)
+};
+
+export const feedbackAPI = {
+  sendFeedback: (data) => API.post('/feedback', data),
+  getReceivedFeedback: () => API.get('/feedback/received'),
+  getSentFeedback: () => API.get('/feedback/sent'),
+  markAsRead: () => API.put('/feedback/mark-read')
+};
+
+export const examAPI = {
+  getExams: (params) => API.get('/exams', { params }),
+  getExam: (id) => API.get(`/exams/${id}`),
+  createExam: (data) => API.post('/exams', data),
+  updateExam: (id, data) => API.put(`/exams/${id}`, data),
+  deleteExam: (id) => API.delete(`/exams/${id}`),
+  getUpcomingExams: () => API.get('/exams/upcoming'),
+  getExamStats: () => API.get('/exams/stats')
 export const disciplineAPI = {
   addDisciplineRecord: (data) => API.post('/discipline', data),
   getDisciplineRecords: (params) => API.get('/discipline', { params }),

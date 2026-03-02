@@ -142,7 +142,7 @@ const StudentDashboard = () => {
           <div className="mb-4 lg:mb-6">
             <h1 className="text-xl lg:text-2xl font-bold">Welcome, {user?.name}!</h1>
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 text-sm lg:text-base text-gray-600">
-              <span className="truncate">Class: {user?.class}</span>
+              <span className="truncate">Class: {user?.class} - {user?.section}</span>
               <span className="truncate">Roll: {user?.rollNumber}</span>
               <span className="truncate">{user?.email}</span>
             </div>

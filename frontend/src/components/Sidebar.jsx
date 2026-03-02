@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, DollarSign, AlertTriangle, Settings } from 'lucide-react';
+import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck , DollarSign, AlertTriangle, Settings } from 'lucide-react';
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { SettingsContext } from '../context/SettingsContext';
@@ -21,6 +21,9 @@ const Sidebar = () => {
     { to: '/admin/marks', icon: Award, label: 'Marks' },
     { to: '/admin/leaves', icon: Calendar, label: 'Leave Requests' },
     { to: '/admin/timetable', icon: Calendar, label: 'Timetable Module' },
+    { to: '/admin/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
+    { to: '/admin/announcements', icon: Bell, label: 'Announcements' },
+    { to: '/admin/feedback', icon: MessageSquare, label: 'Feedback' }
     { to: '/admin/finance', icon: DollarSign, label: 'Finance Management' },
     { to: '/admin/fee-scholarships', icon: DollarSign, label: 'Fee & Scholarships' },
     { to: '/admin/scholarships', icon: Award, label: 'Scholarships' },
@@ -32,16 +35,21 @@ const Sidebar = () => {
 
   const staffLinks = [
     { to: '/staff', icon: Home, label: 'Dashboard' },
+    { to: '/staff/students', icon: Users, label: 'My Students' },
     { to: '/staff/profile', icon: Users, label: 'My Profile' },
     { to: '/staff/attendance', icon: ClipboardList, label: 'Mark Attendance' },
     { to: '/staff/my-attendance', icon: Calendar, label: 'My Attendance' },
     { to: '/staff/marks', icon: Award, label: 'Marks' },
+    { to: '/staff/homework', icon: FileText, label: 'Homework' },
     { to: '/staff/leaves', icon: Calendar, label: 'My Leaves' },
     { to: '/staff/student-leaves', icon: ClipboardList, label: 'Student Leaves' },
+    { to: '/staff/digital-classroom', icon: Monitor, label: 'Digital Classroom' },
+    { to: '/staff/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
     { to: '/staff/scholarships', icon: Award, label: 'Scholarships' },
     { to: '/staff/materials', icon: FileText, label: 'Materials' },
     { to: '/staff/announcements', icon: Bell, label: 'Announcements' },
-    { to: '/staff/timetable', icon: Calendar, label: 'My Timetable' }
+    { to: '/staff/timetable', icon: Calendar, label: 'My Timetable' },
+    { to: '/staff/feedback', icon: MessageSquare, label: 'Feedback' }
   ];
 
   // Fetch new materials count for students
@@ -69,13 +77,21 @@ const Sidebar = () => {
 
   const studentLinks = [
     { to: '/student', icon: Home, label: 'Dashboard' },
+    { to: '/student/profile', icon: User, label: 'Profile' },
     { to: '/student/marks', icon: Award, label: 'My Marks' },
     { to: '/student/attendance', icon: ClipboardList, label: 'My Attendance' },
+    { to: '/student/homework', icon: FileText, label: 'Homework' },
     { to: '/student/leave-requests', icon: Calendar, label: 'Leave Requests' },
     { to: '/student/scholarships', icon: Award, label: 'Scholarships' },
     { to: '/student/finance', icon: DollarSign, label: 'Fee & Finance' },
     { to: '/student/timetable', icon: Calendar, label: 'Timetable' },
-    { to: '/student/materials', icon: FileText, label: 'Materials', hasNotification: newMaterialsCount > 0 },
+    { to: '/student/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
+    { to: '/student/digital-classroom', icon: Monitor, label: 'Digital Classroom' },
+    { to: '/student/medical-reports', icon: Activity, label: 'Medical Reports' },
+    { to: '/student/feedback', icon: MessageSquare, label: 'Feedback' },
+    { to: '/student/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },
+    { to: '/student/transport', icon: Bus, label: 'Transport' },
+    { to: '/student/hostel', icon: Building2, label: 'Hostel' },
     { to: '/student/announcements', icon: Bell, label: 'Announcements' }
   ];
 
