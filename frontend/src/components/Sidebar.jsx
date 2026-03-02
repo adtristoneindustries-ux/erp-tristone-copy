@@ -1,34 +1,42 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck } from 'lucide-react';
+import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck , DollarSign, AlertTriangle, Settings } from 'lucide-react';
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { SettingsContext } from '../context/SettingsContext';
 import { materialAPI } from '../services/api';
 
 const Sidebar = () => {
   const { user, logout } = useContext(AuthContext);
+  const { settings } = useContext(SettingsContext);
   const location = useLocation();
   const [newMaterialsCount, setNewMaterialsCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const adminLinks = [
     { to: '/admin', icon: Home, label: 'Dashboard' },
-    { to: '/admin/students', icon: Users, label: 'Students' },
-    { to: '/admin/staff', icon: Users, label: 'Staff' },
+    { to: '/admin/users', icon: Users, label: 'User Management' },
     { to: '/admin/subjects', icon: BookOpen, label: 'Subjects' },
     { to: '/admin/classes', icon: Users, label: 'Classes' },
-    { to: '/admin/attendance', icon: ClipboardList, label: 'Student Attendance' },
-    { to: '/admin/staff-attendance', icon: ClipboardList, label: 'Staff Attendance' },
+    { to: '/admin/attendance-management', icon: ClipboardList, label: 'Attendance Management' },
     { to: '/admin/marks', icon: Award, label: 'Marks' },
     { to: '/admin/leaves', icon: Calendar, label: 'Leave Requests' },
     { to: '/admin/timetable', icon: Calendar, label: 'Timetable Module' },
     { to: '/admin/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
     { to: '/admin/announcements', icon: Bell, label: 'Announcements' },
     { to: '/admin/feedback', icon: MessageSquare, label: 'Feedback' }
+    { to: '/admin/finance', icon: DollarSign, label: 'Finance Management' },
+    { to: '/admin/fee-scholarships', icon: DollarSign, label: 'Fee & Scholarships' },
+    { to: '/admin/scholarships', icon: Award, label: 'Scholarships' },
+    { to: '/admin/discipline', icon: AlertTriangle, label: 'Discipline Oversight' },
+    { to: '/admin/events', icon: Calendar, label: 'Events Management' },
+    { to: '/admin/announcements', icon: Bell, label: 'Announcements' },
+    { to: '/admin/settings', icon: Settings, label: 'Settings' }
   ];
 
   const staffLinks = [
     { to: '/staff', icon: Home, label: 'Dashboard' },
     { to: '/staff/students', icon: Users, label: 'My Students' },
+    { to: '/staff/profile', icon: Users, label: 'My Profile' },
     { to: '/staff/attendance', icon: ClipboardList, label: 'Mark Attendance' },
     { to: '/staff/my-attendance', icon: Calendar, label: 'My Attendance' },
     { to: '/staff/marks', icon: Award, label: 'Marks' },
@@ -37,6 +45,8 @@ const Sidebar = () => {
     { to: '/staff/student-leaves', icon: ClipboardList, label: 'Student Leaves' },
     { to: '/staff/digital-classroom', icon: Monitor, label: 'Digital Classroom' },
     { to: '/staff/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
+    { to: '/staff/scholarships', icon: Award, label: 'Scholarships' },
+    { to: '/staff/materials', icon: FileText, label: 'Materials' },
     { to: '/staff/announcements', icon: Bell, label: 'Announcements' },
     { to: '/staff/timetable', icon: Calendar, label: 'My Timetable' },
     { to: '/staff/feedback', icon: MessageSquare, label: 'Feedback' }
@@ -72,6 +82,8 @@ const Sidebar = () => {
     { to: '/student/attendance', icon: ClipboardList, label: 'My Attendance' },
     { to: '/student/homework', icon: FileText, label: 'Homework' },
     { to: '/student/leave-requests', icon: Calendar, label: 'Leave Requests' },
+    { to: '/student/scholarships', icon: Award, label: 'Scholarships' },
+    { to: '/student/finance', icon: DollarSign, label: 'Fee & Finance' },
     { to: '/student/timetable', icon: Calendar, label: 'Timetable' },
     { to: '/student/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
     { to: '/student/digital-classroom', icon: Monitor, label: 'Digital Classroom' },
@@ -120,17 +132,24 @@ const Sidebar = () => {
       )}
 
       {/* Sidebar */}
-      <div className={`
-        fixed left-0 top-0 h-full bg-blue-600 text-white overflow-y-auto z-40 transition-transform duration-300 ease-in-out shadow-2xl
-        w-64 lg:w-64
-        ${
-          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        }
-      `}>
+      <div 
+        className={`
+          fixed left-0 top-0 h-full text-white overflow-y-auto z-40 transition-transform duration-300 ease-in-out shadow-2xl
+          w-64 lg:w-64
+          ${
+            isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          }
+        `}
+        style={{ backgroundColor: settings.sidebarColor || '#2563EB' }}
+      >
         <div className="p-4 lg:p-6 border-b border-blue-500">
           <div className="flex items-center justify-between">
             <div className="pt-12 lg:pt-0">
-              <h1 className="text-xl font-bold">School ERP</h1>
+              {settings.logoUrl ? (
+                <img src={settings.logoUrl} alt={settings.schoolName} className="h-10 w-auto object-contain" />
+              ) : (
+                <h1 className="text-xl font-bold">{settings.schoolName}</h1>
+              )}
               <p className="text-xs text-blue-200 mt-1 font-medium">{user?.role?.toUpperCase()}</p>
             </div>
           </div>

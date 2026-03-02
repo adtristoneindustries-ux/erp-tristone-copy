@@ -14,5 +14,16 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Toaster position="top-right" />
       </SocketProvider>
     </AuthProvider>
+import { SettingsProvider } from "./context/SettingsContext";
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <SettingsProvider>
+      <AuthProvider>
+        <SocketProvider>
+          <App />
+        </SocketProvider>
+      </AuthProvider>
+    </SettingsProvider>
   </React.StrictMode>
 );

@@ -215,6 +215,15 @@ export const examAPI = {
   deleteExam: (id) => API.delete(`/exams/${id}`),
   getUpcomingExams: () => API.get('/exams/upcoming'),
   getExamStats: () => API.get('/exams/stats')
+export const disciplineAPI = {
+  addDisciplineRecord: (data) => API.post('/discipline', data),
+  getDisciplineRecords: (params) => API.get('/discipline', { params }),
+  getUserDisciplineRecords: (userId) => API.get(`/discipline/user/${userId}`)
+};
+
+export const settingsAPI = {
+  getSettings: () => API.get('/settings'),
+  updateSettings: (data) => API.put('/settings', data)
 };
 
 export default API;
