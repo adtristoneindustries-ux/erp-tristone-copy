@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminStudents from "./pages/AdminStudents";
 import AdminStaff from "./pages/AdminStaff";
+import AdminAddStaff from "./pages/AdminAddStaff";
 import AdminUserManagement from "./pages/AdminUserManagement";
 import AttendanceManagement from "./pages/AttendanceManagement";
 import AdminSubjects from "./pages/AdminSubjects";
@@ -140,6 +141,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminStaff />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/staff/add"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminAddStaff />
             </ProtectedRoute>
           }
         />

@@ -42,9 +42,15 @@ exports.createUser = async (req, res) => {
     
     const user = await User.create(userData);
 
+    // Emit real-time updates
     if (user.role === "student") {
       req.io.emit("studentUpdate", {
         studentId: user._id,
+        updatedData: user,
+      });
+    } else if (user.role === "staff") {
+      req.io.emit("staffUpdate", {
+        staffId: user._id,
         updatedData: user,
       });
     }
@@ -101,7 +107,9 @@ exports.updateUser = async (req, res) => {
 
     const updateData = { ...req.body };
     delete updateData.password;
-    delete updateData.role; // Prevent role changes
+    if (req.user.role !== 'admin') {
+      delete updateData.role; // Prevent role changes for non-admins
+    }
     
     const user = await User.findByIdAndUpdate(
       req.params.id, 
@@ -111,9 +119,15 @@ exports.updateUser = async (req, res) => {
     
     if (!user) return res.status(404).json({ message: "User not found" });
 
+    // Emit real-time updates for both student and staff
     if (user.role === "student") {
       req.io.emit("studentUpdate", {
         studentId: user._id,
+        updatedData: user,
+      });
+    } else if (user.role === "staff") {
+      req.io.emit("staffUpdate", {
+        staffId: user._id,
         updatedData: user,
       });
     }
@@ -129,10 +143,15 @@ exports.deleteUser = async (req, res) => {
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Emit real-time update for student deletion
+    // Emit real-time update for deletion
     if (user.role === "student") {
       req.io.emit("studentUpdate", {
         studentId: user._id,
+        deleted: true,
+      });
+    } else if (user.role === "staff") {
+      req.io.emit("staffUpdate", {
+        staffId: user._id,
         deleted: true,
       });
     }
@@ -198,6 +217,14 @@ exports.createStaffWithDocs = async (req, res) => {
     const user = await User.create(userData);
     const userResponse = user.toObject();
     delete userResponse.password;
+    
+    // Emit real-time update for staff creation
+    if (req.io) {
+      req.io.emit("staffUpdate", {
+        staffId: user._id,
+        updatedData: userResponse,
+      });
+    }
     
     res.status(201).json({
       user: userResponse,

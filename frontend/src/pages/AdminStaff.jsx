@@ -1,13 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Edit, Trash2, Plus, Search, Eye, X, Upload, FileText, Image } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import StaffDetailsModal from '../components/StaffDetailsModal';
+import { SocketContext } from '../context/SocketContext';
 import { userAPI } from '../services/api';
 import { useAlert } from '../hooks/useAlert';
 
 const AdminStaff = () => {
+  const navigate = useNavigate();
   const { showSuccess, showError } = useAlert();
+  const socket = useContext(SocketContext);
   const [staff, setStaff] = useState([]);
   const [filteredStaff, setFilteredStaff] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,7 +32,10 @@ const AdminStaff = () => {
   const [formData, setFormData] = useState({
     name: '', email: '', password: '', phone: '', gender: '', dob: '',
     role: 'Teacher', department: '', staffId: '', joiningDate: '', qualification: '',
-    address: '', loginAccess: true, permissionLevel: 'Staff', status: 'Active'
+    address: '', loginAccess: true, permissionLevel: 'Staff', status: 'Active',
+    panNumber: '', maritalStatus: '', designation: '', employmentType: '',
+    yearsOfExperience: '', previousInstitution: '', specialization: '',
+    basicSalary: '', pfNumber: '', esiNumber: '', uanNumber: ''
   });
 
   const [errors, setErrors] = useState({});
@@ -39,7 +46,8 @@ const AdminStaff = () => {
   const [collapsedSections, setCollapsedSections] = useState({
     basic: false,
     photo: false,
-    documents: false
+    documents: false,
+    additional: false
   });
   const [documentViewerOpen, setDocumentViewerOpen] = useState(false);
   const [viewingDocument, setViewingDocument] = useState(null);
@@ -52,6 +60,32 @@ const AdminStaff = () => {
   useEffect(() => {
     fetchStaff();
   }, []);
+  
+  useEffect(() => {
+    if (socket) {
+      console.log('Socket connected in AdminStaff');
+      
+      socket.on('staffUpdate', (data) => {
+        console.log('Staff update received:', data);
+        if (data.deleted) {
+          setStaff(prev => prev.filter(s => s._id !== data.staffId));
+        } else {
+          setStaff(prev => {
+            const exists = prev.find(s => s._id === data.staffId);
+            if (exists) {
+              return prev.map(s => s._id === data.staffId ? data.updatedData : s);
+            } else {
+              return [...prev, data.updatedData];
+            }
+          });
+        }
+      });
+      
+      return () => {
+        socket.off('staffUpdate');
+      };
+    }
+  }, [socket]);
 
   useEffect(() => {
     filterStaffData();
@@ -200,25 +234,19 @@ const AdminStaff = () => {
     setLoading(true);
     try {
       if (editingStaff) {
-        // For editing, use the old API (no document changes for now)
         const submitData = { ...formData, role: 'staff' };
         await userAPI.updateUser(editingStaff._id, submitData);
         showSuccess('Staff updated successfully');
       } else {
-        // For new staff, use the new API with documents
         const formDataToSend = new FormData();
-        
-        // Add staff data
         formDataToSend.append('userData', JSON.stringify({ ...formData, role: 'staff' }));
         
-        // Add passport photo
         if (passportPhoto) {
           formDataToSend.append('passportPhoto', passportPhoto);
         }
         
-        // Add documents
         const docTypes = [];
-        documents.forEach((doc, index) => {
+        documents.forEach((doc) => {
           formDataToSend.append('documents', doc.file);
           docTypes.push(doc.type);
         });
@@ -231,7 +259,7 @@ const AdminStaff = () => {
         showSuccess('Staff created successfully with documents');
       }
       
-      fetchStaff();
+      await fetchStaff();
       closeModal();
     } catch (error) {
       showError(error.response?.data?.message || 'Operation failed');
@@ -254,7 +282,34 @@ const AdminStaff = () => {
 
   const openEditModal = (staffMember) => {
     setEditingStaff(staffMember);
-    setFormData(staffMember);
+    setFormData({
+      name: staffMember.name || '',
+      email: staffMember.email || '',
+      password: '',
+      phone: staffMember.phone || '',
+      gender: staffMember.gender || '',
+      dob: staffMember.dob || '',
+      role: staffMember.role || 'Teacher',
+      department: staffMember.department || '',
+      staffId: staffMember.staffId || '',
+      joiningDate: staffMember.joiningDate || '',
+      qualification: staffMember.qualification || '',
+      address: staffMember.address || '',
+      loginAccess: staffMember.loginAccess !== undefined ? staffMember.loginAccess : true,
+      permissionLevel: staffMember.permissionLevel || 'Staff',
+      status: staffMember.status || 'Active',
+      panNumber: staffMember.panNumber || '',
+      maritalStatus: staffMember.maritalStatus || '',
+      designation: staffMember.designation || '',
+      employmentType: staffMember.employmentType || '',
+      yearsOfExperience: staffMember.yearsOfExperience || '',
+      previousInstitution: staffMember.previousInstitution || '',
+      specialization: staffMember.specialization || '',
+      basicSalary: staffMember.basicSalary || '',
+      pfNumber: staffMember.pfNumber || '',
+      esiNumber: staffMember.esiNumber || '',
+      uanNumber: staffMember.uanNumber || ''
+    });
     setIsModalOpen(true);
   };
 
@@ -275,13 +330,16 @@ const AdminStaff = () => {
     setFormData({
       name: '', email: '', password: '', phone: '', gender: '', dob: '',
       role: 'Teacher', department: '', staffId: '', joiningDate: '', qualification: '',
-      address: '', loginAccess: true, permissionLevel: 'Staff', status: 'Active'
+      address: '', loginAccess: true, permissionLevel: 'Staff', status: 'Active',
+      panNumber: '', maritalStatus: '', designation: '', employmentType: '',
+      yearsOfExperience: '', previousInstitution: '', specialization: '',
+      basicSalary: '', pfNumber: '', esiNumber: '', uanNumber: ''
     });
     setErrors({});
     setPassportPhoto(null);
     setPassportPhotoPreview(null);
     setDocuments([]);
-    setCollapsedSections({ basic: false, photo: false, documents: false });
+    setCollapsedSections({ basic: false, photo: false, documents: false, additional: false });
   };
 
   const openDocumentViewer = (doc) => {
@@ -308,7 +366,7 @@ const AdminStaff = () => {
               <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage teaching and non-teaching staff</p>
             </div>
             <button
-              onClick={() => { closeModal(); setIsModalOpen(true); }}
+              onClick={() => navigate('/admin/staff/add')}
               className="bg-blue-500 text-white px-4 sm:px-6 py-3 min-h-[48px] rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600 active:bg-blue-700 transition-colors w-full sm:w-auto text-base font-medium shadow-sm"
             >
               <Plus size={20} /> Add Staff
@@ -700,6 +758,139 @@ const AdminStaff = () => {
                             className="mr-2"
                           />
                           <label className="text-sm font-medium">Login Access</label>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Additional Details Section */}
+                  <div className="mb-6">
+                    <div 
+                      className="flex items-center justify-between cursor-pointer mb-4 p-3 bg-gray-50 rounded-lg"
+                      onClick={() => setCollapsedSections(prev => ({ ...prev, additional: !prev.additional }))}
+                    >
+                      <h3 className="text-lg font-semibold">Additional Details</h3>
+                      <span className={`transform transition-transform ${collapsedSections.additional ? 'rotate-180' : ''}`}>▼</span>
+                    </div>
+                    {!collapsedSections.additional && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">PAN Number</label>
+                          <input
+                            type="text"
+                            value={formData.panNumber}
+                            onChange={(e) => setFormData({ ...formData, panNumber: e.target.value })}
+                            className="w-full px-4 py-3 min-h-[48px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter PAN number"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Marital Status</label>
+                          <select
+                            value={formData.maritalStatus}
+                            onChange={(e) => setFormData({ ...formData, maritalStatus: e.target.value })}
+                            className="w-full px-4 py-3 min-h-[48px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          >
+                            <option value="">Select Status</option>
+                            <option value="Single">Single</option>
+                            <option value="Married">Married</option>
+                            <option value="Divorced">Divorced</option>
+                            <option value="Widowed">Widowed</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Designation</label>
+                          <input
+                            type="text"
+                            value={formData.designation}
+                            onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
+                            className="w-full px-4 py-3 min-h-[48px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter designation"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Employment Type</label>
+                          <select
+                            value={formData.employmentType}
+                            onChange={(e) => setFormData({ ...formData, employmentType: e.target.value })}
+                            className="w-full px-4 py-3 min-h-[48px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          >
+                            <option value="">Select Type</option>
+                            <option value="Permanent">Permanent</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Part-Time">Part-Time</option>
+                            <option value="Temporary">Temporary</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Years of Experience</label>
+                          <input
+                            type="number"
+                            value={formData.yearsOfExperience}
+                            onChange={(e) => setFormData({ ...formData, yearsOfExperience: e.target.value })}
+                            className="w-full px-4 py-3 min-h-[48px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter years"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Previous Institution</label>
+                          <input
+                            type="text"
+                            value={formData.previousInstitution}
+                            onChange={(e) => setFormData({ ...formData, previousInstitution: e.target.value })}
+                            className="w-full px-4 py-3 min-h-[48px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter previous institution"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Specialization</label>
+                          <input
+                            type="text"
+                            value={formData.specialization}
+                            onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
+                            className="w-full px-4 py-3 min-h-[48px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter specialization"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Basic Salary</label>
+                          <input
+                            type="number"
+                            value={formData.basicSalary}
+                            onChange={(e) => setFormData({ ...formData, basicSalary: e.target.value })}
+                            className="w-full px-4 py-3 min-h-[48px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter basic salary"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">PF Number</label>
+                          <input
+                            type="text"
+                            value={formData.pfNumber}
+                            onChange={(e) => setFormData({ ...formData, pfNumber: e.target.value })}
+                            className="w-full px-4 py-3 min-h-[48px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter PF number"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">ESI Number</label>
+                          <input
+                            type="text"
+                            value={formData.esiNumber}
+                            onChange={(e) => setFormData({ ...formData, esiNumber: e.target.value })}
+                            className="w-full px-4 py-3 min-h-[48px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter ESI number"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">UAN Number</label>
+                          <input
+                            type="text"
+                            value={formData.uanNumber}
+                            onChange={(e) => setFormData({ ...formData, uanNumber: e.target.value })}
+                            className="w-full px-4 py-3 min-h-[48px] text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter UAN number"
+                          />
                         </div>
                       </div>
                     )}
