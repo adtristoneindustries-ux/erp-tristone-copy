@@ -1,15 +1,13 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck , DollarSign, AlertTriangle, Settings } from 'lucide-react';
+import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck , DollarSign, AlertTriangle, Settings, MessageCircle } from 'lucide-react';
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { SettingsContext } from '../context/SettingsContext';
-import { materialAPI } from '../services/api';
 
 const Sidebar = () => {
   const { user, logout } = useContext(AuthContext);
   const { settings } = useContext(SettingsContext);
   const location = useLocation();
-  const [newMaterialsCount, setNewMaterialsCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const adminLinks = [
@@ -45,34 +43,11 @@ const Sidebar = () => {
     { to: '/staff/digital-classroom', icon: Monitor, label: 'Digital Classroom' },
     { to: '/staff/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
     { to: '/staff/scholarships', icon: Award, label: 'Scholarships' },
-    { to: '/staff/materials', icon: FileText, label: 'Materials' },
+    { to: '/staff/chat', icon: MessageCircle, label: 'Chat with Students' },
     { to: '/staff/announcements', icon: Bell, label: 'Announcements' },
     { to: '/staff/timetable', icon: Calendar, label: 'My Timetable' },
     { to: '/staff/feedback', icon: MessageSquare, label: 'Feedback' }
   ];
-
-  // Fetch new materials count for students
-  useEffect(() => {
-    if (user?.role === 'student' && user?.class && user?.section) {
-      fetchNewMaterialsCount();
-      
-      // Check every 30 seconds for new materials
-      const interval = setInterval(fetchNewMaterialsCount, 30000);
-      return () => clearInterval(interval);
-    }
-  }, [user]);
-
-  const fetchNewMaterialsCount = async () => {
-    try {
-      const response = await materialAPI.getNewMaterialsCount({
-        class: user.class,
-        section: user.section
-      });
-      setNewMaterialsCount(response.data.count);
-    } catch (error) {
-      console.error('Failed to fetch new materials count:', error);
-    }
-  };
 
   const studentLinks = [
     { to: '/student', icon: Home, label: 'Dashboard' },
@@ -86,7 +61,7 @@ const Sidebar = () => {
     { to: '/student/timetable', icon: Calendar, label: 'Timetable' },
     { to: '/student/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
     { to: '/student/digital-classroom', icon: Monitor, label: 'Digital Classroom' },
-    { to: '/student/materials', icon: FileText, label: 'Materials', hasNotification: newMaterialsCount > 0 },
+    { to: '/student/chat', icon: MessageCircle, label: 'Chat with Teacher' },
     { to: '/student/medical-reports', icon: Activity, label: 'Medical Reports' },
     { to: '/student/feedback', icon: MessageSquare, label: 'Feedback' },
     { to: '/student/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },
@@ -156,27 +131,17 @@ const Sidebar = () => {
         </div>
         
         <nav className="py-4">
-          {links.map(({ to, icon: Icon, label, hasNotification }) => (
+          {links.map(({ to, icon: Icon, label }) => (
             <Link
               key={to}
               to={to}
               className={`flex items-center px-4 py-3 hover:bg-blue-700 active:bg-blue-800 transition-all duration-200 relative group ${
                 location.pathname === to ? 'bg-blue-700 border-l-4 border-white' : ''
               }`}
-              onClick={() => {
-                if (to === '/student/materials' && hasNotification) {
-                  setNewMaterialsCount(0);
-                }
-                setIsMobileMenuOpen(false);
-              }}
+              onClick={() => setIsMobileMenuOpen(false)}
             >
               <Icon size={18} className="mr-3 flex-shrink-0" />
               <span className="text-sm truncate">{label}</span>
-              {hasNotification && (
-                <div className="ml-auto">
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                </div>
-              )}
             </Link>
           ))}
           

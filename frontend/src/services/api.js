@@ -228,4 +228,14 @@ export const settingsAPI = {
   updateSettings: (data) => API.put('/settings', data)
 };
 
+export const chatAPI = {
+  getChatHistory: (userId) => API.get(`/chat/history/${userId}`),
+  sendMessage: (data) => API.post('/chat/send', data),
+  getTeachers: () => API.get('/chat/teachers'),
+  getStudents: (params) => API.get('/chat/students', { params }),
+  getParents: () => API.get('/chat/parents'),
+  getUnreadCount: () => API.get('/chat/unread-count'),
+  getRecentChats: () => API.get('/chat/recent')
+};
+
 export default API;

@@ -44,8 +44,8 @@ import StudentHomework from "./pages/StudentHomework";
 import StaffFeedback from "./pages/StaffFeedback";
 import StaffDigitalClassroom from "./pages/StaffDigitalClassroom";
 import StudentDigitalClassroom from "./pages/StudentDigitalClassroom";
-import StaffMaterials from "./pages/StaffMaterials";
-
+import StudentChatWithTeacher from "./pages/StudentChatWithTeacher";
+import StaffChatWithStudents from "./pages/StaffChatWithStudents";
 import StudentDashboard from "./pages/StudentDashboard";
 import StudentProfile from "./pages/StudentProfile";
 import StudentMarks from "./pages/StudentMarks";
@@ -59,7 +59,6 @@ import StudentMedicalReports from "./pages/StudentMedicalReports";
 import StudentFeedback from "./pages/StudentFeedback";
 import StudentScholarship from "./pages/StudentScholarship";
 import StudentFinance from "./pages/StudentFinance";
-import StudentMaterials from "./pages/StudentMaterials";
 import AdminTimetable from "./pages/AdminTimetable";
 import AdminStudentTimetable from "./pages/AdminStudentTimetable";
 import AdminStaffTimetable from "./pages/AdminStaffTimetable";
@@ -427,10 +426,10 @@ function App() {
           }
         />
         <Route
-          path="/staff/materials"
+          path="/staff/chat"
           element={
             <ProtectedRoute allowedRoles={["staff"]}>
-              <StaffMaterials />
+              <StaffChatWithStudents />
             </ProtectedRoute>
           }
         />
@@ -573,18 +572,18 @@ function App() {
           }
         />
         <Route
-          path="/student/materials"
-          element={
-            <ProtectedRoute allowedRoles={["student"]}>
-              <StudentMaterials />
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/student/finance"
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentFinance />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/chat"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentChatWithTeacher />
             </ProtectedRoute>
           }
         />

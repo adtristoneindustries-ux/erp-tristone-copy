@@ -108,7 +108,11 @@ const userSchema = new mongoose.Schema({
     description: String,
     date: { type: Date, default: Date.now },
     addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
-  }]
+  }],
+  // Online status
+  isOnline: { type: Boolean, default: false },
+  lastSeen: Date,
+  socketId: String
 }, { timestamps: true });
 
 userSchema.pre('save', async function(next) {
