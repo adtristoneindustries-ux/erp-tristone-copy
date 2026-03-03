@@ -108,7 +108,9 @@ const userSchema = new mongoose.Schema({
     description: String,
     date: { type: Date, default: Date.now },
     addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
-  }]
+  }],
+  // Enrolled activities (clubs, courses, sports)
+  enrolledActivities: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Activity' }]
 }, { timestamps: true });
 
 userSchema.pre('save', async function(next) {

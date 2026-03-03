@@ -228,4 +228,26 @@ export const settingsAPI = {
   updateSettings: (data) => API.put('/settings', data)
 };
 
+export const activityAPI = {
+  getActivities: (params) => API.get('/activities', { params }),
+  getActivity: (id) => API.get(`/activities/${id}`),
+  createActivity: (data) => API.post('/activities', data),
+  updateActivity: (id, data) => API.put(`/activities/${id}`, data),
+  deleteActivity: (id) => API.delete(`/activities/${id}`),
+  enrollActivity: (data) => API.post('/activities/enroll', data),
+  getMyEnrollments: () => API.get('/activities/my-enrollments')
+};
+
+export const courseAPI = {
+  getCourses: (params) => API.get('/courses', { params }),
+  getCourse: (id) => API.get(`/courses/${id}`),
+  createCourse: (data) => API.post('/courses', data),
+  updateCourse: (id, data) => API.put(`/courses/${id}`, data),
+  deleteCourse: (id) => API.delete(`/courses/${id}`),
+  requestEnrollment: (id, data) => API.post(`/courses/${id}/enroll`, data),
+  getEnrollments: (params) => API.get('/courses/enrollments/all', { params }),
+  updateEnrollmentStatus: (id, data) => API.put(`/courses/enrollments/${id}`, data),
+  getMyEnrollments: () => API.get('/courses/enrollments/my')
+};
+
 export default API;
