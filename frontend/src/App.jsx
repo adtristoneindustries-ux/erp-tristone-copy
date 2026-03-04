@@ -29,6 +29,9 @@ import AdminDiscipline from "./pages/AdminDiscipline";
 import AdminEvents from "./pages/AdminEvents";
 import AdminSettings from "./pages/AdminSettings";
 import AdminScholarship from "./pages/AdminScholarship";
+import AdminPlacement from "./pages/AdminPlacement";
+import PlacementOfficerDashboard from "./pages/PlacementOfficerDashboard";
+import StudentPlacement from "./pages/StudentPlacement";
 import StaffDashboard from "./pages/StaffDashboard";
 import StaffProfile from "./pages/StaffProfile";
 import StaffMarks from "./pages/StaffMarks";
@@ -312,6 +315,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/placement"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminPlacement />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/staff"
@@ -439,6 +450,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["staff"]}>
               <StaffChatWithStudents />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/placement"
+          element={
+            <ProtectedRoute allowedRoles={["staff"]}>
+              <PlacementOfficerDashboard />
             </ProtectedRoute>
           }
         />
@@ -593,6 +612,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentChatWithTeacher />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/placement"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentPlacement />
             </ProtectedRoute>
           }
         />

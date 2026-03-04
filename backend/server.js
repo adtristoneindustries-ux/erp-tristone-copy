@@ -69,6 +69,7 @@ app.use('/api/settings', require('./routes/settingsRoutes'));
 app.use('/api/scholarships', require('./routes/scholarshipRoutes'));
 app.use('/api/finance', require('./routes/financeRoutes'));
 app.use('/api/chat', require('./routes/chatRoutes'));
+app.use('/api/placement', require('./routes/placementRoutes'));
 
 // Health check endpoint
 app.get('/', (req, res) => {

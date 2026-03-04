@@ -212,7 +212,16 @@ const userSchema = new mongoose.Schema({
   // Online status
   isOnline: { type: Boolean, default: false },
   lastSeen: Date,
-  socketId: String
+  socketId: String,
+  
+  // Placement-specific fields
+  year: Number,
+  cgpa: Number,
+  arrears_count: { type: Number, default: 0 },
+  resume_url: String,
+  skills: [String],
+  portfolio_link: String,
+  hasPlacementAccess: { type: Boolean, default: false }
 }, { timestamps: true });
 
 userSchema.pre('save', async function(next) {

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck , DollarSign, AlertTriangle, Settings, MessageCircle } from 'lucide-react';
+import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck , DollarSign, AlertTriangle, Settings, MessageCircle, Briefcase } from 'lucide-react';
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { SettingsContext } from '../context/SettingsContext';
@@ -27,6 +27,7 @@ const Sidebar = () => {
     { to: '/admin/scholarships', icon: Award, label: 'Scholarships' },
     { to: '/admin/discipline', icon: AlertTriangle, label: 'Discipline Oversight' },
     { to: '/admin/events', icon: Calendar, label: 'Events Management' },
+    { to: '/admin/placement', icon: Briefcase, label: 'Placement' },
     { to: '/admin/settings', icon: Settings, label: 'Settings' }
   ];
 
@@ -43,6 +44,7 @@ const Sidebar = () => {
     { to: '/staff/digital-classroom', icon: Monitor, label: 'Digital Classroom' },
     { to: '/staff/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
     { to: '/staff/scholarships', icon: Award, label: 'Scholarships' },
+    ...(user?.hasPlacementAccess ? [{ to: '/staff/placement', icon: Briefcase, label: 'Placement' }] : []),
     { to: '/staff/chat', icon: MessageCircle, label: 'Chat with Students' },
     { to: '/staff/announcements', icon: Bell, label: 'Announcements' },
     { to: '/staff/timetable', icon: Calendar, label: 'My Timetable' },
@@ -67,7 +69,8 @@ const Sidebar = () => {
     { to: '/student/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },
     { to: '/student/transport', icon: Bus, label: 'Transport' },
     { to: '/student/hostel', icon: Building2, label: 'Hostel' },
-    { to: '/student/announcements', icon: Bell, label: 'Announcements' }
+    { to: '/student/announcements', icon: Bell, label: 'Announcements' },
+    { to: '/student/placement', icon: Briefcase, label: 'Placement' }
   ];
 
   const links = user?.role === 'admin' ? adminLinks : user?.role === 'staff' ? staffLinks : studentLinks;
