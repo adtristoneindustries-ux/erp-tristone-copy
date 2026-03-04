@@ -28,13 +28,26 @@ const StaffDetailsModal = ({ isOpen, onClose, staff }) => {
   if (!isOpen || !staff) return null;
 
   const getUniqueClasses = () => {
-    const classSet = new Set();
+    const classMap = new Map();
     assignedClasses.forEach(item => {
       if (item.class && item.section) {
-        classSet.add(`${item.class}-${item.section}`);
+        const key = `${item.class}-${item.section}`;
+        if (!classMap.has(key)) {
+          classMap.set(key, {
+            class: item.class,
+            section: item.section,
+            subjects: new Set()
+          });
+        }
+        if (item.subject?.name) {
+          classMap.get(key).subjects.add(item.subject.name);
+        }
       }
     });
-    return Array.from(classSet);
+    return Array.from(classMap.values()).map(item => ({
+      ...item,
+      subjects: Array.from(item.subjects)
+    }));
   };
 
   const getSubjects = () => {
@@ -178,15 +191,21 @@ const StaffDetailsModal = ({ isOpen, onClose, staff }) => {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {getUniqueClasses().map((classInfo, index) => {
-                      const [className, section] = classInfo.split('-');
-                      return (
-                        <div key={index} className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow">
-                          <div className="font-medium text-gray-900">Class {className}</div>
-                          <div className="text-sm text-gray-600">Section {section}</div>
-                        </div>
-                      );
-                    })}
+                    {getUniqueClasses().map((classInfo, index) => (
+                      <div key={index} className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div className="font-medium text-gray-900 mb-1">Class {classInfo.class}</div>
+                        <div className="text-sm text-gray-600 mb-2">Section {classInfo.section}</div>
+                        {classInfo.subjects.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {classInfo.subjects.map((subject, idx) => (
+                              <span key={idx} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded">
+                                {subject}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

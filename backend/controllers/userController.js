@@ -100,26 +100,34 @@ exports.getUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
-    // Check if user is updating their own profile or is admin
     if (req.user.role !== 'admin' && req.user.id !== req.params.id) {
       return res.status(403).json({ message: 'Not authorized to update this profile' });
     }
 
     const updateData = { ...req.body };
     delete updateData.password;
+    delete updateData._id;
+    delete updateData.__v;
+    delete updateData.createdAt;
+    delete updateData.updatedAt;
+    
     if (req.user.role !== 'admin') {
-      delete updateData.role; // Prevent role changes for non-admins
+      delete updateData.role;
+    }
+
+    // Ensure required fields are present
+    if (!updateData.name || !updateData.email) {
+      return res.status(400).json({ message: 'Name and email are required' });
     }
     
     const user = await User.findByIdAndUpdate(
       req.params.id, 
       updateData,
-      { new: true, runValidators: false }
+      { new: true, runValidators: false, context: 'query' }
     ).select("-password");
     
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Emit real-time updates for both student and staff
     if (user.role === "student") {
       req.io.emit("studentUpdate", {
         studentId: user._id,
@@ -167,6 +175,22 @@ exports.createStaffWithDocs = async (req, res) => {
   try {
     const userData = JSON.parse(req.body.userData || '{}');
     userData.role = 'staff';
+    
+    // Map fullName to name if name is not present
+    if (!userData.name && userData.fullName) {
+      userData.name = userData.fullName;
+    }
+    
+    // Ensure required fields
+    if (!userData.name) {
+      return res.status(400).json({ message: 'Name is required' });
+    }
+    if (!userData.email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+    if (!userData.password) {
+      userData.password = 'staff123'; // Default password
+    }
     
     if (!userData.staffId) {
       const year = new Date().getFullYear();

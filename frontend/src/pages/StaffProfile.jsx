@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { User, Mail, Phone, Edit2, Save, X, MapPin, Briefcase, Calendar, CreditCard, Heart, FileText, Eye } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Briefcase, Calendar, CreditCard, Heart, FileText, Eye, X } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { AuthContext } from '../context/AuthContext';
@@ -9,20 +9,24 @@ import { userAPI } from '../services/api';
 const StaffProfile = () => {
   const { user, setUser } = useContext(AuthContext);
   const socket = useContext(SocketContext);
-  const [profileData, setProfileData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({});
-  const [errors, setErrors] = useState({});
+  const [profileData, setProfileData] = useState(user);
+  const [loading, setLoading] = useState(false);
   const [documentViewerOpen, setDocumentViewerOpen] = useState(false);
   const [viewingDocument, setViewingDocument] = useState(null);
 
   useEffect(() => {
-    fetchProfileData();
+    console.log('StaffProfile mounted, user:', user);
+    if (user?._id || user?.id) {
+      fetchProfileData();
+    } else {
+      console.log('No user ID found in context');
+    }
     
     if (socket) {
       socket.on('staffUpdate', (data) => {
-        if (data.staffId === user?._id) {
+        console.log('Staff update received:', data);
+        if (data.staffId === (user?._id || user?.id)) {
+          console.log('Updating profile with:', data.updatedData);
           setProfileData(data.updatedData);
           setUser(data.updatedData);
         }
@@ -34,88 +38,44 @@ const StaffProfile = () => {
         socket.off('staffUpdate');
       }
     };
-  }, [user?._id, socket]);
+  }, [user?._id, user?.id, socket]);
 
   const fetchProfileData = async () => {
-    if (!user?._id) {
-      setProfileData(user);
-      setEditData(user);
+    const userId = user?._id || user?.id;
+    if (!userId) {
+      console.log('No user ID found, user:', user);
       setLoading(false);
       return;
     }
     
     setLoading(true);
     try {
-      const response = await userAPI.getUser(user._id);
+      console.log('Fetching profile for user ID:', userId);
+      const response = await userAPI.getUser(userId);
+      console.log('Profile data received:', response.data);
+      
+      // Update both profileData and user context
       setProfileData(response.data);
-      setEditData(response.data);
+      if (setUser) {
+        setUser(response.data);
+      }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error fetching profile:', error);
+      console.log('Falling back to user context data:', user);
       setProfileData(user);
-      setEditData(user);
     } finally {
       setLoading(false);
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!editData.name) newErrors.name = 'Name is required';
-    if (!editData.email) newErrors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(editData.email)) newErrors.email = 'Invalid email';
-    if (editData.phone && !/^\d{10}$/.test(editData.phone)) newErrors.phone = 'Must be 10 digits';
-    if (editData.aadhaarNumber && !/^\d{12}$/.test(editData.aadhaarNumber)) newErrors.aadhaarNumber = 'Must be 12 digits';
-    if (editData.panNumber && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(editData.panNumber)) newErrors.panNumber = 'Invalid PAN';
-    if (editData.pincode && !/^\d{6}$/.test(editData.pincode)) newErrors.pincode = 'Must be 6 digits';
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSave = async () => {
-    if (!validateForm()) return;
-    
-    setLoading(true);
-    try {
-      const response = await userAPI.updateUser(user._id, editData);
-      setProfileData(response.data);
-      setUser(response.data);
-      setIsEditing(false);
-      alert('Profile updated successfully!');
-    } catch (error) {
-      alert(error.response?.data?.message || 'Failed to update');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setEditData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
-    setErrors(prev => ({ ...prev, [name]: '' }));
-  };
-
-  const Field = ({ label, value, name, type = 'text', editable = true, options = null }) => (
+  const Field = ({ label, value }) => (
     <div>
       <label className="block text-xs font-medium text-gray-500 mb-1">{label}</label>
-      {isEditing && editable ? (
-        options ? (
-          <select name={name} value={value || ''} onChange={handleChange} className="w-full p-2 border rounded-lg text-sm">
-            <option value="">Select</option>
-            {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-          </select>
-        ) : type === 'textarea' ? (
-          <textarea name={name} value={value || ''} onChange={handleChange} rows="2" className="w-full p-2 border rounded-lg text-sm" />
-        ) : (
-          <input type={type} name={name} value={value || ''} onChange={handleChange} className="w-full p-2 border rounded-lg text-sm" maxLength={name === 'phone' || name === 'alternateContact' || name === 'emergencyContactNumber' ? '10' : name === 'aadhaarNumber' ? '12' : name === 'panNumber' ? '10' : name === 'pincode' ? '6' : undefined} />
-        )
-      ) : (
-        <p className="text-sm font-medium text-gray-900">{value || 'Not provided'}</p>
-      )}
-      {errors[name] && <p className="text-red-500 text-xs mt-1">{errors[name]}</p>}
+      <p className="text-sm font-medium text-gray-900">{value || 'Not provided'}</p>
     </div>
   );
 
-  if (loading && !profileData) {
+  if (loading) {
     return (
       <div className="flex min-h-screen bg-gray-50">
         <Sidebar />
@@ -129,7 +89,21 @@ const StaffProfile = () => {
     );
   }
 
-  const profile = isEditing ? editData : profileData;
+  if (!profileData) {
+    return (
+      <div className="flex min-h-screen bg-gray-50">
+        <Sidebar />
+        <div className="flex-1 lg:ml-64">
+          <Navbar />
+          <div className="p-6">
+            <div className="text-center py-12">
+              <p className="text-gray-600">Unable to load profile data</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -139,35 +113,19 @@ const StaffProfile = () => {
         <div className="p-6 max-w-7xl mx-auto">
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg p-8 mb-6 text-white">
-            <div className="flex justify-between items-start">
-              <div className="flex items-center gap-6">
-                <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg">
-                  {profile?.passportPhoto ? (
-                    <img src={`data:${profile.passportPhoto.contentType};base64,${profile.passportPhoto.data}`} alt="Profile" className="w-24 h-24 rounded-full object-cover" />
-                  ) : (
-                    <User size={48} className="text-blue-600" />
-                  )}
-                </div>
-                <div>
-                  <h1 className="text-3xl font-bold mb-2">{profile?.name || 'Staff Member'}</h1>
-                  <p className="text-blue-100 text-lg mb-1">{profile?.designation || profile?.role} • {profile?.department}</p>
-                  <p className="text-blue-200 text-sm">Staff ID: {profile?.staffId || 'N/A'}</p>
-                </div>
+            <div className="flex items-center gap-6">
+              <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg">
+                {profileData?.passportPhoto?.data && profileData?.passportPhoto?.contentType ? (
+                  <img src={`data:${profileData.passportPhoto.contentType};base64,${profileData.passportPhoto.data}`} alt="Profile" className="w-24 h-24 rounded-full object-cover" />
+                ) : (
+                  <User size={48} className="text-blue-600" />
+                )}
               </div>
-              {!isEditing ? (
-                <button onClick={() => setIsEditing(true)} className="bg-white text-blue-600 px-6 py-2 rounded-lg font-medium hover:bg-blue-50 flex items-center gap-2">
-                  <Edit2 size={18} /> Edit Profile
-                </button>
-              ) : (
-                <div className="flex gap-2">
-                  <button onClick={() => { setIsEditing(false); setEditData(profileData); setErrors({}); }} className="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 flex items-center gap-2">
-                    <X size={18} /> Cancel
-                  </button>
-                  <button onClick={handleSave} disabled={loading} className="bg-white text-blue-600 px-6 py-2 rounded-lg font-medium hover:bg-blue-50 flex items-center gap-2 disabled:opacity-50">
-                    <Save size={18} /> {loading ? 'Saving...' : 'Save'}
-                  </button>
-                </div>
-              )}
+              <div>
+                <h1 className="text-3xl font-bold mb-2">{profileData?.name || 'Staff Member'}</h1>
+                <p className="text-blue-100 text-lg mb-1">{profileData?.designation || profileData?.role || 'Staff'} • {profileData?.department || 'N/A'}</p>
+                <p className="text-blue-200 text-sm">Staff ID: {profileData?.staffId || 'N/A'}</p>
+              </div>
             </div>
           </div>
 
@@ -178,7 +136,7 @@ const StaffProfile = () => {
                 <Mail className="text-blue-600" size={24} />
                 <div>
                   <p className="text-xs text-gray-500">Email</p>
-                  <p className="text-sm font-medium">{profile?.email || 'N/A'}</p>
+                  <p className="text-sm font-medium">{profileData?.email || 'N/A'}</p>
                 </div>
               </div>
             </div>
@@ -187,7 +145,7 @@ const StaffProfile = () => {
                 <Phone className="text-green-600" size={24} />
                 <div>
                   <p className="text-xs text-gray-500">Phone</p>
-                  <p className="text-sm font-medium">{profile?.phone || 'N/A'}</p>
+                  <p className="text-sm font-medium">{profileData?.phone || 'N/A'}</p>
                 </div>
               </div>
             </div>
@@ -196,7 +154,7 @@ const StaffProfile = () => {
                 <Calendar className="text-purple-600" size={24} />
                 <div>
                   <p className="text-xs text-gray-500">Joining Date</p>
-                  <p className="text-sm font-medium">{profile?.dateOfJoining ? new Date(profile.dateOfJoining).toLocaleDateString() : 'N/A'}</p>
+                  <p className="text-sm font-medium">{profileData?.joiningDate ? new Date(profileData.joiningDate).toLocaleDateString() : (profileData?.dateOfJoining ? new Date(profileData.dateOfJoining).toLocaleDateString() : 'N/A')}</p>
                 </div>
               </div>
             </div>
@@ -205,7 +163,7 @@ const StaffProfile = () => {
                 <Briefcase className="text-orange-600" size={24} />
                 <div>
                   <p className="text-xs text-gray-500">Experience</p>
-                  <p className="text-sm font-medium">{profile?.yearsOfExperience ? `${profile.yearsOfExperience} years` : 'N/A'}</p>
+                  <p className="text-sm font-medium">{profileData?.yearsOfExperience ? `${profileData.yearsOfExperience} years` : 'N/A'}</p>
                 </div>
               </div>
             </div>
@@ -222,16 +180,20 @@ const StaffProfile = () => {
                   Personal Information
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Field label="Full Name" value={profile?.name} name="name" />
-                  <Field label="Email" value={profile?.email} name="email" type="email" />
-                  <Field label="Phone" value={profile?.phone} name="phone" />
-                  <Field label="Date of Birth" value={profile?.dateOfBirth?.split('T')[0]} name="dateOfBirth" type="date" />
-                  <Field label="Gender" value={profile?.gender} name="gender" options={['Male', 'Female', 'Other']} />
-                  <Field label="Blood Group" value={profile?.bloodGroup} name="bloodGroup" options={['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']} />
-                  <Field label="Aadhaar Number" value={profile?.aadhaarNumber} name="aadhaarNumber" />
-                  <Field label="PAN Number" value={profile?.panNumber} name="panNumber" />
-                  <Field label="Marital Status" value={profile?.maritalStatus} name="maritalStatus" options={['Single', 'Married', 'Divorced', 'Widowed']} />
-                  <Field label="Nationality" value={profile?.nationality} name="nationality" />
+                  <Field label="Full Name" value={profileData?.name || profileData?.fullName} />
+                  <Field label="Email" value={profileData?.email} />
+                  <Field label="Phone" value={profileData?.phone} />
+                  <Field label="Date of Birth" value={profileData?.dob ? new Date(profileData.dob).toLocaleDateString() : (profileData?.dateOfBirth ? new Date(profileData.dateOfBirth).toLocaleDateString() : null)} />
+                  <Field label="Gender" value={profileData?.gender} />
+                  <Field label="Blood Group" value={profileData?.bloodGroup} />
+                  <Field label="Aadhaar Number" value={profileData?.aadhaarNumber} />
+                  <Field label="PAN Number" value={profileData?.panNumber} />
+                  <Field label="Marital Status" value={profileData?.maritalStatus} />
+                  <Field label="Nationality" value={profileData?.nationality} />
+                  <Field label="Religion" value={profileData?.religion} />
+                  <Field label="Caste Category" value={profileData?.casteCategory} />
+                  <Field label="Identification Mark 1" value={profileData?.identificationMark1} />
+                  <Field label="Identification Mark 2" value={profileData?.identificationMark2} />
                 </div>
               </div>
 
@@ -242,14 +204,35 @@ const StaffProfile = () => {
                   Professional Details
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Field label="Staff ID" value={profile?.staffId} name="staffId" editable={false} />
-                  <Field label="Department" value={profile?.department} name="department" options={['Mathematics', 'Science', 'English', 'Admin', 'Accounts', 'Library']} />
-                  <Field label="Designation" value={profile?.designation} name="designation" options={['Teacher', 'HOD', 'Principal', 'Clerk', 'Accountant']} />
-                  <Field label="Qualification" value={profile?.qualification} name="qualification" />
-                  <Field label="Date of Joining" value={profile?.dateOfJoining?.split('T')[0]} name="dateOfJoining" type="date" />
-                  <Field label="Years of Experience" value={profile?.yearsOfExperience} name="yearsOfExperience" type="number" />
-                  <Field label="Previous Institution" value={profile?.previousInstitution} name="previousInstitution" />
-                  <Field label="Specialization" value={profile?.specialization} name="specialization" />
+                  <Field label="Staff ID" value={profileData?.staffId} />
+                  <Field label="Employee Code" value={profileData?.employeeCode} />
+                  <Field label="Department" value={profileData?.department} />
+                  <Field label="Designation" value={profileData?.designation} />
+                  <Field label="Employment Type" value={profileData?.employmentType} />
+                  <Field label="Qualification" value={profileData?.qualification} />
+                  <Field label="Date of Joining" value={profileData?.joiningDate ? new Date(profileData.joiningDate).toLocaleDateString() : (profileData?.dateOfJoining ? new Date(profileData.dateOfJoining).toLocaleDateString() : null)} />
+                  <Field label="Years of Experience" value={profileData?.yearsOfExperience} />
+                  <Field label="Previous Institution" value={profileData?.previousInstitution} />
+                  <Field label="Specialization" value={profileData?.specialization} />
+                  <Field label="Employee Status" value={profileData?.status || profileData?.employeeStatus} />
+                </div>
+              </div>
+
+              {/* Payroll Details */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                  <CreditCard className="text-blue-600" size={20} />
+                  Salary & Payroll
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Field label="Basic Salary" value={profileData?.basicSalary ? `₹${profileData.basicSalary}` : null} />
+                  <Field label="Allowances" value={profileData?.allowances ? `₹${profileData.allowances}` : null} />
+                  <Field label="PF Number" value={profileData?.pfNumber} />
+                  <Field label="ESI Number" value={profileData?.esiNumber} />
+                  <Field label="UAN Number" value={profileData?.uanNumber} />
+                  <div className="md:col-span-2">
+                    <Field label="Tax Deduction Details" value={profileData?.taxDeduction} />
+                  </div>
                 </div>
               </div>
 
@@ -260,19 +243,19 @@ const StaffProfile = () => {
                   Contact & Address
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Field label="Alternate Contact" value={profile?.alternateContact} name="alternateContact" />
-                  <Field label="Emergency Contact Name" value={profile?.emergencyContactName} name="emergencyContactName" />
-                  <Field label="Emergency Contact Number" value={profile?.emergencyContactNumber} name="emergencyContactNumber" />
+                  <Field label="Alternate Contact" value={profileData?.alternateContact} />
+                  <Field label="Emergency Contact Name" value={profileData?.emergencyContactName} />
+                  <Field label="Emergency Contact Number" value={profileData?.emergencyContactNumber} />
                   <div className="md:col-span-2">
-                    <Field label="Permanent Address" value={profile?.permanentAddress} name="permanentAddress" type="textarea" />
+                    <Field label="Permanent Address" value={profileData?.permanentAddress || profileData?.address} />
                   </div>
                   <div className="md:col-span-2">
-                    <Field label="Current Address" value={profile?.currentAddress} name="currentAddress" type="textarea" />
+                    <Field label="Current Address" value={profileData?.currentAddress} />
                   </div>
-                  <Field label="City" value={profile?.city} name="city" />
-                  <Field label="State" value={profile?.state} name="state" />
-                  <Field label="Pincode" value={profile?.pincode} name="pincode" />
-                  <Field label="Country" value={profile?.country} name="country" />
+                  <Field label="City" value={profileData?.city} />
+                  <Field label="State" value={profileData?.state} />
+                  <Field label="Pincode" value={profileData?.pincode} />
+                  <Field label="Country" value={profileData?.country} />
                 </div>
               </div>
             </div>
@@ -288,12 +271,12 @@ const StaffProfile = () => {
                 <div className="space-y-4">
                   <div>
                     <p className="text-xs text-gray-500">Basic Salary</p>
-                    <p className="text-lg font-bold text-green-600">{profile?.basicSalary ? `₹${profile.basicSalary}` : 'N/A'}</p>
+                    <p className="text-lg font-bold text-green-600">{profileData?.basicSalary ? `₹${profileData.basicSalary}` : 'N/A'}</p>
                   </div>
-                  <Field label="Bank Name" value={profile?.bankName} name="bankName" />
-                  <Field label="Account Number" value={profile?.salaryAccountNumber} name="salaryAccountNumber" />
-                  <Field label="IFSC Code" value={profile?.ifscCode} name="ifscCode" />
-                  <Field label="Branch" value={profile?.branchName} name="branchName" />
+                  <Field label="Bank Name" value={profileData?.bankName} />
+                  <Field label="Account Number" value={profileData?.salaryAccountNumber} />
+                  <Field label="IFSC Code" value={profileData?.ifscCode} />
+                  <Field label="Branch" value={profileData?.branchName} />
                 </div>
               </div>
 
@@ -304,13 +287,29 @@ const StaffProfile = () => {
                   Medical Information
                 </h2>
                 <div className="space-y-4">
-                  <Field label="Medical Conditions" value={profile?.medicalConditions} name="medicalConditions" type="textarea" />
-                  <Field label="Health Insurance" value={profile?.healthInsurance} name="healthInsurance" />
-                  {profile?.disability && (
-                    <Field label="Disability Details" value={profile?.disabilityDetails} name="disabilityDetails" type="textarea" />
+                  <Field label="Medical Conditions" value={profileData?.medicalConditions} />
+                  <Field label="Health Insurance" value={profileData?.healthInsurance} />
+                  <Field label="Emergency Medical Contact" value={profileData?.emergencyMedicalContact} />
+                  {profileData?.disability && (
+                    <Field label="Disability Details" value={profileData?.disabilityDetails} />
                   )}
                 </div>
               </div>
+
+              {/* Accommodation */}
+              {profileData?.accommodationRequired && (
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                    <MapPin className="text-blue-600" size={20} />
+                    Accommodation Details
+                  </h2>
+                  <div className="space-y-4">
+                    <Field label="Room Number" value={profileData?.accommodationRoomNumber} />
+                    <Field label="Block" value={profileData?.accommodationBlock} />
+                    <Field label="Warden Name" value={profileData?.accommodationWardenName} />
+                  </div>
+                </div>
+              )}
 
               {/* Documents */}
               <div className="bg-white rounded-lg shadow p-6">
@@ -318,9 +317,9 @@ const StaffProfile = () => {
                   <FileText className="text-blue-600" size={20} />
                   Documents
                 </h2>
-                {profile?.documents && profile.documents.length > 0 ? (
+                {profileData?.documents && profileData.documents.length > 0 ? (
                   <div className="space-y-2">
-                    {profile.documents.map((doc, idx) => (
+                    {profileData.documents.map((doc, idx) => (
                       <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100">
                         <div className="flex items-center gap-2">
                           <FileText size={16} className="text-gray-600" />

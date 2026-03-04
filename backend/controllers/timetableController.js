@@ -116,9 +116,31 @@ exports.createTimetable = async (req, res) => {
 
 exports.getTimetable = async (req, res) => {
   try {
-    const { class: className, section } = req.query;
-    let query = {};
+    const { class: className, section, teacherId } = req.query;
     
+    // If teacherId is provided, fetch periods for that teacher
+    if (teacherId) {
+      const periods = await Period.find({ teacher: teacherId }).populate('teacher', 'name');
+      
+      // Format periods for frontend
+      const formattedPeriods = periods.map(period => ({
+        _id: period._id,
+        class: period.className,
+        section: period.section,
+        day: period.day,
+        period: period.periodNumber,
+        time: period.time,
+        subject: { name: period.subject },
+        teacher: period.teacher,
+        startTime: period.time.split('-')[0],
+        endTime: period.time.split('-')[1]
+      }));
+      
+      return res.json(formattedPeriods);
+    }
+    
+    // Otherwise, fetch timetables by class/section
+    let query = {};
     if (className) query.class = className;
     if (section) query.section = section;
 

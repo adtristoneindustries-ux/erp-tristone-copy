@@ -94,7 +94,9 @@ const AdminAddStaff = () => {
     } else if (type === 'file') {
       setFormData(prev => ({ ...prev, [name]: files[0] }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      // Auto-uppercase for PAN number
+      const finalValue = name === 'panNumber' ? value.toUpperCase() : value;
+      setFormData(prev => ({ ...prev, [name]: finalValue }));
     }
     setErrors(prev => ({ ...prev, [name]: '' }));
   };
@@ -133,8 +135,12 @@ const AdminAddStaff = () => {
       if (formData.aadhaarNumber && !/^\d{12}$/.test(formData.aadhaarNumber)) {
         newErrors.aadhaarNumber = 'Aadhaar must be 12 digits';
       }
-      if (formData.panNumber && !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(formData.panNumber)) {
-        newErrors.panNumber = 'Invalid PAN format (e.g., ABCDE1234F)';
+      // PAN validation is optional - skip if empty
+      if (formData.panNumber && formData.panNumber.trim().length > 0) {
+        const panUpper = formData.panNumber.toUpperCase().trim();
+        if (panUpper.length !== 10 || !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(panUpper)) {
+          newErrors.panNumber = 'PAN must be 10 characters: 5 letters, 4 digits, 1 letter (e.g., ABCDE1234F)';
+        }
       }
     }
     
@@ -191,6 +197,28 @@ const AdminAddStaff = () => {
     }
   };
 
+  const loadDraft = () => {
+    try {
+      const draft = localStorage.getItem('staffDraft');
+      if (draft) {
+        const draftData = JSON.parse(draft);
+        setFormData(draftData);
+        alert('Draft loaded successfully!');
+      } else {
+        alert('No draft found');
+      }
+    } catch (error) {
+      alert('Error loading draft');
+    }
+  };
+
+  const clearDraft = () => {
+    if (window.confirm('Are you sure you want to clear the saved draft?')) {
+      localStorage.removeItem('staffDraft');
+      alert('Draft cleared successfully!');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateStep(currentStep)) return;
@@ -200,30 +228,45 @@ const AdminAddStaff = () => {
       const token = localStorage.getItem('token');
       
       if (editingStaff) {
-        // Update existing staff
-        await axios.put(`http://localhost:5000/api/users/${editingStaff._id}`, formData, {
+        const updatePayload = { 
+          ...formData,
+          name: formData.fullName || formData.name
+        };
+        delete updatePayload.password;
+        await axios.put(`http://localhost:5000/api/users/${editingStaff._id}`, updatePayload, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert('Staff updated successfully!');
       } else {
-        // Create new staff with documents
         const submitData = new FormData();
         
-        Object.keys(formData).forEach(key => {
-          if (key === 'documents') {
-            formData.documents.forEach(doc => {
-              submitData.append('documents', doc.file);
-            });
-            const docTypes = formData.documents.map(d => d.type);
-            submitData.append('docTypes', JSON.stringify(docTypes));
-          } else if (key === 'profilePhoto' && formData.profilePhoto) {
-            submitData.append('passportPhoto', formData.profilePhoto);
-          } else if (Array.isArray(formData[key])) {
-            submitData.append(key, JSON.stringify(formData[key]));
-          } else if (formData[key] !== null && formData[key] !== '') {
-            submitData.append(key, formData[key]);
-          }
-        });
+        const userData = {
+          ...formData,
+          name: formData.fullName,
+          email: formData.email,
+          password: formData.password || 'staff123',
+          role: 'staff'
+        };
+        
+        // Remove file fields from userData
+        delete userData.profilePhoto;
+        delete userData.documents;
+        
+        submitData.append('userData', JSON.stringify(userData));
+        
+        // Handle profile photo
+        if (formData.profilePhoto) {
+          submitData.append('passportPhoto', formData.profilePhoto);
+        }
+        
+        // Handle documents
+        if (formData.documents && formData.documents.length > 0) {
+          formData.documents.forEach(doc => {
+            submitData.append('documents', doc.file);
+          });
+          const docTypes = formData.documents.map(d => d.type);
+          submitData.append('docTypes', JSON.stringify(docTypes));
+        }
         
         await axios.post('http://localhost:5000/api/users/staff-with-docs', submitData, {
           headers: { 
@@ -232,6 +275,7 @@ const AdminAddStaff = () => {
           }
         });
         alert('Staff registered successfully!');
+        localStorage.removeItem('staffDraft');
       }
       
       navigate('/admin/staff');
@@ -252,9 +296,17 @@ const AdminAddStaff = () => {
             <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-bold text-gray-800">{editingStaff ? 'Edit Staff' : 'Add New Staff'}</h1>
-            <button onClick={() => navigate('/admin/staff')} className="text-gray-600 hover:text-gray-800">
-              ✕ Close
-            </button>
+            <div className="flex gap-2">
+              <button onClick={loadDraft} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                Load Draft
+              </button>
+              <button onClick={clearDraft} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+                Clear Draft
+              </button>
+              <button onClick={() => navigate('/admin/staff')} className="text-gray-600 hover:text-gray-800">
+                ✕ Close
+              </button>
+            </div>
           </div>
 
           {/* Progress Bar */}
@@ -353,7 +405,7 @@ const AdminAddStaff = () => {
                   <div>
                     <label className="block text-sm font-medium mb-1">PAN Number</label>
                     <input type="text" name="panNumber" value={formData.panNumber} onChange={handleChange}
-                      maxLength="10" placeholder="ABCDE1234F" className="w-full border rounded px-3 py-2 uppercase" />
+                      maxLength="10" placeholder="ABCDE1234F" className="w-full border rounded px-3 py-2" />
                     {errors.panNumber && <p className="text-red-500 text-xs mt-1">{errors.panNumber}</p>}
                   </div>
                   
