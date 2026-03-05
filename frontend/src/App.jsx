@@ -50,7 +50,7 @@ import StaffDigitalClassroom from "./pages/StaffDigitalClassroom";
 import StudentDigitalClassroom from "./pages/StudentDigitalClassroom";
 import StudentChatWithTeacher from "./pages/StudentChatWithTeacher";
 import StaffChatWithStudents from "./pages/StaffChatWithStudents";
-import StaffMaterials from "./pages/StaffMaterials";
+// import StaffMaterials from "./pages/StaffMaterials";
 import StaffCourses from "./pages/StaffCourses";
 
 import StudentDashboard from "./pages/StudentDashboard";

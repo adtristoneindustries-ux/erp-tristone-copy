@@ -236,6 +236,8 @@ export const chatAPI = {
   getParents: () => API.get('/chat/parents'),
   getUnreadCount: () => API.get('/chat/unread-count'),
   getRecentChats: () => API.get('/chat/recent')
+};
+
 export const activityAPI = {
   getActivities: (params) => API.get('/activities', { params }),
   getActivity: (id) => API.get(`/activities/${id}`),

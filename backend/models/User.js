@@ -221,7 +221,7 @@ const userSchema = new mongoose.Schema({
   resume_url: String,
   skills: [String],
   portfolio_link: String,
-  hasPlacementAccess: { type: Boolean, default: false }
+  hasPlacementAccess: { type: Boolean, default: false },
   // Enrolled activities (clubs, courses, sports)
   enrolledActivities: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Activity' }]
 }, { timestamps: true });
