@@ -2,7 +2,6 @@ const User = require('../models/User');
 const Attendance = require('../models/Attendance');
 const Mark = require('../models/Mark');
 const StaffAttendance = require('../models/StaffAttendance');
-const Material = require('../models/Material');
 const LeaveRequest = require('../models/LeaveRequest');
 const Timetable = require('../models/Timetable');
 
@@ -83,10 +82,8 @@ exports.getStaffStats = async (req, res) => {
       status: 'pending' 
     });
     
-    // Get materials uploaded by this staff
-    const materialsUploaded = await Material.countDocuments({ 
-      uploadedBy: staffId 
-    });
+    // Materials feature removed
+    const materialsUploaded = 0;
     
     // Calculate monthly attendance percentage
     const currentMonth = new Date().getMonth();

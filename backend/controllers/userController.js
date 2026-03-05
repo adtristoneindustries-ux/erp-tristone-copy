@@ -42,9 +42,15 @@ exports.createUser = async (req, res) => {
     
     const user = await User.create(userData);
 
+    // Emit real-time updates
     if (user.role === "student") {
       req.io.emit("studentUpdate", {
         studentId: user._id,
+        updatedData: user,
+      });
+    } else if (user.role === "staff") {
+      req.io.emit("staffUpdate", {
+        staffId: user._id,
         updatedData: user,
       });
     }
@@ -94,19 +100,30 @@ exports.getUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
-    // Check if user is updating their own profile or is admin
     if (req.user.role !== 'admin' && req.user.id !== req.params.id) {
       return res.status(403).json({ message: 'Not authorized to update this profile' });
     }
 
     const updateData = { ...req.body };
     delete updateData.password;
-    delete updateData.role; // Prevent role changes
+    delete updateData._id;
+    delete updateData.__v;
+    delete updateData.createdAt;
+    delete updateData.updatedAt;
+    
+    if (req.user.role !== 'admin') {
+      delete updateData.role;
+    }
+
+    // Ensure required fields are present
+    if (!updateData.name || !updateData.email) {
+      return res.status(400).json({ message: 'Name and email are required' });
+    }
     
     const user = await User.findByIdAndUpdate(
       req.params.id, 
       updateData,
-      { new: true, runValidators: false }
+      { new: true, runValidators: false, context: 'query' }
     ).select("-password");
     
     if (!user) return res.status(404).json({ message: "User not found" });
@@ -114,6 +131,11 @@ exports.updateUser = async (req, res) => {
     if (user.role === "student") {
       req.io.emit("studentUpdate", {
         studentId: user._id,
+        updatedData: user,
+      });
+    } else if (user.role === "staff") {
+      req.io.emit("staffUpdate", {
+        staffId: user._id,
         updatedData: user,
       });
     }
@@ -129,10 +151,15 @@ exports.deleteUser = async (req, res) => {
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Emit real-time update for student deletion
+    // Emit real-time update for deletion
     if (user.role === "student") {
       req.io.emit("studentUpdate", {
         studentId: user._id,
+        deleted: true,
+      });
+    } else if (user.role === "staff") {
+      req.io.emit("staffUpdate", {
+        staffId: user._id,
         deleted: true,
       });
     }
@@ -148,6 +175,22 @@ exports.createStaffWithDocs = async (req, res) => {
   try {
     const userData = JSON.parse(req.body.userData || '{}');
     userData.role = 'staff';
+    
+    // Map fullName to name if name is not present
+    if (!userData.name && userData.fullName) {
+      userData.name = userData.fullName;
+    }
+    
+    // Ensure required fields
+    if (!userData.name) {
+      return res.status(400).json({ message: 'Name is required' });
+    }
+    if (!userData.email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+    if (!userData.password) {
+      userData.password = 'staff123'; // Default password
+    }
     
     if (!userData.staffId) {
       const year = new Date().getFullYear();
@@ -198,6 +241,14 @@ exports.createStaffWithDocs = async (req, res) => {
     const user = await User.create(userData);
     const userResponse = user.toObject();
     delete userResponse.password;
+    
+    // Emit real-time update for staff creation
+    if (req.io) {
+      req.io.emit("staffUpdate", {
+        staffId: user._id,
+        updatedData: userResponse,
+      });
+    }
     
     res.status(201).json({
       user: userResponse,

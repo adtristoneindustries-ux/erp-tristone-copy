@@ -1,52 +1,79 @@
 import { useState, useEffect, useContext } from 'react';
-  import { User, Mail, Phone, MapPin, BookOpen, Award, Calendar, FileText, Image as ImageIcon, Eye } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Briefcase, Calendar, CreditCard, Heart, FileText, Eye, X } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { AuthContext } from '../context/AuthContext';
+import { SocketContext } from '../context/SocketContext';
 import { userAPI } from '../services/api';
 
 const StaffProfile = () => {
-  const { user } = useContext(AuthContext);
-  const [activeTab, setActiveTab] = useState('personal');
-  const [profileData, setProfileData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user, setUser } = useContext(AuthContext);
+  const socket = useContext(SocketContext);
+  const [profileData, setProfileData] = useState(user);
+  const [loading, setLoading] = useState(false);
+  const [documentViewerOpen, setDocumentViewerOpen] = useState(false);
+  const [viewingDocument, setViewingDocument] = useState(null);
 
   useEffect(() => {
-    fetchProfileData();
-  }, [user]);
+    console.log('StaffProfile mounted, user:', user);
+    if (user?._id || user?.id) {
+      fetchProfileData();
+    } else {
+      console.log('No user ID found in context');
+    }
+    
+    if (socket) {
+      socket.on('staffUpdate', (data) => {
+        console.log('Staff update received:', data);
+        if (data.staffId === (user?._id || user?.id)) {
+          console.log('Updating profile with:', data.updatedData);
+          setProfileData(data.updatedData);
+          setUser(data.updatedData);
+        }
+      });
+    }
+    
+    return () => {
+      if (socket) {
+        socket.off('staffUpdate');
+      }
+    };
+  }, [user?._id, user?.id, socket]);
 
   const fetchProfileData = async () => {
-    if (!user?._id) {
-      setProfileData(user);
+    const userId = user?._id || user?.id;
+    if (!userId) {
+      console.log('No user ID found, user:', user);
       setLoading(false);
       return;
     }
     
     setLoading(true);
     try {
-      const response = await userAPI.getUser(user._id);
+      console.log('Fetching profile for user ID:', userId);
+      const response = await userAPI.getUser(userId);
+      console.log('Profile data received:', response.data);
+      
+      // Update both profileData and user context
       setProfileData(response.data);
+      if (setUser) {
+        setUser(response.data);
+      }
     } catch (error) {
-      console.error('Error fetching profile data:', error);
-      setProfileData(user); // Fallback to user from context
+      console.error('Error fetching profile:', error);
+      console.log('Falling back to user context data:', user);
+      setProfileData(user);
     } finally {
       setLoading(false);
     }
   };
 
-  const [documentViewerOpen, setDocumentViewerOpen] = useState(false);
-  const [viewingDocument, setViewingDocument] = useState(null);
-
-  const tabs = [
-    { id: 'personal', label: 'Personal Info', icon: User },
-    { id: 'professional', label: 'Professional', icon: BookOpen },
-    { id: 'documents', label: 'Documents', icon: FileText }
-  ];
-
-  const openDocumentViewer = (doc) => {
-    setViewingDocument(doc);
-    setDocumentViewerOpen(true);
-  };
+  const Field = ({ label, value }) => (
+    <div>
+      <label className="block text-xs font-medium text-gray-500 mb-1">{label}</label>
+      <p className="text-sm font-medium text-gray-900">{value || 'Not provided'}</p>
+    </div>
+  );
 
   if (loading) {
     return (
@@ -54,9 +81,23 @@ const StaffProfile = () => {
         <Sidebar />
         <div className="flex-1 lg:ml-64">
           <Navbar />
-          <div className="p-4 lg:p-6">
-            <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="p-6 flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profileData) {
+    return (
+      <div className="flex min-h-screen bg-gray-50">
+        <Sidebar />
+        <div className="flex-1 lg:ml-64">
+          <Navbar />
+          <div className="p-6">
+            <div className="text-center py-12">
+              <p className="text-gray-600">Unable to load profile data</p>
             </div>
           </div>
         </div>
@@ -64,280 +105,236 @@ const StaffProfile = () => {
     );
   }
 
-  const profile = profileData || user;
-
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
       <div className="flex-1 lg:ml-64">
         <Navbar />
-        <div className="p-4 lg:p-6">
-          <h1 className="text-2xl font-bold mb-6">My Profile</h1>
-
-          {/* Profile Header */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-              <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center">
-                {profile?.passportPhoto ? (
-                  <img
-                    src={`data:${profile.passportPhoto.contentType};base64,${profile.passportPhoto.data}`}
-                    alt={profile.name}
-                    className="w-24 h-24 rounded-full object-cover"
-                  />
+        <div className="p-6 max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg p-8 mb-6 text-white">
+            <div className="flex items-center gap-6">
+              <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg">
+                {profileData?.passportPhoto?.data && profileData?.passportPhoto?.contentType ? (
+                  <img src={`data:${profileData.passportPhoto.contentType};base64,${profileData.passportPhoto.data}`} alt="Profile" className="w-24 h-24 rounded-full object-cover" />
                 ) : (
-                  <User size={40} className="text-blue-600" />
+                  <User size={48} className="text-blue-600" />
                 )}
               </div>
-              <div className="text-center md:text-left">
-                <h2 className="text-2xl font-bold text-gray-900">{profile?.name || 'N/A'}</h2>
-                <p className="text-lg text-gray-600 mb-2">{profile?.role || 'Staff Member'} • {profile?.department || 'N/A'}</p>
-                {profile?.staffId && <p className="text-sm text-gray-500">Staff ID: {profile.staffId}</p>}
-                <div className="flex flex-col md:flex-row gap-4 text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <Mail size={16} />
-                    <span>{profile?.email || 'N/A'}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Phone size={16} />
-                    <span>{profile?.phone || 'N/A'}</span>
-                  </div>
+              <div>
+                <h1 className="text-3xl font-bold mb-2">{profileData?.name || 'Staff Member'}</h1>
+                <p className="text-blue-100 text-lg mb-1">{profileData?.designation || profileData?.role || 'Staff'} • {profileData?.department || 'N/A'}</p>
+                <p className="text-blue-200 text-sm">Staff ID: {profileData?.staffId || 'N/A'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-white p-4 rounded-lg shadow">
+              <div className="flex items-center gap-3">
+                <Mail className="text-blue-600" size={24} />
+                <div>
+                  <p className="text-xs text-gray-500">Email</p>
+                  <p className="text-sm font-medium">{profileData?.email || 'N/A'}</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow">
+              <div className="flex items-center gap-3">
+                <Phone className="text-green-600" size={24} />
+                <div>
+                  <p className="text-xs text-gray-500">Phone</p>
+                  <p className="text-sm font-medium">{profileData?.phone || 'N/A'}</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow">
+              <div className="flex items-center gap-3">
+                <Calendar className="text-purple-600" size={24} />
+                <div>
+                  <p className="text-xs text-gray-500">Joining Date</p>
+                  <p className="text-sm font-medium">{profileData?.joiningDate ? new Date(profileData.joiningDate).toLocaleDateString() : (profileData?.dateOfJoining ? new Date(profileData.dateOfJoining).toLocaleDateString() : 'N/A')}</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow">
+              <div className="flex items-center gap-3">
+                <Briefcase className="text-orange-600" size={24} />
+                <div>
+                  <p className="text-xs text-gray-500">Experience</p>
+                  <p className="text-sm font-medium">{profileData?.yearsOfExperience ? `${profileData.yearsOfExperience} years` : 'N/A'}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Tabs */}
-          <div className="bg-white rounded-lg shadow-md mb-6">
-            <div className="flex border-b overflow-x-auto">
-              {tabs.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-6 py-3 font-medium whitespace-nowrap transition-colors ${
-                    activeTab === tab.id
-                      ? 'border-b-2 border-blue-600 text-blue-600'
-                      : 'text-gray-600 hover:text-blue-600'
-                  }`}
-                >
-                  <tab.icon size={18} />
-                  {tab.label}
-                </button>
-              ))}
+          {/* Main Content */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Personal Information */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                  <User className="text-blue-600" size={20} />
+                  Personal Information
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Field label="Full Name" value={profileData?.name || profileData?.fullName} />
+                  <Field label="Email" value={profileData?.email} />
+                  <Field label="Phone" value={profileData?.phone} />
+                  <Field label="Date of Birth" value={profileData?.dob ? new Date(profileData.dob).toLocaleDateString() : (profileData?.dateOfBirth ? new Date(profileData.dateOfBirth).toLocaleDateString() : null)} />
+                  <Field label="Gender" value={profileData?.gender} />
+                  <Field label="Blood Group" value={profileData?.bloodGroup} />
+                  <Field label="Aadhaar Number" value={profileData?.aadhaarNumber} />
+                  <Field label="PAN Number" value={profileData?.panNumber} />
+                  <Field label="Marital Status" value={profileData?.maritalStatus} />
+                  <Field label="Nationality" value={profileData?.nationality} />
+                  <Field label="Religion" value={profileData?.religion} />
+                  <Field label="Caste Category" value={profileData?.casteCategory} />
+                  <Field label="Identification Mark 1" value={profileData?.identificationMark1} />
+                  <Field label="Identification Mark 2" value={profileData?.identificationMark2} />
+                </div>
+              </div>
+
+              {/* Professional Information */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                  <Briefcase className="text-blue-600" size={20} />
+                  Professional Details
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Field label="Staff ID" value={profileData?.staffId} />
+                  <Field label="Employee Code" value={profileData?.employeeCode} />
+                  <Field label="Department" value={profileData?.department} />
+                  <Field label="Designation" value={profileData?.designation} />
+                  <Field label="Employment Type" value={profileData?.employmentType} />
+                  <Field label="Qualification" value={profileData?.qualification} />
+                  <Field label="Date of Joining" value={profileData?.joiningDate ? new Date(profileData.joiningDate).toLocaleDateString() : (profileData?.dateOfJoining ? new Date(profileData.dateOfJoining).toLocaleDateString() : null)} />
+                  <Field label="Years of Experience" value={profileData?.yearsOfExperience} />
+                  <Field label="Previous Institution" value={profileData?.previousInstitution} />
+                  <Field label="Specialization" value={profileData?.specialization} />
+                  <Field label="Employee Status" value={profileData?.status || profileData?.employeeStatus} />
+                </div>
+              </div>
+
+              {/* Payroll Details */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                  <CreditCard className="text-blue-600" size={20} />
+                  Salary & Payroll
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Field label="Basic Salary" value={profileData?.basicSalary ? `₹${profileData.basicSalary}` : null} />
+                  <Field label="Allowances" value={profileData?.allowances ? `₹${profileData.allowances}` : null} />
+                  <Field label="PF Number" value={profileData?.pfNumber} />
+                  <Field label="ESI Number" value={profileData?.esiNumber} />
+                  <Field label="UAN Number" value={profileData?.uanNumber} />
+                  <div className="md:col-span-2">
+                    <Field label="Tax Deduction Details" value={profileData?.taxDeduction} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact & Address */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                  <MapPin className="text-blue-600" size={20} />
+                  Contact & Address
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Field label="Alternate Contact" value={profileData?.alternateContact} />
+                  <Field label="Emergency Contact Name" value={profileData?.emergencyContactName} />
+                  <Field label="Emergency Contact Number" value={profileData?.emergencyContactNumber} />
+                  <div className="md:col-span-2">
+                    <Field label="Permanent Address" value={profileData?.permanentAddress || profileData?.address} />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Field label="Current Address" value={profileData?.currentAddress} />
+                  </div>
+                  <Field label="City" value={profileData?.city} />
+                  <Field label="State" value={profileData?.state} />
+                  <Field label="Pincode" value={profileData?.pincode} />
+                  <Field label="Country" value={profileData?.country} />
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* Tab Content */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            {activeTab === 'personal' && (
-              <div>
-                <h3 className="text-xl font-bold mb-6">Personal Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                      <div className="p-3 bg-gray-50 rounded-lg border">
-                        {profile?.name || 'N/A'}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                      <div className="p-3 bg-gray-50 rounded-lg border">
-                        {profile?.email || 'N/A'}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                      <div className="p-3 bg-gray-50 rounded-lg border">
-                        {profile?.phone || 'N/A'}
-                      </div>
-                    </div>
+            {/* Right Column */}
+            <div className="space-y-6">
+              {/* Bank Details */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                  <CreditCard className="text-blue-600" size={20} />
+                  Bank Details
+                </h2>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-xs text-gray-500">Basic Salary</p>
+                    <p className="text-lg font-bold text-green-600">{profileData?.basicSalary ? `₹${profileData.basicSalary}` : 'N/A'}</p>
                   </div>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Staff ID</label>
-                      <div className="p-3 bg-gray-50 rounded-lg border">
-                        {profile?.staffId || 'N/A'}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
-                      <div className="p-3 bg-gray-50 rounded-lg border">
-                        {profile?.dob ? new Date(profile.dob).toLocaleDateString() : 'N/A'}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
-                      <div className="p-3 bg-gray-50 rounded-lg border">
-                        {profile?.gender || 'N/A'}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                  <div className="p-3 bg-gray-50 rounded-lg border">
-                    {profile?.address || 'N/A'}
-                  </div>
+                  <Field label="Bank Name" value={profileData?.bankName} />
+                  <Field label="Account Number" value={profileData?.salaryAccountNumber} />
+                  <Field label="IFSC Code" value={profileData?.ifscCode} />
+                  <Field label="Branch" value={profileData?.branchName} />
                 </div>
               </div>
-            )}
 
-            {activeTab === 'professional' && (
-              <div>
-                <h3 className="text-xl font-bold mb-6">Professional Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Staff ID</label>
-                    <div className="p-3 bg-gray-50 rounded-lg border">
-                      {profile?.staffId || 'N/A'}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
-                    <div className="p-3 bg-gray-50 rounded-lg border">
-                      {profile?.role || 'N/A'}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
-                    <div className="p-3 bg-gray-50 rounded-lg border">
-                      {profile?.department || 'N/A'}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Qualification</label>
-                    <div className="p-3 bg-gray-50 rounded-lg border">
-                      {profile?.qualification || 'N/A'}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Joining Date</label>
-                    <div className="p-3 bg-gray-50 rounded-lg border">
-                      {profile?.joiningDate ? new Date(profile.joiningDate).toLocaleDateString() : 'N/A'}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                    <div className="p-3 bg-gray-50 rounded-lg border">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        profile?.status === 'Active' ? 'bg-green-100 text-green-800' :
-                        profile?.status === 'On Leave' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {profile?.status || 'Active'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'documents' && (
-              <div className="space-y-6">
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl">
-                  <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <ImageIcon className="w-5 h-5 text-blue-600" />
-                    Passport Photo
-                  </h4>
-                  {profile?.passportPhoto ? (
-                    <div className="flex items-center gap-6">
-                      <img 
-                        src={`data:${profile.passportPhoto.contentType};base64,${profile.passportPhoto.data}`}
-                        alt="Passport Photo" 
-                        className="w-32 h-32 object-cover rounded-xl border-4 border-white shadow-lg cursor-pointer hover:scale-105 transition-transform"
-                        onClick={() => openDocumentViewer({
-                          ...profile.passportPhoto,
-                          name: 'Passport Photo',
-                          type: 'passport'
-                        })}
-                      />
-                      <div className="bg-white p-4 rounded-lg shadow-sm flex-1">
-                        <p className="text-sm text-gray-600 mb-1"><span className="font-medium">Filename:</span> {profile.passportPhoto.filename}</p>
-                        <p className="text-sm text-gray-600"><span className="font-medium">Upload Date:</span> {new Date(profile.passportPhoto.uploadDate).toLocaleDateString()}</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <ImageIcon className="w-16 h-16 text-gray-300 mx-auto mb-2" />
-                      <p className="text-gray-500 italic">No passport photo uploaded</p>
-                    </div>
+              {/* Medical Info */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                  <Heart className="text-blue-600" size={20} />
+                  Medical Information
+                </h2>
+                <div className="space-y-4">
+                  <Field label="Medical Conditions" value={profileData?.medicalConditions} />
+                  <Field label="Health Insurance" value={profileData?.healthInsurance} />
+                  <Field label="Emergency Medical Contact" value={profileData?.emergencyMedicalContact} />
+                  {profileData?.disability && (
+                    <Field label="Disability Details" value={profileData?.disabilityDetails} />
                   )}
                 </div>
+              </div>
 
-                <div className="bg-gray-50 p-6 rounded-xl">
-                  <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-gray-600" />
-                    Official Documents
-                  </h4>
-                  {profile?.documents && profile.documents.length > 0 ? (
-                    <div className="space-y-4">
-                      {profile.documents.map((doc, index) => (
-                        <div key={index} className="bg-white p-4 rounded-lg shadow-sm border hover:shadow-md transition-all">
-                          <div className="flex items-center gap-4">
-                            <div className="flex-shrink-0 cursor-pointer" onClick={() => openDocumentViewer(doc)}>
-                              {doc.contentType.startsWith('image/') ? (
-                                <img 
-                                  src={`data:${doc.contentType};base64,${doc.data}`}
-                                  alt={doc.name} 
-                                  className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200 hover:border-blue-300 transition-colors"
-                                />
-                              ) : (
-                                <div className="w-20 h-20 bg-red-50 rounded-lg border-2 border-red-200 flex items-center justify-center hover:bg-red-100 transition-colors">
-                                  <FileText className="w-10 h-10 text-red-500" />
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex-1">
-                              <h5 className="font-medium text-gray-800 mb-1">{doc.name}</h5>
-                              <div className="flex items-center gap-3 text-sm text-gray-600">
-                                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium capitalize">
-                                  {doc.type.replace(/([A-Z])/g, ' $1').trim()}
-                                </span>
-                                <span>{(doc.size / 1024 / 1024).toFixed(2)} MB</span>
-                                <span>Uploaded: {new Date(doc.uploadDate).toLocaleDateString()}</span>
-                              </div>
-                            </div>
-                            <div className="flex gap-2">
-                              <button 
-                                onClick={() => openDocumentViewer(doc)}
-                                className="px-3 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-1"
-                              >
-                                <Eye size={14} /> View
-                              </button>
-                              <button 
-                                onClick={() => {
-                                  const link = document.createElement('a');
-                                  link.href = `data:${doc.contentType};base64,${doc.data}`;
-                                  link.download = doc.name;
-                                  link.click();
-                                }}
-                                className="px-3 py-2 text-sm bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                              >
-                                Download
-                              </button>
-                            </div>
-                          </div>
+              {/* Accommodation */}
+              {profileData?.accommodationRequired && (
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                    <MapPin className="text-blue-600" size={20} />
+                    Accommodation Details
+                  </h2>
+                  <div className="space-y-4">
+                    <Field label="Room Number" value={profileData?.accommodationRoomNumber} />
+                    <Field label="Block" value={profileData?.accommodationBlock} />
+                    <Field label="Warden Name" value={profileData?.accommodationWardenName} />
+                  </div>
+                </div>
+              )}
+
+              {/* Documents */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                  <FileText className="text-blue-600" size={20} />
+                  Documents
+                </h2>
+                {profileData?.documents && profileData.documents.length > 0 ? (
+                  <div className="space-y-2">
+                    {profileData.documents.map((doc, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100">
+                        <div className="flex items-center gap-2">
+                          <FileText size={16} className="text-gray-600" />
+                          <span className="text-sm truncate">{doc.name}</span>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <FileText className="w-16 h-16 text-gray-300 mx-auto mb-3" />
-                      <p className="text-gray-500">No documents uploaded</p>
-                    </div>
-                  )}
-                </div>
+                        <button onClick={() => { setViewingDocument(doc); setDocumentViewerOpen(true); }} className="text-blue-600 hover:text-blue-700">
+                          <Eye size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 text-center py-4">No documents uploaded</p>
+                )}
               </div>
-            )}
-          </div>
-
-          {/* View-Only Notice */}
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center gap-2">
-              <User size={16} className="text-blue-600" />
-              <p className="text-blue-800 text-sm font-medium">
-                This profile is view-only. Contact the administrator to update your information.
-              </p>
             </div>
           </div>
         </div>
@@ -347,81 +344,28 @@ const StaffProfile = () => {
       {documentViewerOpen && viewingDocument && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl w-full max-w-4xl max-h-[95vh] overflow-hidden">
-            <div className="flex justify-between items-center p-4 border-b bg-gray-50">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-800">{viewingDocument.name}</h3>
-                <p className="text-sm text-gray-600">
-                  {viewingDocument.type !== 'passport' && (
-                    <span className="capitalize">{viewingDocument.type.replace(/([A-Z])/g, ' $1').trim()} • </span>
-                  )}
-                  {viewingDocument.contentType}
-                </p>
-              </div>
-              <button 
-                onClick={() => setDocumentViewerOpen(false)}
-                className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-200 transition-all"
-              >
-                ✕
+            <div className="flex justify-between items-center p-4 border-b">
+              <h3 className="text-lg font-semibold">{viewingDocument.name}</h3>
+              <button onClick={() => setDocumentViewerOpen(false)} className="text-gray-500 hover:text-gray-700">
+                <X size={24} />
               </button>
             </div>
-            <div className="p-4 max-h-[calc(95vh-180px)] overflow-auto">
+            <div className="p-4 max-h-[calc(95vh-120px)] overflow-auto">
               {viewingDocument.contentType.startsWith('image/') ? (
-                <div className="flex justify-center">
-                  <img 
-                    src={`data:${viewingDocument.contentType};base64,${viewingDocument.data}`}
-                    alt={viewingDocument.name}
-                    className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
-                  />
-                </div>
+                <img src={`data:${viewingDocument.contentType};base64,${viewingDocument.data}`} alt={viewingDocument.name} className="max-w-full mx-auto" />
               ) : viewingDocument.contentType === 'application/pdf' ? (
-                <div className="w-full h-[600px]">
-                  <iframe
-                    src={`data:${viewingDocument.contentType};base64,${viewingDocument.data}`}
-                    className="w-full h-full border rounded-lg"
-                    title={viewingDocument.name}
-                  />
-                </div>
+                <iframe src={`data:${viewingDocument.contentType};base64,${viewingDocument.data}`} className="w-full h-[600px]" title={viewingDocument.name} />
               ) : (
                 <div className="text-center py-12">
-                  <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-600 mb-4">Cannot preview this file type</p>
-                  <button 
-                    onClick={() => {
-                      const link = document.createElement('a');
-                      link.href = `data:${viewingDocument.contentType};base64,${viewingDocument.data}`;
-                      link.download = viewingDocument.name;
-                      link.click();
-                    }}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                  >
-                    Download File
-                  </button>
+                  <button onClick={() => {
+                    const link = document.createElement('a');
+                    link.href = `data:${viewingDocument.contentType};base64,${viewingDocument.data}`;
+                    link.download = viewingDocument.name;
+                    link.click();
+                  }} className="px-4 py-2 bg-blue-500 text-white rounded-lg">Download</button>
                 </div>
               )}
-            </div>
-            <div className="flex justify-between items-center p-4 border-t bg-gray-50">
-              <div className="text-sm text-gray-600">
-                {viewingDocument.size && (
-                  <span>Size: {(viewingDocument.size / 1024 / 1024).toFixed(2)} MB</span>
-                )}
-                {viewingDocument.uploadDate && (
-                  <span className={viewingDocument.size ? 'ml-4' : ''}>Uploaded: {new Date(viewingDocument.uploadDate).toLocaleDateString()}</span>
-                )}
-              </div>
-              <button 
-                onClick={() => {
-                  const link = document.createElement('a');
-                  link.href = `data:${viewingDocument.contentType};base64,${viewingDocument.data}`;
-                  link.download = viewingDocument.name;
-                  link.click();
-                }}
-                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Download
-              </button>
             </div>
           </div>
         </div>

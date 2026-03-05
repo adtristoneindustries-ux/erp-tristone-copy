@@ -1,23 +1,14 @@
 const express = require('express');
-const { createMaterial, getMaterials, deleteMaterial, markMaterialAsViewed, getNewMaterialsCount } = require('../controllers/materialController');
-const { protect, authorize } = require('../middleware/auth');
-const upload = require('../middleware/upload');
-
 const router = express.Router();
+const { protect } = require('../middleware/auth');
 
-router.use(protect);
-
-router.route('/')
-  .get(getMaterials)
-  .post(authorize('admin', 'staff'), upload.single('file'), createMaterial);
-
-router.route('/mark-viewed')
-  .post(markMaterialAsViewed);
-
-router.route('/new-count')
-  .get(getNewMaterialsCount);
-
-router.route('/:id')
-  .delete(authorize('admin', 'staff'), deleteMaterial);
+// Get materials
+router.get('/', protect, async (req, res) => {
+  try {
+    res.json([]);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 module.exports = router;

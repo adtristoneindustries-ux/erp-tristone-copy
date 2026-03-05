@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminStudents from "./pages/AdminStudents";
 import AdminStaff from "./pages/AdminStaff";
+import AdminAddStaff from "./pages/AdminAddStaff";
 import AdminUserManagement from "./pages/AdminUserManagement";
 import AttendanceManagement from "./pages/AttendanceManagement";
 import AdminSubjects from "./pages/AdminSubjects";
@@ -28,6 +29,9 @@ import AdminDiscipline from "./pages/AdminDiscipline";
 import AdminEvents from "./pages/AdminEvents";
 import AdminSettings from "./pages/AdminSettings";
 import AdminScholarship from "./pages/AdminScholarship";
+import AdminPlacement from "./pages/AdminPlacement";
+import PlacementOfficerDashboard from "./pages/PlacementOfficerDashboard";
+import StudentPlacement from "./pages/StudentPlacement";
 import StaffDashboard from "./pages/StaffDashboard";
 import StaffProfile from "./pages/StaffProfile";
 import StaffMarks from "./pages/StaffMarks";
@@ -44,6 +48,8 @@ import StudentHomework from "./pages/StudentHomework";
 import StaffFeedback from "./pages/StaffFeedback";
 import StaffDigitalClassroom from "./pages/StaffDigitalClassroom";
 import StudentDigitalClassroom from "./pages/StudentDigitalClassroom";
+import StudentChatWithTeacher from "./pages/StudentChatWithTeacher";
+import StaffChatWithStudents from "./pages/StaffChatWithStudents";
 import StaffMaterials from "./pages/StaffMaterials";
 import StaffCourses from "./pages/StaffCourses";
 
@@ -144,6 +150,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminStaff />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/staff/add"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminAddStaff />
             </ProtectedRoute>
           }
         />
@@ -307,6 +321,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/placement"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminPlacement />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/staff"
@@ -430,10 +452,18 @@ function App() {
           }
         />
         <Route
-          path="/staff/materials"
+          path="/staff/chat"
           element={
             <ProtectedRoute allowedRoles={["staff"]}>
-              <StaffMaterials />
+              <StaffChatWithStudents />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/placement"
+          element={
+            <ProtectedRoute allowedRoles={["staff"]}>
+              <PlacementOfficerDashboard />
             </ProtectedRoute>
           }
         />
@@ -584,18 +614,26 @@ function App() {
           }
         />
         <Route
-          path="/student/materials"
-          element={
-            <ProtectedRoute allowedRoles={["student"]}>
-              <StudentMaterials />
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/student/finance"
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentFinance />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/chat"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentChatWithTeacher />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/placement"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentPlacement />
             </ProtectedRoute>
           }
         />

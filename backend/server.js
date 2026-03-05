@@ -5,6 +5,7 @@ const http = require('http');
 const path = require('path');
 const { Server } = require('socket.io');
 const connectDB = require('./config/db');
+const User = require('./models/User');
 
 const app = express();
 const server = http.createServer(app);
@@ -67,6 +68,8 @@ app.use('/api/discipline', require('./routes/disciplineRoutes'));
 app.use('/api/settings', require('./routes/settingsRoutes'));
 app.use('/api/scholarships', require('./routes/scholarshipRoutes'));
 app.use('/api/finance', require('./routes/financeRoutes'));
+app.use('/api/chat', require('./routes/chatRoutes'));
+app.use('/api/placement', require('./routes/placementRoutes'));
 app.use('/api/activities', require('./routes/activityRoutes'));
 app.use('/api/courses', require('./routes/courseRoutes'));
 
@@ -89,8 +92,37 @@ app.use((err, req, res, next) => {
 // Socket.IO connection
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
-  socket.on('disconnect', () => {
+  
+  // User comes online
+  socket.on('userOnline', async (userId) => {
+    try {
+      await User.findByIdAndUpdate(userId, { 
+        isOnline: true, 
+        socketId: socket.id,
+        lastSeen: new Date()
+      });
+      io.emit('userStatusChange', { userId, isOnline: true });
+    } catch (error) {
+      console.error('Error updating user online status:', error);
+    }
+  });
+  
+  // User goes offline
+  socket.on('disconnect', async () => {
     console.log('Client disconnected:', socket.id);
+    try {
+      const user = await User.findOne({ socketId: socket.id });
+      if (user) {
+        await User.findByIdAndUpdate(user._id, { 
+          isOnline: false,
+          lastSeen: new Date(),
+          socketId: null
+        });
+        io.emit('userStatusChange', { userId: user._id, isOnline: false });
+      }
+    } catch (error) {
+      console.error('Error updating user offline status:', error);
+    }
   });
 });
 

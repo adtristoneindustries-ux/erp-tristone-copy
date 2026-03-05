@@ -48,6 +48,11 @@ export const AuthProvider = ({ children }) => {
             return;
           }
           setUser(res.data);
+          // Refresh user data periodically to get updated hasPlacementAccess
+          if (res.data.role === 'staff') {
+            const refreshedUser = await authAPI.me();
+            setUser(refreshedUser.data);
+          }
         } catch (error) {
           localStorage.removeItem('token');
           sessionStorage.clear();

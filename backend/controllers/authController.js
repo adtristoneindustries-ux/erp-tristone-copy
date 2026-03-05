@@ -44,7 +44,8 @@ exports.login = async (req, res) => {
         role: user.role,
         class: user.class,
         section: user.section,
-        rollNumber: user.rollNumber
+        rollNumber: user.rollNumber,
+        hasPlacementAccess: user.hasPlacementAccess
       }
     });
   } catch (error) {
@@ -62,7 +63,8 @@ exports.getMe = async (req, res) => {
       role: user.role,
       class: user.class,
       section: user.section,
-      rollNumber: user.rollNumber
+      rollNumber: user.rollNumber,
+      hasPlacementAccess: user.hasPlacementAccess
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
