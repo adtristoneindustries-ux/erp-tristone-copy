@@ -55,9 +55,9 @@ exports.createUser = async (req, res) => {
       });
     }
 
-    res.status(201).json(user);
+    res.status(201).json({ success: true, data: user });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -80,7 +80,7 @@ exports.getUsers = async (req, res) => {
     const users = await User.find(query)
       .select("-password")
       .populate("subjects");
-    res.json(users);
+    res.json({ success: true, data: users });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -91,17 +91,17 @@ exports.getUser = async (req, res) => {
     const user = await User.findById(req.params.id)
       .select("-password")
       .populate("subjects");
-    if (!user) return res.status(404).json({ message: "User not found" });
-    res.json(user);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    res.json({ success: true, data: user });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 exports.updateUser = async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.id !== req.params.id) {
-      return res.status(403).json({ message: 'Not authorized to update this profile' });
+      return res.status(403).json({ success: false, message: 'Not authorized to update this profile' });
     }
 
     const updateData = { ...req.body };
@@ -111,14 +111,22 @@ exports.updateUser = async (req, res) => {
     delete updateData.createdAt;
     delete updateData.updatedAt;
     
-    if (req.user.role !== 'admin') {
+    // Admin can update role
+    if (req.user.role === 'admin' && updateData.role) {
+      // Allow role update for admin
+    } else {
       delete updateData.role;
     }
 
-    // Ensure required fields are present
-    if (!updateData.name || !updateData.email) {
-      return res.status(400).json({ message: 'Name and email are required' });
+    // Get existing user to preserve required fields
+    const existingUser = await User.findById(req.params.id);
+    if (!existingUser) {
+      return res.status(404).json({ success: false, message: "User not found" });
     }
+
+    // Preserve name and email if not provided
+    if (!updateData.name) updateData.name = existingUser.name;
+    if (!updateData.email) updateData.email = existingUser.email;
     
     const user = await User.findByIdAndUpdate(
       req.params.id, 
@@ -126,7 +134,7 @@ exports.updateUser = async (req, res) => {
       { new: true, runValidators: false, context: 'query' }
     ).select("-password");
     
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
     if (user.role === "student") {
       req.io.emit("studentUpdate", {
@@ -140,16 +148,16 @@ exports.updateUser = async (req, res) => {
       });
     }
 
-    res.json(user);
+    res.json({ success: true, data: user });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
 exports.deleteUser = async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
     // Emit real-time update for deletion
     if (user.role === "student") {
@@ -164,9 +172,9 @@ exports.deleteUser = async (req, res) => {
       });
     }
 
-    res.json({ message: "User deleted" });
+    res.json({ success: true, message: "User deleted" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 

@@ -48,7 +48,9 @@ const Login = () => {
         navigate(redirectUrl, { replace: true });
       } else {
         sessionStorage.removeItem('redirectUrl');
-        navigate(`/${user.role}`, { replace: true });
+        // Librarian should go to staff dashboard
+        const routeRole = user.role === 'librarian' ? 'staff' : user.role;
+        navigate(`/${routeRole}`, { replace: true });
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.');

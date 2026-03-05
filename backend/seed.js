@@ -5,7 +5,6 @@ const Subject = require('./models/Subject');
 const Class = require('./models/Class');
 const Attendance = require('./models/Attendance');
 const Mark = require('./models/Mark');
-const Material = require('./models/Material');
 const Announcement = require('./models/Announcement');
 const Timetable = require('./models/Timetable');
 
@@ -24,7 +23,6 @@ const seedData = async () => {
     await Class.deleteMany({});
     await Attendance.deleteMany({});
     await Mark.deleteMany({});
-    await Material.deleteMany({});
     await Announcement.deleteMany({});
     await Timetable.deleteMany({});
 
@@ -38,13 +36,30 @@ const seedData = async () => {
     });
 
     // Create Staff
-    const staff = await User.create({
+    const staff1 = await User.create({
       name: 'John Teacher',
       email: 'staff@school.com',
       password: 'staff123',
       role: 'staff',
-      phone: '9876543210'
+      phone: '9876543210',
+      staffId: 'ST-2024-001'
     });
+
+    const staff2 = await User.create({
+      name: 'Sarah Wilson',
+      email: 'sarah@school.com',
+      password: 'staff123',
+      role: 'staff',
+      phone: '9876543211',
+      staffId: 'ST-2024-002',
+      department: 'Library',
+      qualification: 'M.Lib.Sc',
+      experience: '5 years',
+      joiningDate: new Date('2020-01-15'),
+      address: '456 Oak Street, City'
+    });
+
+    const staff = staff1; // For backward compatibility
 
     // Create Students for Class 10A and 10B
     const studentsData = [
@@ -124,54 +139,6 @@ const seedData = async () => {
       }
     }
 
-    // Create Materials
-    await Material.insertMany([
-      {
-        title: 'Mathematics Chapter 1 - Algebra',
-        description: 'Introduction to Algebra with solved examples',
-        fileUrl: 'https://drive.google.com/file/d/sample-math-pdf/view',
-        fileType: 'PDF',
-        subject: subjects[0]._id,
-        uploadedBy: staff._id,
-        class: '10',
-        section: 'A',
-        isNewMaterial: true
-      },
-      {
-        title: 'Physics Video Lecture',
-        description: 'Newton Laws of Motion explained with animations',
-        fileUrl: 'https://youtube.com/watch?v=sample-physics-video',
-        fileType: 'Video',
-        subject: subjects[1]._id,
-        uploadedBy: staff._id,
-        class: '10',
-        section: 'All Sections',
-        isNewMaterial: true
-      },
-      {
-        title: 'Chemistry Lab Manual',
-        description: 'Complete lab procedures and safety guidelines',
-        fileUrl: 'https://drive.google.com/file/d/sample-chemistry-doc/view',
-        fileType: 'Document',
-        subject: subjects[2]._id,
-        uploadedBy: staff._id,
-        class: '10',
-        section: 'B',
-        isNewMaterial: true
-      },
-      {
-        title: 'English Grammar Reference',
-        description: 'Comprehensive grammar rules and exercises',
-        fileUrl: 'https://example.com/english-grammar.pdf',
-        fileType: 'PDF',
-        subject: subjects[3]._id,
-        uploadedBy: staff._id,
-        class: '10',
-        section: 'All Sections',
-        isNewMaterial: true
-      }
-    ]);
-
     // Create Announcements
     await Announcement.create({
       title: 'Welcome to New Academic Year',
@@ -212,7 +179,8 @@ const seedData = async () => {
     console.log('✅ Database seeded successfully!');
     console.log('\nDemo Credentials:');
     console.log('Admin: admin@school.com / admin123');
-    console.log('Staff: staff@school.com / staff123');
+    console.log('Staff 1: staff@school.com / staff123');
+    console.log('Staff 2: sarah@school.com / staff123');
     console.log('Student: student@school.com / student123');
     console.log('\nStudents created in:');
     console.log('- Class 10A: 5 students');

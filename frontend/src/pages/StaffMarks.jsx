@@ -27,7 +27,10 @@ const StaffMarks = () => {
 
   useEffect(() => {
     fetchMarks();
-    userAPI.getUsers({ role: 'student' }).then(res => setStudents(res.data));
+    userAPI.getUsers({ role: 'student' }).then(res => {
+      const studentData = res.data.data || res.data || [];
+      setStudents(Array.isArray(studentData) ? studentData : []);
+    });
     subjectAPI.getSubjects().then(res => setSubjects(res.data));
   }, []);
 
@@ -99,10 +102,12 @@ const StaffMarks = () => {
   };
 
   const getUniqueClasses = () => {
+    if (!Array.isArray(students)) return [];
     return [...new Set(students.map(s => s.class).filter(Boolean))].sort();
   };
 
   const getUniqueSections = () => {
+    if (!Array.isArray(students)) return [];
     return [...new Set(students.map(s => s.section).filter(Boolean))].sort();
   };
 

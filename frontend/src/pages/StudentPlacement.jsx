@@ -70,12 +70,31 @@ export default function StudentPlacement() {
   const updateProfile = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.put('/placement/profile/student', profile);
+      const profileData = {
+        ...profile,
+        year: parseInt(profile.year) || 0,
+        cgpa: parseFloat(profile.cgpa) || 0,
+        arrears_count: parseInt(profile.arrears_count) || 0
+      };
+      await api.put('/placement/profile/student', profileData);
+      
+      // Fetch updated user data
+      const userRes = await api.get('/auth/me');
+      setProfile({
+        cgpa: userRes.data.cgpa || '',
+        arrears_count: userRes.data.arrears_count || 0,
+        resume_url: userRes.data.resume_url || '',
+        skills: userRes.data.skills || [],
+        portfolio_link: userRes.data.portfolio_link || '',
+        year: userRes.data.year || '',
+        department: userRes.data.department || ''
+      });
+      
       alert('Profile updated successfully!');
       setShowProfileModal(false);
-      // Update user context with new data
       window.location.reload();
     } catch (error) {
+      console.error('Update error:', error);
       alert(error.response?.data?.message || 'Error updating profile');
     }
   };
@@ -119,20 +138,28 @@ export default function StudentPlacement() {
             <h2 className="text-xl font-semibold mb-2">Your Profile</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
+                <p className="text-gray-500 text-sm">Year</p>
+                <p className="text-lg font-semibold">{user?.year || 'Not set'}</p>
+              </div>
+              <div>
+                <p className="text-gray-500 text-sm">Department</p>
+                <p className="text-lg font-semibold">{user?.department || 'Not set'}</p>
+              </div>
+              <div>
                 <p className="text-gray-500 text-sm">CGPA</p>
-                <p className="text-lg font-semibold">{profile.cgpa || 'Not set'}</p>
+                <p className="text-lg font-semibold">{user?.cgpa || 'Not set'}</p>
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Arrears</p>
-                <p className="text-lg font-semibold">{profile.arrears_count}</p>
+                <p className="text-lg font-semibold">{user?.arrears_count || 0}</p>
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Skills</p>
-                <p className="text-lg font-semibold">{profile.skills?.length || 0}</p>
+                <p className="text-lg font-semibold">{user?.skills?.length || 0}</p>
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Resume</p>
-                <p className="text-lg font-semibold">{profile.resume_url ? 'Uploaded' : 'Not uploaded'}</p>
+                <p className="text-lg font-semibold">{user?.resume_url ? 'Uploaded' : 'Not uploaded'}</p>
               </div>
             </div>
           </div>

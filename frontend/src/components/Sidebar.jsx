@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck , DollarSign, AlertTriangle, Settings, MessageCircle, Briefcase } from 'lucide-react';
+import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck , DollarSign, AlertTriangle, Settings, MessageCircle, Briefcase, Book } from 'lucide-react';
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { SettingsContext } from '../context/SettingsContext';
@@ -28,6 +28,7 @@ const Sidebar = () => {
     { to: '/admin/discipline', icon: AlertTriangle, label: 'Discipline Oversight' },
     { to: '/admin/events', icon: Calendar, label: 'Events Management' },
     { to: '/admin/placement', icon: Briefcase, label: 'Placement' },
+    { to: '/admin/library', icon: Book, label: 'Library Management' },
     { to: '/admin/settings', icon: Settings, label: 'Settings' }
   ];
 
@@ -46,10 +47,22 @@ const Sidebar = () => {
     { to: '/staff/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
     { to: '/staff/scholarships', icon: Award, label: 'Scholarships' },
     ...(user?.hasPlacementAccess ? [{ to: '/staff/placement', icon: Briefcase, label: 'Placement' }] : []),
+    { to: '/staff/library', icon: Book, label: 'Library' },
     { to: '/staff/chat', icon: MessageCircle, label: 'Chat with Students' },
     { to: '/staff/announcements', icon: Bell, label: 'Announcements' },
     { to: '/staff/timetable', icon: Calendar, label: 'My Timetable' },
     { to: '/staff/feedback', icon: MessageSquare, label: 'Feedback' }
+  ];
+
+  const librarianLinks = [
+    { to: '/staff/library', icon: Book, label: 'Library' },
+    { to: '/staff/library/books', icon: Book, label: 'Library Management' },
+    { to: '/staff/library/issues', icon: BookOpen, label: 'Issue & Return Management' },
+    { to: '/staff/library/reservations', icon: ClipboardList, label: 'Book Reservations' },
+    { to: '/staff/leaves', icon: Calendar, label: 'My Leave Requests' },
+    { to: '/staff/profile', icon: User, label: 'My Profile' },
+    { to: '/staff/announcements', icon: Bell, label: 'Announcements' },
+    { to: '/staff/feedback', icon: MessageSquare, label: 'Staff Feedback' }
   ];
 
   const studentLinks = [
@@ -72,10 +85,11 @@ const Sidebar = () => {
     { to: '/student/transport', icon: Bus, label: 'Transport' },
     { to: '/student/hostel', icon: Building2, label: 'Hostel' },
     { to: '/student/announcements', icon: Bell, label: 'Announcements' },
-    { to: '/student/placement', icon: Briefcase, label: 'Placement' }
+    { to: '/student/placement', icon: Briefcase, label: 'Placement' },
+    { to: '/student/library', icon: Book, label: 'Library' }
   ];
 
-  const links = user?.role === 'admin' ? adminLinks : user?.role === 'staff' ? staffLinks : studentLinks;
+  const links = user?.role === 'admin' ? adminLinks : user?.role === 'librarian' ? librarianLinks : user?.role === 'staff' ? staffLinks : studentLinks;
 
   // Close mobile menu on route change
   useEffect(() => {

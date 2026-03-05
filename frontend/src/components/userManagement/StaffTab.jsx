@@ -53,14 +53,21 @@ const StaffTab = () => {
 
   const fetchStaff = async () => {
     try {
-      const res = await userAPI.getUsers({ role: 'staff' });
-      setStaff(res.data);
+      const res = await userAPI.getUsers();
+      const allUsers = res.data.data || res.data || [];
+      // Show both staff and librarian roles
+      const staffData = allUsers.filter(u => u.role === 'staff' || u.role === 'librarian');
+      setStaff(staffData);
     } catch (error) {
       showError('Failed to fetch staff');
     }
   };
 
   const filterStaffData = () => {
+    if (!Array.isArray(staff)) {
+      setFilteredStaff([]);
+      return;
+    }
     let filtered = staff.filter(s => {
       const matchSearch = s.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          s.staffId?.toLowerCase().includes(searchTerm.toLowerCase());

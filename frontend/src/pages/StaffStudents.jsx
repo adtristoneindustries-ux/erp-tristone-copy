@@ -38,22 +38,32 @@ const StaffStudents = () => {
   const fetchStudents = async () => {
     try {
       const res = await userAPI.getUsers({ role: 'student', search });
-      setStudents(res.data);
-      setFilteredStudents(res.data);
+      const studentData = res.data.data || res.data || [];
+      setStudents(Array.isArray(studentData) ? studentData : []);
+      setFilteredStudents(Array.isArray(studentData) ? studentData : []);
     } catch (error) {
       console.error('Error fetching students:', error);
+      setStudents([]);
+      setFilteredStudents([]);
     }
   };
 
   const applyFilters = () => {
+    if (!Array.isArray(students)) return;
     let filtered = students;
     if (filterClass) filtered = filtered.filter(student => student.class === filterClass);
     if (filterSection) filtered = filtered.filter(student => student.section === filterSection);
     setFilteredStudents(filtered);
   };
 
-  const getUniqueClasses = () => [...new Set(students.map(s => s.class).filter(Boolean))].sort();
-  const getUniqueSections = () => [...new Set(students.map(s => s.section).filter(Boolean))].sort();
+  const getUniqueClasses = () => {
+    if (!Array.isArray(students)) return [];
+    return [...new Set(students.map(s => s.class).filter(Boolean))].sort();
+  };
+  const getUniqueSections = () => {
+    if (!Array.isArray(students)) return [];
+    return [...new Set(students.map(s => s.section).filter(Boolean))].sort();
+  };
 
   const openStudentDetails = (student) => {
     setSelectedStudent(student);
