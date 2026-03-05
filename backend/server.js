@@ -70,6 +70,8 @@ app.use('/api/scholarships', require('./routes/scholarshipRoutes'));
 app.use('/api/finance', require('./routes/financeRoutes'));
 app.use('/api/chat', require('./routes/chatRoutes'));
 app.use('/api/placement', require('./routes/placementRoutes'));
+app.use('/api/activities', require('./routes/activityRoutes'));
+app.use('/api/courses', require('./routes/courseRoutes'));
 
 // Health check endpoint
 app.get('/', (req, res) => {

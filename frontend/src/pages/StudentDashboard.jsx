@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { Award, Calendar, TrendingUp, User, Clock, BookOpen, FileText, Bell, Download, Send, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Award, Calendar, TrendingUp, User, Clock, BookOpen, FileText, Bell, Download, Send, CheckCircle, XCircle, AlertCircle, Activity } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import Card from '../components/Card';
 import Sidebar from '../components/Sidebar';
@@ -346,6 +346,10 @@ const StudentDashboard = () => {
             
             {/* New Quick Links */}
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
+              <Link to="/student/activities" className="p-3 lg:p-4 bg-indigo-50 rounded-lg text-center hover:bg-indigo-100 transition">
+                <Activity className="mx-auto mb-2" size={24} />
+                <p className="font-medium text-sm lg:text-base">Courses & Activities</p>
+              </Link>
               <Link to="/student/leave-request" className="p-3 lg:p-4 bg-red-50 rounded-lg text-center hover:bg-red-100 transition">
                 <Send className="mx-auto mb-2" size={24} />
                 <p className="font-medium text-sm lg:text-base">Apply Leave</p>
