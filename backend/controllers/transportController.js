@@ -6,8 +6,8 @@ exports.getStudentTransport = async (req, res) => {
     const studentTransport = await StudentTransport.findOne({ student: req.user.id })
       .populate('route');
     
-    if (!studentTransport) {
-      return res.status(404).json({ success: false, message: 'No transport assigned' });
+    if (!studentTransport || !studentTransport.route) {
+      return res.status(200).json({ success: true, data: null });
     }
 
     res.json({ success: true, data: studentTransport });

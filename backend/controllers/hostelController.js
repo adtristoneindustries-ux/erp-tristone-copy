@@ -7,7 +7,7 @@ exports.getMyHostel = async (req, res) => {
     const hostel = await Hostel.findOne({ student: req.user.id }).populate('student', 'name email rollNumber');
     
     if (!hostel) {
-      return res.status(404).json({ success: false, message: 'No hostel assigned' });
+      return res.status(200).json({ success: true, data: null });
     }
 
     res.json({ success: true, data: hostel });

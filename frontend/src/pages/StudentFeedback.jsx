@@ -23,27 +23,30 @@ const StudentFeedback = () => {
   const fetchStaff = async () => {
     try {
       const res = await userAPI.getUsers({ role: 'staff' });
-      setStaffList(res.data);
+      setStaffList(Array.isArray(res.data) ? res.data : res.data.users || []);
     } catch (error) {
       console.error('Error fetching staff:', error);
+      setStaffList([]);
     }
   };
 
   const fetchReceivedFeedback = async () => {
     try {
       const res = await feedbackAPI.getReceivedFeedback();
-      setReceivedFeedback(res.data);
+      setReceivedFeedback(Array.isArray(res.data) ? res.data : res.data.feedback || []);
     } catch (error) {
       console.error('Error fetching feedback:', error);
+      setReceivedFeedback([]);
     }
   };
 
   const fetchSentFeedback = async () => {
     try {
       const res = await feedbackAPI.getSentFeedback();
-      setSentFeedback(res.data);
+      setSentFeedback(Array.isArray(res.data) ? res.data : res.data.feedback || []);
     } catch (error) {
       console.error('Error fetching sent feedback:', error);
+      setSentFeedback([]);
     }
   };
 

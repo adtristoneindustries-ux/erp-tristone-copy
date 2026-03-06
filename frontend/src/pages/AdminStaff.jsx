@@ -53,7 +53,7 @@ const AdminStaff = () => {
   const [documentViewerOpen, setDocumentViewerOpen] = useState(false);
   const [viewingDocument, setViewingDocument] = useState(null);
 
-  const departments = ['Maths', 'English', 'Science', 'Computer Science', 'Office', 'Transport', 'Library', 'Sports'];
+  const departments = ['Maths', 'English', 'Science', 'Computer Science', 'Office', 'Transport', 'Library', 'Sports', 'Cafeteria'];
   const roles = ['Teacher', 'Accountant', 'Librarian', 'Admin Staff', 'Principal', 'Transport Staff'];
   const statuses = ['Active', 'Inactive', 'On Leave'];
   const permissionLevels = ['Admin', 'Staff', 'ReadOnly'];
@@ -294,14 +294,14 @@ const AdminStaff = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to deactivate this staff member?')) return;
+    if (!window.confirm('Are you sure you want to delete this staff member?')) return;
     try {
-      const staffMember = staff.find(s => s._id === id);
-      await userAPI.updateUser(id, { ...staffMember, status: 'Inactive' });
-      showSuccess('Staff deactivated successfully');
-      fetchStaff();
+      await userAPI.deleteUser(id);
+      setStaff(prev => prev.filter(s => s._id !== id));
+      showSuccess('Staff deleted successfully');
+      await fetchStaff();
     } catch (error) {
-      showError('Failed to deactivate staff');
+      showError('Failed to delete staff');
     }
   };
 

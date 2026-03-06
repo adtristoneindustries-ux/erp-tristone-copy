@@ -76,6 +76,9 @@ import LibrarianIssues from "./pages/LibrarianIssues";
 import LibrarianReservations from "./pages/LibrarianReservations";
 import StaffLibrary from "./pages/StaffLibrary";
 import StudentLibrary from "./pages/StudentLibrary";
+import AdminCafeteria from "./pages/AdminCafeteria";
+import StaffCafeteria from "./pages/StaffCafeteria";
+import CafeteriaOrdering from "./pages/CafeteriaOrdering";
 import AdminTimetable from "./pages/AdminTimetable";
 import AdminStudentTimetable from "./pages/AdminStudentTimetable";
 import AdminStaffTimetable from "./pages/AdminStaffTimetable";
@@ -365,11 +368,27 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/cafeteria"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminCafeteria />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/staff"
           element={
             <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+              <StaffDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/librarian"
+          element={
+            <ProtectedRoute allowedRoles={["librarian"]}>
               <StaffDashboard />
             </ProtectedRoute>
           }
@@ -540,6 +559,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["staff", "librarian"]}>
               <StaffLibrary />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/cafeteria"
+          element={
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+              <StaffCafeteria />
             </ProtectedRoute>
           }
         />
@@ -726,6 +753,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentLibrary />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cafeteria"
+          element={
+            <ProtectedRoute allowedRoles={["admin", "staff", "student", "librarian"]}>
+              <CafeteriaOrdering />
             </ProtectedRoute>
           }
         />

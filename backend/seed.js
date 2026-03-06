@@ -49,7 +49,7 @@ const seedData = async () => {
       name: 'Sarah Wilson',
       email: 'sarah@school.com',
       password: 'staff123',
-      role: 'staff',
+      role: 'librarian',
       phone: '9876543211',
       staffId: 'ST-2024-002',
       department: 'Library',
@@ -57,6 +57,88 @@ const seedData = async () => {
       experience: '5 years',
       joiningDate: new Date('2020-01-15'),
       address: '456 Oak Street, City'
+    });
+
+    const canteenStaff = await User.create({
+      name: 'Rajesh Kumar',
+      email: 'rajesh@school.com',
+      password: 'staff123',
+      role: 'staff',
+      phone: '9876543222',
+      gender: 'Male',
+      dob: '1990-05-15',
+      staffId: 'ST-2024-003',
+      department: 'Cafeteria',
+      qualification: 'B.Sc Hotel Management',
+      designation: 'Canteen Manager',
+      employmentType: 'Permanent',
+      joiningDate: new Date('2020-01-15'),
+      yearsOfExperience: 8,
+      specialization: 'Food Service Management',
+      basicSalary: 25000,
+      address: '123 Main Street, City',
+      permanentAddress: '123 Main Street, City',
+      city: 'Chennai',
+      state: 'Tamil Nadu',
+      pincode: '600001',
+      country: 'India',
+      bloodGroup: 'O+',
+      maritalStatus: 'Married',
+      nationality: 'Indian',
+      panNumber: 'ABCDE1234F',
+      aadhaarNumber: '123456789012',
+      emergencyContactName: 'Priya Kumar',
+      emergencyContactNumber: '9876543223',
+      bankName: 'State Bank of India',
+      salaryAccountNumber: '12345678901234',
+      ifscCode: 'SBIN0001234',
+      branchName: 'Chennai Main Branch',
+      pfNumber: 'PF123456',
+      esiNumber: 'ESI123456',
+      uanNumber: 'UAN123456',
+      status: 'Active',
+      loginAccess: true
+    });
+
+    const canteenStaff2 = await User.create({
+      name: 'Raj Patel',
+      email: 'raj@school.com',
+      password: 'staff123',
+      role: 'staff',
+      phone: '9876543333',
+      gender: 'Male',
+      dob: '1992-08-20',
+      staffId: 'ST-2024-004',
+      department: 'Cafeteria',
+      qualification: 'Diploma in Culinary Arts',
+      designation: 'Assistant Canteen Manager',
+      employmentType: 'Permanent',
+      joiningDate: new Date('2021-06-10'),
+      yearsOfExperience: 5,
+      specialization: 'Food Preparation & Service',
+      basicSalary: 20000,
+      address: '456 Park Avenue, City',
+      permanentAddress: '456 Park Avenue, City',
+      city: 'Chennai',
+      state: 'Tamil Nadu',
+      pincode: '600002',
+      country: 'India',
+      bloodGroup: 'B+',
+      maritalStatus: 'Single',
+      nationality: 'Indian',
+      panNumber: 'BCDEF5678G',
+      aadhaarNumber: '987654321098',
+      emergencyContactName: 'Ramesh Patel',
+      emergencyContactNumber: '9876543334',
+      bankName: 'HDFC Bank',
+      salaryAccountNumber: '98765432109876',
+      ifscCode: 'HDFC0005678',
+      branchName: 'Chennai T Nagar',
+      pfNumber: 'PF789012',
+      esiNumber: 'ESI789012',
+      uanNumber: 'UAN789012',
+      status: 'Active',
+      loginAccess: true
     });
 
     const staff = staff1; // For backward compatibility
@@ -181,6 +263,8 @@ const seedData = async () => {
     console.log('Admin: admin@school.com / admin123');
     console.log('Staff 1: staff@school.com / staff123');
     console.log('Staff 2: sarah@school.com / staff123');
+    console.log('Canteen Staff: rajesh@school.com / staff123');
+    console.log('Canteen Staff 2: raj@school.com / staff123');
     console.log('Student: student@school.com / student123');
     console.log('\nStudents created in:');
     console.log('- Class 10A: 5 students');

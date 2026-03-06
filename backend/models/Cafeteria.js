@@ -1,49 +1,62 @@
 const mongoose = require('mongoose');
 
-const menuItemSchema = new mongoose.Schema({
-  name: String,
-  items: [String],
-  calories: Number,
-  price: Number,
-  rating: { type: Number, default: 5 },
-  available: { type: Boolean, default: true }
-});
+const canteenSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  location: { type: String, required: true },
+  openingTime: { type: String, required: true },
+  closingTime: { type: String, required: true },
+  contactNumber: { type: String, required: true },
+  isActive: { type: Boolean, default: true }
+}, { timestamps: true });
+
+const canteenStaffSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  staffId: { type: String, required: true, unique: true },
+  canteen: { type: mongoose.Schema.Types.ObjectId, ref: 'Canteen', required: true },
+  role: { type: String, enum: ['Manager', 'Cashier', 'Cook'], required: true },
+  isActive: { type: Boolean, default: true }
+}, { timestamps: true });
+
+const foodItemSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  category: { type: String, enum: ['Snacks', 'Meals', 'Juice', 'Beverages'], required: true },
+  price: { type: Number, required: true },
+  description: String,
+  preparationTime: { type: Number, default: 10 },
+  quantityAvailable: { type: Number, default: 0 },
+  image: String,
+  isAvailable: { type: Boolean, default: true },
+  isTodaySpecial: { type: Boolean, default: false },
+  canteen: { type: mongoose.Schema.Types.ObjectId, ref: 'Canteen', required: true },
+  averageRating: { type: Number, default: 0 }
+}, { timestamps: true });
 
 const orderSchema = new mongoose.Schema({
-  student: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   items: [{
-    mealType: String,
-    itemName: String,
-    price: Number
+    foodItem: { type: mongoose.Schema.Types.ObjectId, ref: 'FoodItem', required: true },
+    quantity: { type: Number, required: true },
+    price: { type: Number, required: true }
   }],
   totalAmount: { type: Number, required: true },
-  status: { type: String, enum: ['pending', 'completed', 'cancelled'], default: 'pending' },
-  orderDate: { type: Date, default: Date.now }
-});
+  paymentMethod: { type: String, enum: ['UPI', 'Card', 'Cash'], required: true },
+  status: { type: String, enum: ['Pending', 'Approved', 'In Preparation', 'Ready for Pickup', 'Completed', 'Rejected', 'Out of Stock'], default: 'Pending' },
+  canteen: { type: mongoose.Schema.Types.ObjectId, ref: 'Canteen', required: true },
+  pickupTime: String
+}, { timestamps: true });
 
-const walletSchema = new mongoose.Schema({
-  student: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
-  balance: { type: Number, default: 0 },
-  transactions: [{
-    type: { type: String, enum: ['credit', 'debit'] },
-    amount: Number,
-    description: String,
-    date: { type: Date, default: Date.now }
-  }]
-});
+const ratingSchema = new mongoose.Schema({
+  customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  foodItem: { type: mongoose.Schema.Types.ObjectId, ref: 'FoodItem', required: true },
+  rating: { type: Number, min: 1, max: 5, required: true },
+  review: String,
+  staffResponse: String
+}, { timestamps: true });
 
-const specialSchema = new mongoose.Schema({
-  name: String,
-  description: String,
-  price: Number,
-  image: String,
-  rating: { type: Number, default: 5 },
-  available: { type: Boolean, default: true }
-});
+const Canteen = mongoose.model('Canteen', canteenSchema);
+const CanteenStaff = mongoose.model('CanteenStaff', canteenStaffSchema);
+const FoodItem = mongoose.model('FoodItem', foodItemSchema);
+const Order = mongoose.model('CafeteriaOrder', orderSchema);
+const Rating = mongoose.model('FoodRating', ratingSchema);
 
-const MenuItem = mongoose.model('MenuItem', menuItemSchema);
-const Order = mongoose.model('Order', orderSchema);
-const Wallet = mongoose.model('Wallet', walletSchema);
-const Special = mongoose.model('Special', specialSchema);
-
-module.exports = { MenuItem, Order, Wallet, Special };
+module.exports = { Canteen, CanteenStaff, FoodItem, Order, Rating };
