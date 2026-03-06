@@ -20,10 +20,11 @@ const StaffAttendanceTab = () => {
   const fetchStaff = async () => {
     try {
       const res = await userAPI.getUsers({ role: 'staff' });
-      setStaff(res.data);
+      setStaff(Array.isArray(res.data) ? res.data : res.data?.users || []);
     } catch (error) {
       console.error('Error fetching staff:', error);
       showError('Failed to fetch staff members');
+      setStaff([]);
     }
   };
 

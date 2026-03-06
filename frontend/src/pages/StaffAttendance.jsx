@@ -63,8 +63,11 @@ const StaffAttendance = () => {
       // First get all students
       const response = await userAPI.getUsers({ role: 'student' });
       
+      // Ensure response.data is an array
+      const studentData = Array.isArray(response.data) ? response.data : (response.data?.users || []);
+      
       // Filter students by class and section on frontend
-      const filteredStudents = (response.data || []).filter(student => 
+      const filteredStudents = studentData.filter(student => 
         student.class === selectedClass && student.section === selectedSection
       );
       

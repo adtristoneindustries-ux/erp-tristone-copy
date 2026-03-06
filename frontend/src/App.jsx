@@ -69,6 +69,16 @@ import StudentFinance from "./pages/StudentFinance";
 import StudentMaterials from "./pages/StudentMaterials";
 import StudentActivities from "./pages/StudentActivities";
 import StudentCourses from "./pages/StudentCourses";
+import AdminLibrary from "./pages/AdminLibrary";
+import AdminLibraryStaff from "./pages/AdminLibraryStaff";
+import LibrarianBooks from "./pages/LibrarianBooks";
+import LibrarianIssues from "./pages/LibrarianIssues";
+import LibrarianReservations from "./pages/LibrarianReservations";
+import StaffLibrary from "./pages/StaffLibrary";
+import StudentLibrary from "./pages/StudentLibrary";
+import AdminCafeteria from "./pages/AdminCafeteria";
+import StaffCafeteria from "./pages/StaffCafeteria";
+import CafeteriaOrdering from "./pages/CafeteriaOrdering";
 import AdminTimetable from "./pages/AdminTimetable";
 import AdminStudentTimetable from "./pages/AdminStudentTimetable";
 import AdminStaffTimetable from "./pages/AdminStaffTimetable";
@@ -81,8 +91,9 @@ import NotFound from "./pages/NotFound";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useContext(AuthContext);
+  const token = localStorage.getItem('token');
 
-  if (loading)
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
@@ -91,8 +102,20 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
         </div>
       </div>
     );
+  }
 
-  if (!user || !localStorage.getItem('token')) {
+  if (token && !user) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || !token) {
     return <Navigate to="/login" replace />;
   }
 
@@ -329,11 +352,43 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/library"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminLibrary />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/library-staff"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminLibraryStaff />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/cafeteria"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminCafeteria />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/staff"
           element={
-            <ProtectedRoute allowedRoles={["staff"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+              <StaffDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/librarian"
+          element={
+            <ProtectedRoute allowedRoles={["librarian"]}>
               <StaffDashboard />
             </ProtectedRoute>
           }
@@ -341,7 +396,7 @@ function App() {
         <Route
           path="/staff/students"
           element={
-            <ProtectedRoute allowedRoles={["staff"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
               <StaffStudents />
             </ProtectedRoute>
           }
@@ -349,7 +404,7 @@ function App() {
         <Route
           path="/staff/profile"
           element={
-            <ProtectedRoute allowedRoles={["staff"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
               <StaffProfile />
             </ProtectedRoute>
           }
@@ -357,7 +412,7 @@ function App() {
         <Route
           path="/staff/marks"
           element={
-            <ProtectedRoute allowedRoles={["staff"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
               <StaffMarks />
             </ProtectedRoute>
           }
@@ -365,7 +420,7 @@ function App() {
         <Route
           path="/staff/attendance"
           element={
-            <ProtectedRoute allowedRoles={["staff"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
               <StaffAttendance />
             </ProtectedRoute>
           }
@@ -373,7 +428,7 @@ function App() {
         <Route
           path="/staff/my-attendance"
           element={
-            <ProtectedRoute allowedRoles={["staff"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
               <StaffMyAttendance />
             </ProtectedRoute>
           }
@@ -382,7 +437,7 @@ function App() {
         <Route
           path="/staff/announcements"
           element={
-            <ProtectedRoute allowedRoles={["staff"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
               <StaffAnnouncements />
             </ProtectedRoute>
           }
@@ -390,7 +445,7 @@ function App() {
         <Route
           path="/staff/leaves"
           element={
-            <ProtectedRoute allowedRoles={["staff"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
               <StaffLeaves />
             </ProtectedRoute>
           }
@@ -398,7 +453,7 @@ function App() {
         <Route
           path="/staff/student-leaves"
           element={
-            <ProtectedRoute allowedRoles={["staff"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
               <StaffStudentLeaves />
             </ProtectedRoute>
           }
@@ -406,7 +461,7 @@ function App() {
         <Route
           path="/staff/timetable"
           element={
-            <ProtectedRoute allowedRoles={["staff"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
               <StaffTimetable />
             </ProtectedRoute>
           }
@@ -414,7 +469,7 @@ function App() {
         <Route
           path="/staff/homework"
           element={
-            <ProtectedRoute allowedRoles={["staff"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
               <StaffHomework />
             </ProtectedRoute>
           }
@@ -422,7 +477,7 @@ function App() {
         <Route
           path="/staff/feedback"
           element={
-            <ProtectedRoute allowedRoles={["staff"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
               <StaffFeedback />
             </ProtectedRoute>
           }
@@ -430,7 +485,7 @@ function App() {
         <Route
           path="/staff/digital-classroom"
           element={
-            <ProtectedRoute allowedRoles={["staff"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
               <StaffDigitalClassroom />
             </ProtectedRoute>
           }
@@ -438,7 +493,7 @@ function App() {
         <Route
           path="/staff/exam-schedule"
           element={
-            <ProtectedRoute allowedRoles={["staff"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
               <StaffExamSchedule />
             </ProtectedRoute>
           }
@@ -446,7 +501,7 @@ function App() {
         <Route
           path="/staff/scholarships"
           element={
-            <ProtectedRoute allowedRoles={["staff"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
               <StaffScholarship />
             </ProtectedRoute>
           }
@@ -454,7 +509,7 @@ function App() {
         <Route
           path="/staff/chat"
           element={
-            <ProtectedRoute allowedRoles={["staff"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
               <StaffChatWithStudents />
             </ProtectedRoute>
           }
@@ -462,7 +517,7 @@ function App() {
         <Route
           path="/staff/placement"
           element={
-            <ProtectedRoute allowedRoles={["staff"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
               <PlacementOfficerDashboard />
             </ProtectedRoute>
           }
@@ -470,8 +525,48 @@ function App() {
         <Route
           path="/staff/courses"
           element={
-            <ProtectedRoute allowedRoles={["staff"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
               <StaffCourses />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/library/books"
+          element={
+            <ProtectedRoute allowedRoles={["librarian"]}>
+              <LibrarianBooks />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/library/issues"
+          element={
+            <ProtectedRoute allowedRoles={["librarian"]}>
+              <LibrarianIssues />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/library/reservations"
+          element={
+            <ProtectedRoute allowedRoles={["librarian"]}>
+              <LibrarianReservations />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/library"
+          element={
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+              <StaffLibrary />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/cafeteria"
+          element={
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+              <StaffCafeteria />
             </ProtectedRoute>
           }
         />
@@ -650,6 +745,22 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentCourses />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/library"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentLibrary />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cafeteria"
+          element={
+            <ProtectedRoute allowedRoles={["admin", "staff", "student", "librarian"]}>
+              <CafeteriaOrdering />
             </ProtectedRoute>
           }
         />

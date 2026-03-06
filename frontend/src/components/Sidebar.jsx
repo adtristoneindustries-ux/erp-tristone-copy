@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck , DollarSign, AlertTriangle, Settings, MessageCircle, Briefcase } from 'lucide-react';
+import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck , DollarSign, AlertTriangle, Settings, MessageCircle, Briefcase, Book } from 'lucide-react';
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { SettingsContext } from '../context/SettingsContext';
@@ -9,6 +9,24 @@ const Sidebar = () => {
   const { settings } = useContext(SettingsContext);
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCanteenStaff, setIsCanteenStaff] = useState(false);
+
+  useEffect(() => {
+    const checkStaff = async () => {
+      if (user?.role === 'staff') {
+        try {
+          const res = await fetch('http://localhost:5000/api/cafeteria/check-staff', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          });
+          const data = await res.json();
+          setIsCanteenStaff(data.isCanteenStaff);
+        } catch (error) {
+          setIsCanteenStaff(false);
+        }
+      }
+    };
+    checkStaff();
+  }, [user]);
 
   const adminLinks = [
     { to: '/admin', icon: Home, label: 'Dashboard' },
@@ -28,6 +46,9 @@ const Sidebar = () => {
     { to: '/admin/discipline', icon: AlertTriangle, label: 'Discipline Oversight' },
     { to: '/admin/events', icon: Calendar, label: 'Events Management' },
     { to: '/admin/placement', icon: Briefcase, label: 'Placement' },
+    { to: '/admin/library', icon: Book, label: 'Library Management' },
+    { to: '/admin/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria Management' },
+    { to: '/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },
     { to: '/admin/settings', icon: Settings, label: 'Settings' }
   ];
 
@@ -46,10 +67,33 @@ const Sidebar = () => {
     { to: '/staff/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
     { to: '/staff/scholarships', icon: Award, label: 'Scholarships' },
     ...(user?.hasPlacementAccess ? [{ to: '/staff/placement', icon: Briefcase, label: 'Placement' }] : []),
+    { to: '/staff/library', icon: Book, label: 'Library' },
+    { to: '/staff/cafeteria', icon: UtensilsCrossed, label: 'Canteen Management' },
+    { to: '/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },
     { to: '/staff/chat', icon: MessageCircle, label: 'Chat with Students' },
     { to: '/staff/announcements', icon: Bell, label: 'Announcements' },
     { to: '/staff/timetable', icon: Calendar, label: 'My Timetable' },
     { to: '/staff/feedback', icon: MessageSquare, label: 'Feedback' }
+  ];
+
+  const canteenStaffLinks = [
+    { to: '/staff/profile', icon: User, label: 'My Profile' },
+    { to: '/staff/cafeteria', icon: UtensilsCrossed, label: 'Canteen Management' },
+    { to: '/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },
+    { to: '/staff/announcements', icon: Bell, label: 'Announcements' },
+    { to: '/staff/feedback', icon: MessageSquare, label: 'Feedback' }
+  ];
+
+  const librarianLinks = [
+    { to: '/staff/library', icon: Book, label: 'Library' },
+    { to: '/staff/library/books', icon: Book, label: 'Library Management' },
+    { to: '/staff/library/issues', icon: BookOpen, label: 'Issue & Return Management' },
+    { to: '/staff/library/reservations', icon: ClipboardList, label: 'Book Reservations' },
+    { to: '/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },
+    { to: '/staff/leaves', icon: Calendar, label: 'My Leave Requests' },
+    { to: '/staff/profile', icon: User, label: 'My Profile' },
+    { to: '/staff/announcements', icon: Bell, label: 'Announcements' },
+    { to: '/staff/feedback', icon: MessageSquare, label: 'Staff Feedback' }
   ];
 
   const studentLinks = [
@@ -68,14 +112,18 @@ const Sidebar = () => {
     { to: '/student/chat', icon: MessageCircle, label: 'Chat with Teacher' },
     { to: '/student/medical-reports', icon: Activity, label: 'Medical Reports' },
     { to: '/student/feedback', icon: MessageSquare, label: 'Feedback' },
-    { to: '/student/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },
+    { to: '/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },
     { to: '/student/transport', icon: Bus, label: 'Transport' },
     { to: '/student/hostel', icon: Building2, label: 'Hostel' },
     { to: '/student/announcements', icon: Bell, label: 'Announcements' },
-    { to: '/student/placement', icon: Briefcase, label: 'Placement' }
+    { to: '/student/placement', icon: Briefcase, label: 'Placement' },
+    { to: '/student/library', icon: Book, label: 'Library' }
   ];
 
-  const links = user?.role === 'admin' ? adminLinks : user?.role === 'staff' ? staffLinks : studentLinks;
+  const links = user?.role === 'admin' ? adminLinks : 
+                user?.role === 'librarian' ? librarianLinks : 
+                user?.role === 'staff' ? (isCanteenStaff ? canteenStaffLinks : staffLinks) : 
+                studentLinks;
 
   // Close mobile menu on route change
   useEffect(() => {

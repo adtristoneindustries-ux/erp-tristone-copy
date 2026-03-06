@@ -20,8 +20,8 @@ const AdminMarks = () => {
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
 
   useEffect(() => {
-    userAPI.getUsers({ role: 'student' }).then(res => setStudents(res.data));
-    subjectAPI.getSubjects().then(res => setSubjects(res.data));
+    userAPI.getUsers({ role: 'student' }).then(res => setStudents(Array.isArray(res.data) ? res.data : []));
+    subjectAPI.getSubjects().then(res => setSubjects(Array.isArray(res.data) ? res.data : []));
   }, []);
 
   // Auto-search with debounce effect
@@ -63,10 +63,12 @@ const AdminMarks = () => {
   };
 
   const getUniqueClasses = () => {
+    if (!Array.isArray(students)) return [];
     return [...new Set(students.map(s => s.class).filter(Boolean))].sort();
   };
 
   const getUniqueSections = () => {
+    if (!Array.isArray(students)) return [];
     return [...new Set(students.map(s => s.section).filter(Boolean))].sort();
   };
 

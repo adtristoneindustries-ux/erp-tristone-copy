@@ -20,6 +20,7 @@ import {
   UserX,
   Edit2,
   Trash2,
+  UtensilsCrossed,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
@@ -234,6 +235,12 @@ const StaffDashboard = () => {
       icon: Calendar,
       link: "/staff/exam-schedule",
       color: "bg-orange-500",
+    },
+    {
+      title: "Order Food",
+      icon: UtensilsCrossed,
+      link: "/cafeteria",
+      color: "bg-yellow-500",
     },
   ];
 

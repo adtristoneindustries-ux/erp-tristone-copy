@@ -82,8 +82,9 @@ const StudentsTab = () => {
 
   const fetchStudents = () => {
     userAPI.getUsers({ role: 'student', search }).then(res => {
-      setStudents(res.data);
-      setFilteredStudents(res.data);
+      const studentsData = res.data.data || res.data || [];
+      setStudents(studentsData);
+      setFilteredStudents(studentsData);
     });
   };
 
@@ -204,8 +205,14 @@ const StudentsTab = () => {
     setIsStudentModalOpen(true);
   };
 
-  const getUniqueClasses = () => [...new Set(students.map(s => s.class).filter(Boolean))].sort();
-  const getUniqueSections = () => [...new Set(students.map(s => s.section).filter(Boolean))].sort();
+  const getUniqueClasses = () => {
+    if (!Array.isArray(students)) return [];
+    return [...new Set(students.map(s => s.class).filter(Boolean))].sort();
+  };
+  const getUniqueSections = () => {
+    if (!Array.isArray(students)) return [];
+    return [...new Set(students.map(s => s.section).filter(Boolean))].sort();
+  };
 
   return (
     <div>

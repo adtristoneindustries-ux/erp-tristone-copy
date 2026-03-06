@@ -177,7 +177,12 @@ export const cafeteriaAPI = {
   getTransactionHistory: () => API.get('/cafeteria/wallet/history'),
   getTodaySpecials: () => API.get('/cafeteria/specials'),
   placeOrder: (data) => API.post('/cafeteria/order', data),
-  getOrderHistory: () => API.get('/cafeteria/orders')
+  getOrderHistory: () => API.get('/cafeteria/orders'),
+  checkCanteenStaff: () => API.get('/cafeteria/check-staff'),
+  getCanteens: () => API.get('/cafeteria/canteens'),
+  getFoodItems: () => API.get('/cafeteria/food-items'),
+  getOrders: () => API.get('/cafeteria/orders'),
+  updateOrderStatus: (id, data) => API.put(`/cafeteria/orders/${id}/status`, data)
 };
 
 export const transportAPI = {

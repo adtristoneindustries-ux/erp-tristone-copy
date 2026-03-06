@@ -14,11 +14,8 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    // Find user by email (role is optional)
-    const query = { email };
-    if (role) query.role = role;
-    
-    const user = await User.findOne(query);
+    // Find user by email only (ignore role for librarian)
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: 'User not found with this email' });
     }
@@ -29,9 +26,11 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid password' });
     }
 
-    // If role was specified, verify it matches
+    // If role was specified, verify it matches (allow librarian to login as staff)
     if (role && user.role !== role) {
-      return res.status(401).json({ message: `User is not a ${role}` });
+      if (!(role === 'staff' && user.role === 'librarian')) {
+        return res.status(401).json({ message: `User is not a ${role}` });
+      }
     }
 
     const token = generateToken(user._id);
@@ -64,7 +63,14 @@ exports.getMe = async (req, res) => {
       class: user.class,
       section: user.section,
       rollNumber: user.rollNumber,
-      hasPlacementAccess: user.hasPlacementAccess
+      hasPlacementAccess: user.hasPlacementAccess,
+      year: user.year,
+      department: user.department,
+      cgpa: user.cgpa,
+      arrears_count: user.arrears_count,
+      resume_url: user.resume_url,
+      skills: user.skills,
+      portfolio_link: user.portfolio_link
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

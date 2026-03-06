@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, BookOpen, Calendar, UserPlus, UserCheck, Clock, AlertTriangle, FileText, Bell, Activity, TrendingUp, CheckCircle, XCircle, Plus } from 'lucide-react';
+import { Users, BookOpen, Calendar, UserPlus, UserCheck, Clock, AlertTriangle, FileText, Bell, Activity, TrendingUp, CheckCircle, XCircle, Plus, UtensilsCrossed } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Card from '../components/Card';
 import Sidebar from '../components/Sidebar';
@@ -230,7 +230,7 @@ const AdminDashboard = () => {
           {/* Quick Actions */}
           <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 lg:p-6 mb-4 sm:mb-6 lg:mb-8">
             <h2 className="text-base sm:text-lg lg:text-xl font-bold mb-3 sm:mb-4">Quick Actions</h2>
-            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
               <Link to="/admin/students" className="flex items-center justify-center gap-2 px-3 py-2 sm:px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
                 <UserPlus size={14} className="sm:w-4 sm:h-4" />
                 <span className="text-xs sm:text-sm">Add Student</span>
@@ -247,9 +247,13 @@ const AdminDashboard = () => {
                 <Plus size={14} className="sm:w-4 sm:h-4" />
                 <span className="text-xs sm:text-sm">Add Class</span>
               </Link>
-              <Link to="/admin/announcements" className="flex items-center justify-center gap-2 px-3 py-2 sm:px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors col-span-1 xs:col-span-2 sm:col-span-1">
+              <Link to="/admin/announcements" className="flex items-center justify-center gap-2 px-3 py-2 sm:px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
                 <Bell size={14} className="sm:w-4 sm:h-4" />
                 <span className="text-xs sm:text-sm">Announcement</span>
+              </Link>
+              <Link to="/cafeteria" className="flex items-center justify-center gap-2 px-3 py-2 sm:px-4 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
+                <UtensilsCrossed size={14} className="sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-sm">Cafeteria</span>
               </Link>
             </div>
           </div>
