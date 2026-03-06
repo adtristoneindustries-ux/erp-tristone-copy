@@ -73,6 +73,7 @@ app.use('/api/placement', require('./routes/placementRoutes'));
 app.use('/api/activities', require('./routes/activityRoutes'));
 app.use('/api/courses', require('./routes/courseRoutes'));
 app.use('/api/library', require('./routes/libraryRoutes'));
+app.use('/api/badges', require('./routes/badgeRoutes'));
 
 // Health check endpoint
 app.get('/', (req, res) => {

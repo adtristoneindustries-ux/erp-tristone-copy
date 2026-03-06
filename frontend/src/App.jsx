@@ -69,6 +69,8 @@ import StudentFinance from "./pages/StudentFinance";
 import StudentMaterials from "./pages/StudentMaterials";
 import StudentActivities from "./pages/StudentActivities";
 import StudentCourses from "./pages/StudentCourses";
+import StudentAchievements from "./pages/StudentAchievements";
+import AdminAchievements from "./pages/AdminAchievements";
 import AdminLibrary from "./pages/AdminLibrary";
 import AdminLibraryStaff from "./pages/AdminLibraryStaff";
 import LibrarianBooks from "./pages/LibrarianBooks";
@@ -373,6 +375,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminCafeteria />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/achievements"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminAchievements />
             </ProtectedRoute>
           }
         />
@@ -745,6 +755,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentCourses />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/achievements"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentAchievements />
             </ProtectedRoute>
           }
         />

@@ -265,4 +265,25 @@ export const courseAPI = {
   getMyEnrollments: () => API.get('/courses/enrollments/my')
 };
 
+export const badgeAPI = {
+  getAllBadges: () => API.get('/badges'),
+  getStudentBadges: () => API.get('/badges/student'),
+  uploadCertificate: (formData) => {
+    return axios.create({
+      baseURL: 'http://localhost:5000/api',
+      timeout: 60000,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    }).post('/badges/upload-certificate', formData);
+  },
+  getPendingApprovals: () => API.get('/badges/pending'),
+  approveCertificate: (id, data) => API.put(`/badges/approve/${id}`, data),
+  createBadge: (data) => API.post('/badges', data),
+  updateBadge: (id, data) => API.put(`/badges/${id}`, data),
+  deleteBadge: (id) => API.delete(`/badges/${id}`),
+  assignBadge: (data) => API.post('/badges/assign', data)
+};
+
 export default API;
