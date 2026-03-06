@@ -45,31 +45,34 @@ const AdminClasses = () => {
   const fetchStudents = async () => {
     try {
       const res = await userAPI.getUsers({ role: 'student' });
-      setStudents(res.data);
+      setStudents(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error('Error fetching students:', error);
+      setStudents([]);
     }
   };
 
   const fetchTeachers = async () => {
     try {
       const res = await userAPI.getUsers({ role: 'staff' });
-      setTeachers(res.data);
+      setTeachers(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error('Error fetching teachers:', error);
+      setTeachers([]);
     }
   };
 
   const getStudentCount = (className, section) => {
+    if (!Array.isArray(students)) return 0;
     return students.filter(student => 
       student.class === className && student.section === section
     ).length;
   };
 
   const viewClassStudents = (classItem) => {
-    const classStudents = students.filter(student => 
+    const classStudents = Array.isArray(students) ? students.filter(student => 
       student.class === classItem.className && student.section === classItem.section
-    );
+    ) : [];
     setSelectedClassStudents(classStudents);
     setViewingClass(classItem);
     setIsStudentModalOpen(true);

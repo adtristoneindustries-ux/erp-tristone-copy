@@ -32,27 +32,30 @@ const AdminFeedback = () => {
   const fetchStudents = async () => {
     try {
       const res = await userAPI.getUsers({ role: 'student' });
-      setStudents(res.data);
+      setStudents(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error('Error fetching students:', error);
+      setStudents([]);
     }
   };
 
   const fetchStaff = async () => {
     try {
       const res = await userAPI.getUsers({ role: 'staff' });
-      setStaff(res.data);
+      setStaff(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error('Error fetching staff:', error);
+      setStaff([]);
     }
   };
 
   const fetchClasses = async () => {
     try {
       const res = await classAPI.getClasses();
-      setClasses(res.data);
+      setClasses(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error('Error fetching classes:', error);
+      setClasses([]);
     }
   };
 
@@ -76,6 +79,7 @@ const AdminFeedback = () => {
   };
 
   const getFilteredStudents = () => {
+    if (!Array.isArray(students)) return [];
     return students.filter(student => {
       if (filterClass && student.class !== filterClass) return false;
       if (filterSection && student.section !== filterSection) return false;
