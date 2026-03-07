@@ -32,6 +32,15 @@ import AdminScholarship from "./pages/AdminScholarship";
 import AdminPlacement from "./pages/AdminPlacement";
 import PlacementOfficerDashboard from "./pages/PlacementOfficerDashboard";
 import StudentPlacement from "./pages/StudentPlacement";
+import AdminFinancial from "./pages/AdminFinancial";
+import AdminScholarships from "./pages/AdminScholarships";
+import AdminPlacements from "./pages/AdminPlacements";
+import StaffFinancial from "./pages/StaffFinancial";
+import StaffScholarships from "./pages/StaffScholarships";
+import StaffPlacements from "./pages/StaffPlacements";
+import StudentFees from "./pages/StudentFees";
+import StudentScholarships from "./pages/StudentScholarships";
+import StudentPlacements from "./pages/StudentPlacements";
 import StaffDashboard from "./pages/StaffDashboard";
 import StaffProfile from "./pages/StaffProfile";
 import StaffMarks from "./pages/StaffMarks";
@@ -353,6 +362,30 @@ function App() {
           }
         />
         <Route
+          path="/admin/financial"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminFinancial />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/scholarships-new"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminScholarships />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/placements-new"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminPlacements />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/library"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
@@ -519,6 +552,30 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["staff", "librarian"]}>
               <PlacementOfficerDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/financial"
+          element={
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+              <StaffFinancial />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/scholarships-new"
+          element={
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+              <StaffScholarships />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/placements-new"
+          element={
+            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+              <StaffPlacements />
             </ProtectedRoute>
           }
         />
@@ -729,6 +786,30 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentPlacement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/fees"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentFees />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/scholarships-new"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentScholarships />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/placements-new"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentPlacements />
             </ProtectedRoute>
           }
         />

@@ -27,14 +27,14 @@ const AdminFinance = () => {
         userAPI.getUsers({ role: 'staff' })
       ]);
       
-      const studentsList = studentsRes.data.users || studentsRes.data || [];
-      const staffList = staffRes.data.users || staffRes.data || [];
+      const studentsList = studentsRes.data.data || studentsRes.data.users || studentsRes.data || [];
+      const staffList = staffRes.data.data || staffRes.data.users || staffRes.data || [];
       
       setStudents(studentsList);
       setStaff(staffList);
       
       // Generate fee records from students
-      const fees = studentsList.map((student, idx) => ({
+      const fees = Array.isArray(studentsList) ? studentsList.map((student, idx) => ({
         id: idx + 1,
         studentId: student._id,
         studentName: student.name,
@@ -43,7 +43,7 @@ const AdminFinance = () => {
         status: idx % 3 === 0 ? 'pending' : 'paid',
         date: new Date(Date.now() - idx * 86400000).toISOString().split('T')[0],
         dueDate: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0]
-      }));
+      })) : [];
       setFeeRecords(fees);
 
       // Generate salary records from staff
@@ -127,66 +127,69 @@ const AdminFinance = () => {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
-      <div className="flex-1 lg:ml-64">
+      <div className="flex-1 lg:ml-64 overflow-x-hidden">
         <Navbar />
         <div className="p-4 lg:p-6">
-          <h1 className="text-2xl font-bold mb-6">Financial Management</h1>
+          <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Financial Management</h1>
 
           {/* Tab Navigation */}
-          <div className="bg-white rounded-lg shadow-md mb-6 overflow-x-auto">
-            <div className="flex border-b min-w-max">
-              {tabs.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`px-6 py-3 font-medium transition-colors whitespace-nowrap ${
-                    activeTab === tab.id
-                      ? 'border-b-2 border-blue-600 text-blue-600'
-                      : 'text-gray-600 hover:text-blue-600'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+          <div className="bg-white rounded-lg shadow-md mb-4 sm:mb-6">
+            <div className="overflow-x-auto">
+              <div className="flex border-b" style={{minWidth: 'max-content'}}>
+                {tabs.map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`px-4 sm:px-6 py-3 font-medium transition-colors whitespace-nowrap text-sm sm:text-base ${
+                      activeTab === tab.id
+                        ? 'border-b-2 border-blue-600 text-blue-600'
+                        : 'text-gray-600 hover:text-blue-600'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="mb-4 sm:mb-6 overflow-x-auto" style={{scrollbarWidth: 'thin', scrollbarColor: '#9CA3AF #F3F4F6'}}>
+            <div className="flex gap-3 lg:grid lg:grid-cols-3 lg:gap-6 pb-2">
             {activeTab !== 'salary' && activeTab !== 'expenses' && (
               <>
-                <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 min-w-[180px]">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-600 text-sm">Total Collected</p>
-                      <p className="text-2xl font-bold text-green-600">₹{totalCollected.toLocaleString()}</p>
+                      <p className="text-gray-600 text-xs sm:text-sm whitespace-nowrap">Total Collected</p>
+                      <p className="text-lg sm:text-2xl font-bold text-green-600">₹{totalCollected.toLocaleString()}</p>
                     </div>
-                    <div className="bg-green-100 p-3 rounded-full">
-                      <DollarSign className="text-green-600" size={24} />
+                    <div className="bg-green-100 p-2 sm:p-3 rounded-full flex-shrink-0">
+                      <DollarSign className="text-green-600" size={20} />
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 min-w-[180px]">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-600 text-sm">Pending Amount</p>
-                      <p className="text-2xl font-bold text-orange-600">₹{pendingAmount.toLocaleString()}</p>
+                      <p className="text-gray-600 text-xs sm:text-sm whitespace-nowrap">Pending Amount</p>
+                      <p className="text-lg sm:text-2xl font-bold text-orange-600">₹{pendingAmount.toLocaleString()}</p>
                     </div>
-                    <div className="bg-orange-100 p-3 rounded-full">
-                      <TrendingUp className="text-orange-600" size={24} />
+                    <div className="bg-orange-100 p-2 sm:p-3 rounded-full flex-shrink-0">
+                      <TrendingUp className="text-orange-600" size={20} />
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 min-w-[180px]">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-600 text-sm">Collection Rate</p>
-                      <p className="text-2xl font-bold text-purple-600">{collectionRate}%</p>
+                      <p className="text-gray-600 text-xs sm:text-sm whitespace-nowrap">Collection Rate</p>
+                      <p className="text-lg sm:text-2xl font-bold text-purple-600">{collectionRate}%</p>
                     </div>
-                    <div className="bg-purple-100 p-3 rounded-full">
-                      <FileText className="text-purple-600" size={24} />
+                    <div className="bg-purple-100 p-2 sm:p-3 rounded-full flex-shrink-0">
+                      <FileText className="text-purple-600" size={20} />
                     </div>
                   </div>
                 </div>
@@ -195,38 +198,38 @@ const AdminFinance = () => {
 
             {activeTab === 'salary' && (
               <>
-                <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 min-w-[180px]">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-600 text-sm">Total Staff</p>
-                      <p className="text-2xl font-bold text-blue-600">{staff.length}</p>
+                      <p className="text-gray-600 text-xs sm:text-sm whitespace-nowrap">Total Staff</p>
+                      <p className="text-lg sm:text-2xl font-bold text-blue-600">{staff.length}</p>
                     </div>
-                    <div className="bg-blue-100 p-3 rounded-full">
-                      <DollarSign className="text-blue-600" size={24} />
+                    <div className="bg-blue-100 p-2 sm:p-3 rounded-full flex-shrink-0">
+                      <DollarSign className="text-blue-600" size={20} />
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 min-w-[180px]">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-600 text-sm">Monthly Salary</p>
-                      <p className="text-2xl font-bold text-green-600">₹{totalSalary.toLocaleString()}</p>
+                      <p className="text-gray-600 text-xs sm:text-sm whitespace-nowrap">Monthly Salary</p>
+                      <p className="text-lg sm:text-2xl font-bold text-green-600">₹{totalSalary.toLocaleString()}</p>
                     </div>
-                    <div className="bg-green-100 p-3 rounded-full">
-                      <TrendingUp className="text-green-600" size={24} />
+                    <div className="bg-green-100 p-2 sm:p-3 rounded-full flex-shrink-0">
+                      <TrendingUp className="text-green-600" size={20} />
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 min-w-[180px]">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-600 text-sm">Paid This Month</p>
-                      <p className="text-2xl font-bold text-purple-600">{salaryRecords.filter(s => s.status === 'paid').length}</p>
+                      <p className="text-gray-600 text-xs sm:text-sm whitespace-nowrap">Paid This Month</p>
+                      <p className="text-lg sm:text-2xl font-bold text-purple-600">{salaryRecords.filter(s => s.status === 'paid').length}</p>
                     </div>
-                    <div className="bg-purple-100 p-3 rounded-full">
-                      <FileText className="text-purple-600" size={24} />
+                    <div className="bg-purple-100 p-2 sm:p-3 rounded-full flex-shrink-0">
+                      <FileText className="text-purple-600" size={20} />
                     </div>
                   </div>
                 </div>
@@ -235,48 +238,51 @@ const AdminFinance = () => {
 
             {activeTab === 'expenses' && (
               <>
-                <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 min-w-[180px]">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-600 text-sm">Total Expenses</p>
-                      <p className="text-2xl font-bold text-red-600">₹{totalExpenses.toLocaleString()}</p>
+                      <p className="text-gray-600 text-xs sm:text-sm whitespace-nowrap">Total Expenses</p>
+                      <p className="text-lg sm:text-2xl font-bold text-red-600">₹{totalExpenses.toLocaleString()}</p>
                     </div>
-                    <div className="bg-red-100 p-3 rounded-full">
-                      <DollarSign className="text-red-600" size={24} />
+                    <div className="bg-red-100 p-2 sm:p-3 rounded-full flex-shrink-0">
+                      <DollarSign className="text-red-600" size={20} />
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 min-w-[180px]">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-600 text-sm">Pending Approval</p>
-                      <p className="text-2xl font-bold text-orange-600">{expenses.filter(e => e.status === 'pending').length}</p>
+                      <p className="text-gray-600 text-xs sm:text-sm whitespace-nowrap">Pending Approval</p>
+                      <p className="text-lg sm:text-2xl font-bold text-orange-600">{expenses.filter(e => e.status === 'pending').length}</p>
                     </div>
-                    <div className="bg-orange-100 p-3 rounded-full">
-                      <TrendingUp className="text-orange-600" size={24} />
+                    <div className="bg-orange-100 p-2 sm:p-3 rounded-full flex-shrink-0">
+                      <TrendingUp className="text-orange-600" size={20} />
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 min-w-[180px]">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-600 text-sm">This Month</p>
-                      <p className="text-2xl font-bold text-blue-600">₹{totalExpenses.toLocaleString()}</p>
+                      <p className="text-gray-600 text-xs sm:text-sm whitespace-nowrap">This Month</p>
+                      <p className="text-lg sm:text-2xl font-bold text-blue-600">₹{totalExpenses.toLocaleString()}</p>
                     </div>
-                    <div className="bg-blue-100 p-3 rounded-full">
-                      <FileText className="text-blue-600" size={24} />
+                    <div className="bg-blue-100 p-2 sm:p-3 rounded-full flex-shrink-0">
+                      <FileText className="text-blue-600" size={20} />
                     </div>
                   </div>
                 </div>
               </>
             )}
+              </div>
           </div>
 
           {/* Reports Tab */}
           {activeTab === 'reports' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              <div className="overflow-x-auto overflow-y-auto max-h-[500px]" style={{WebkitOverflowScrolling: 'touch'}}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 sm:p-6" style={{minWidth: '300px'}}>
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-lg font-bold mb-4">Fee Collection Summary</h3>
                 <div className="space-y-3">
@@ -317,32 +323,34 @@ const AdminFinance = () => {
                 </div>
               </div>
             </div>
+              </div>
+            </div>
           )}
 
           {/* Data Table */}
           {activeTab !== 'reports' && (
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="p-6 border-b flex justify-between items-center">
-                <h2 className="text-xl font-bold">
+              <div className="p-3 sm:p-6 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <h2 className="text-base sm:text-xl font-bold">
                   {activeTab === 'pending-fees' ? 'Pending Fees' : 
                    activeTab === 'salary' ? 'Staff Salary Records' :
                    activeTab === 'expenses' ? 'Expense Records' : 'Fee Collection Records'}
                 </h2>
-                <div className="flex gap-3">
-                  <div className="relative">
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                  <div className="relative w-full sm:w-auto">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                     <input
                       type="text"
                       placeholder="Search..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full text-sm"
                     />
                   </div>
                   {activeTab === 'expenses' && (
                     <button
                       onClick={() => openModal('expense')}
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                      className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm whitespace-nowrap w-full sm:w-auto"
                     >
                       <Plus size={18} />
                       Add Expense
@@ -350,7 +358,8 @@ const AdminFinance = () => {
                   )}
                 </div>
               </div>
-              <div className="overflow-x-auto">
+              <div style={{overflowX: 'scroll', overflowY: 'scroll', maxHeight: '500px', WebkitOverflowScrolling: 'touch'}}>
+                <div style={{minWidth: '1200px'}}>
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
@@ -468,6 +477,7 @@ const AdminFinance = () => {
                     ))}
                   </tbody>
                 </table>
+                </div>
               </div>
             </div>
           )}

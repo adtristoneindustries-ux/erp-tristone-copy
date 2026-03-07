@@ -126,26 +126,29 @@ const StaffCafeteria = () => {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
-      <div className="flex-1 lg:ml-64">
+      <div className="flex-1 lg:ml-64 overflow-x-hidden">
         <Navbar />
-        <div className="p-6">
-          <h1 className="text-3xl font-bold mb-6">Canteen Staff Dashboard</h1>
+        <div className="p-3 sm:p-4 lg:p-6">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 sm:mb-6">Canteen Staff Dashboard</h1>
 
-      <div className="flex gap-2 mb-6 border-b">
+      <div className="overflow-x-auto mb-6">
+        <div className="flex gap-2 border-b min-w-max">
         {['orders', 'foodItems', 'ratings'].map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 font-medium ${activeTab === tab ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600'}`}
+            className={`px-3 sm:px-4 py-2 font-medium text-sm sm:text-base whitespace-nowrap ${activeTab === tab ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600'}`}
           >
             {tab === 'foodItems' ? 'Food Items' : tab.charAt(0).toUpperCase() + tab.slice(1)}
           </button>
         ))}
+        </div>
       </div>
 
       {activeTab === 'orders' && (
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="w-full">
+          <div style={{maxHeight: '500px', overflow: 'scroll', WebkitOverflowScrolling: 'touch'}}>
+            <table className="w-full min-w-[800px]">
             <thead className="bg-gray-100">
               <tr>
                 <th className="px-4 py-3 text-left">Customer</th>
@@ -191,6 +194,7 @@ const StaffCafeteria = () => {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
@@ -198,7 +202,7 @@ const StaffCafeteria = () => {
         <div>
           <button
             onClick={() => { setShowModal(true); setFormData({}); }}
-            className="mb-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="mb-4 bg-blue-600 text-white px-3 sm:px-4 py-2 rounded hover:bg-blue-700 text-sm sm:text-base w-full sm:w-auto"
           >
             Add Food Item
           </button>
@@ -248,7 +252,8 @@ const StaffCafeteria = () => {
 
       {activeTab === 'ratings' && (
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="w-full">
+          <div style={{maxHeight: '500px', overflow: 'scroll', WebkitOverflowScrolling: 'touch'}}>
+            <table className="w-full min-w-[700px]">
             <thead className="bg-gray-100">
               <tr>
                 <th className="px-4 py-3 text-left">Customer</th>
@@ -272,6 +277,7 @@ const StaffCafeteria = () => {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 

@@ -7,7 +7,7 @@ import api from '../services/api';
 const AdminScholarship = () => {
   const [scholarships, setScholarships] = useState([]);
   const [filteredScholarships, setFilteredScholarships] = useState([]);
-  const [analytics, setAnalytics] = useState(null);
+  const [analytics, setAnalytics] = useState({ total: 0, pending: 0, verified: 0, approved: 0, totalAmount: 0 });
   const [showModal, setShowModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selected, setSelected] = useState(null);
@@ -27,9 +27,10 @@ const AdminScholarship = () => {
   const fetchScholarships = async () => {
     try {
       const res = await api.get('/scholarships?status=Verified');
-      setScholarships(res.data.data);
+      setScholarships(res.data.data || []);
     } catch (error) {
-      console.error(error);
+      console.log('Scholarships not available');
+      setScholarships([]);
     }
   };
 
@@ -38,7 +39,7 @@ const AdminScholarship = () => {
       const res = await api.get('/scholarships/analytics');
       setAnalytics(res.data.data);
     } catch (error) {
-      console.error(error);
+      console.log('Analytics not available');
     }
   };
 
@@ -84,52 +85,54 @@ const AdminScholarship = () => {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
-      <div className="flex-1 lg:ml-64">
+      <div className="flex-1 lg:ml-64 overflow-x-hidden">
         <Navbar />
-        <div className="p-4 lg:p-6">
+        <div className="p-3 sm:p-4 lg:p-6">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">Scholarship Management</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Scholarship Management</h1>
             <p className="text-sm text-gray-600 mt-1">Review verified applications and make final decisions</p>
           </div>
 
-          {analytics && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
+          {analytics && analytics.total > 0 && (
+            <div className="overflow-x-auto mb-6" style={{scrollbarWidth: 'thin', scrollbarColor: '#9CA3AF #F3F4F6'}}>
+              <div className="flex gap-4 lg:grid lg:grid-cols-4 lg:gap-6 pb-2">
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-4 sm:p-6 text-white min-w-[180px]">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-blue-100 text-sm">Total Applications</p>
-                    <p className="text-3xl font-bold mt-1">{analytics.total}</p>
+                    <p className="text-xl sm:text-3xl font-bold mt-1">{analytics.total}</p>
                   </div>
                   <Users size={40} className="opacity-80" />
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg shadow-lg p-6 text-white">
+              <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg shadow-lg p-4 sm:p-6 text-white min-w-[180px]">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-yellow-100 text-sm">Pending Review</p>
-                    <p className="text-3xl font-bold mt-1">{analytics.pending + analytics.verified}</p>
+                    <p className="text-xl sm:text-3xl font-bold mt-1">{analytics.pending + analytics.verified}</p>
                   </div>
                   <TrendingUp size={40} className="opacity-80" />
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-6 text-white">
+              <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-4 sm:p-6 text-white min-w-[180px]">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-green-100 text-sm">Approved</p>
-                    <p className="text-3xl font-bold mt-1">{analytics.approved}</p>
+                    <p className="text-xl sm:text-3xl font-bold mt-1">{analytics.approved}</p>
                   </div>
                   <Award size={40} className="opacity-80" />
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-4 sm:p-6 text-white min-w-[180px]">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-purple-100 text-sm">Total Distributed</p>
-                    <p className="text-3xl font-bold mt-1">₹{(analytics.totalAmount / 1000).toFixed(0)}K</p>
+                    <p className="text-xl sm:text-3xl font-bold mt-1">₹{(analytics.totalAmount / 1000).toFixed(0)}K</p>
                   </div>
                   <DollarSign size={40} className="opacity-80" />
                 </div>
               </div>
+            </div>
             </div>
           )}
 
@@ -156,7 +159,8 @@ const AdminScholarship = () => {
 
           {/* Applications Table */}
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="overflow-x-auto">
+            <div style={{overflowX: 'scroll', overflowY: 'scroll', maxHeight: '500px', WebkitOverflowScrolling: 'touch'}}>
+              <div style={{minWidth: '1200px'}}>
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
@@ -207,6 +211,7 @@ const AdminScholarship = () => {
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
             {filteredScholarships.length === 0 && (
               <div className="text-center py-12">
