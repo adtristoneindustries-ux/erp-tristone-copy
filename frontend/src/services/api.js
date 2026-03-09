@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: 'http://192.168.1.19:5000/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
@@ -57,7 +57,7 @@ export const userAPI = {
   createUser: (data) => API.post('/users', data),
   createStaffWithDocs: (formData) => {
     return axios.create({
-      baseURL: 'http://localhost:5000/api',
+      baseURL: 'http://192.168.1.19:5000/api',
       timeout: 30000,
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -133,7 +133,7 @@ export const materialAPI = {
     // Check if data is FormData (for file uploads)
     if (data instanceof FormData) {
       return axios.create({
-        baseURL: 'http://localhost:5000/api',
+        baseURL: 'http://192.168.1.19:5000/api',
         timeout: 60000, // Increased timeout for file uploads
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -270,7 +270,7 @@ export const badgeAPI = {
   getStudentBadges: () => API.get('/badges/student'),
   uploadCertificate: (formData) => {
     return axios.create({
-      baseURL: 'http://localhost:5000/api',
+      baseURL: 'http://192.168.1.19:5000/api',
       timeout: 60000,
       headers: {
         'Content-Type': 'multipart/form-data',
