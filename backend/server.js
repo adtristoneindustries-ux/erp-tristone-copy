@@ -12,7 +12,7 @@ const server = http.createServer(app);
 
 // CORS configuration
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://192.168.1.19:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -21,7 +21,7 @@ app.use(cors({
 // Socket.IO with CORS
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://192.168.1.19:3000'],
     methods: ['GET', 'POST']
   }
 });
@@ -76,6 +76,7 @@ app.use('/api/activities', require('./routes/activityRoutes'));
 app.use('/api/courses', require('./routes/courseRoutes'));
 app.use('/api/library', require('./routes/libraryRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use('/api/badges', require('./routes/badgeRoutes'));
 
 // Health check endpoint
 app.get('/', (req, res) => {
@@ -131,9 +132,10 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`🌐 API available at http://localhost:${PORT}/api`);
+  console.log(`🌐 Network API available at http://192.168.1.19:${PORT}/api`);
 });
 
 module.exports = app;

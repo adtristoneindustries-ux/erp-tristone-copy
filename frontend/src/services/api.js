@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: 'http://192.168.1.19:5000/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
@@ -57,7 +57,7 @@ export const userAPI = {
   createUser: (data) => API.post('/users', data),
   createStaffWithDocs: (formData) => {
     return axios.create({
-      baseURL: 'http://localhost:5000/api',
+      baseURL: 'http://192.168.1.19:5000/api',
       timeout: 30000,
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -133,7 +133,7 @@ export const materialAPI = {
     // Check if data is FormData (for file uploads)
     if (data instanceof FormData) {
       return axios.create({
-        baseURL: 'http://localhost:5000/api',
+        baseURL: 'http://192.168.1.19:5000/api',
         timeout: 60000, // Increased timeout for file uploads
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -263,6 +263,27 @@ export const courseAPI = {
   getEnrollments: (params) => API.get('/courses/enrollments/all', { params }),
   updateEnrollmentStatus: (id, data) => API.put(`/courses/enrollments/${id}`, data),
   getMyEnrollments: () => API.get('/courses/enrollments/my')
+};
+
+export const badgeAPI = {
+  getAllBadges: () => API.get('/badges'),
+  getStudentBadges: () => API.get('/badges/student'),
+  uploadCertificate: (formData) => {
+    return axios.create({
+      baseURL: 'http://192.168.1.19:5000/api',
+      timeout: 60000,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    }).post('/badges/upload-certificate', formData);
+  },
+  getPendingApprovals: () => API.get('/badges/pending'),
+  approveCertificate: (id, data) => API.put(`/badges/approve/${id}`, data),
+  createBadge: (data) => API.post('/badges', data),
+  updateBadge: (id, data) => API.put(`/badges/${id}`, data),
+  deleteBadge: (id) => API.delete(`/badges/${id}`),
+  assignBadge: (data) => API.post('/badges/assign', data)
 };
 
 export default API;
