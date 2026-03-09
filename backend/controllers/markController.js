@@ -1,10 +1,20 @@
 const Mark = require('../models/Mark');
 const MarkRead = require('../models/MarkRead');
+const { createNotification } = require('./notificationController');
 
 exports.createMark = async (req, res) => {
   try {
     const mark = await Mark.create(req.body);
     const populated = await mark.populate(['student', 'subject']);
+    
+    // Create notification for student
+    await createNotification(
+      populated.student._id,
+      'marks',
+      'New Marks Added',
+      `${populated.subject.name} - ${populated.examType}: ${populated.marks}/${populated.totalMarks}`,
+      '/student/marks'
+    );
     
     req.io.emit('markUpdate', populated);
     res.status(201).json(populated);
@@ -30,21 +40,18 @@ exports.getMarks = async (req, res) => {
 
     let filteredMarks = marks;
 
-    // Filter by class
     if (className) {
       filteredMarks = filteredMarks.filter(mark => 
         mark.student && mark.student.class === className
       );
     }
 
-    // Filter by section
     if (section) {
       filteredMarks = filteredMarks.filter(mark => 
         mark.student && mark.student.section === section
       );
     }
 
-    // Search functionality
     if (search) {
       const searchTerm = search.toLowerCase();
       filteredMarks = filteredMarks.filter(mark => 
@@ -65,6 +72,15 @@ exports.updateMark = async (req, res) => {
   try {
     const mark = await Mark.findByIdAndUpdate(req.params.id, req.body, { new: true })
       .populate(['student', 'subject']);
+    
+    // Create notification for student
+    await createNotification(
+      mark.student._id,
+      'marks',
+      'Marks Updated',
+      `${mark.subject.name} - ${mark.examType}: ${mark.marks}/${mark.totalMarks}`,
+      '/student/marks'
+    );
     
     req.io.emit('markUpdate', mark);
     res.json(mark);

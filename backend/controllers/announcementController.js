@@ -1,5 +1,6 @@
 const Announcement = require('../models/Announcement');
 const AnnouncementRead = require('../models/AnnouncementRead');
+const { createNotification } = require('./notificationController');
 
 exports.createAnnouncement = async (req, res) => {
   try {
@@ -7,7 +8,25 @@ exports.createAnnouncement = async (req, res) => {
     const populatedAnnouncement = await Announcement.findById(announcement._id)
       .populate('createdBy', 'name role');
     
-    // Emit socket event for real-time notifications
+    // Create notifications for all users of target role
+    const User = require('../models/User');
+    let targetUsers = [];
+    if (announcement.targetRole === 'all') {
+      targetUsers = await User.find({});
+    } else {
+      targetUsers = await User.find({ role: announcement.targetRole });
+    }
+    
+    for (const user of targetUsers) {
+      await createNotification(
+        user._id,
+        'announcement',
+        announcement.title,
+        announcement.content,
+        `/${user.role}/announcements`
+      );
+    }
+    
     if (req.io) {
       req.io.emit('newAnnouncement', populatedAnnouncement);
     }

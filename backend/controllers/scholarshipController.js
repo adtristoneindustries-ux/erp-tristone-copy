@@ -61,3 +61,17 @@ exports.deleteScholarship = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.getAnalytics = async (req, res) => {
+  try {
+    const scholarships = await Scholarship.find();
+    const totalScholarships = scholarships.length;
+    const totalApplications = scholarships.reduce((sum, s) => sum + s.applications.length, 0);
+    const approvedApplications = scholarships.reduce((sum, s) => sum + s.applications.filter(a => a.status === 'approved').length, 0);
+    const pendingApplications = scholarships.reduce((sum, s) => sum + s.applications.filter(a => a.status === 'pending').length, 0);
+    
+    res.json({ totalScholarships, totalApplications, approvedApplications, pendingApplications });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

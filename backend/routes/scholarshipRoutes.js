@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { getScholarships, createScholarship, updateScholarship, applyScholarship, updateApplication, deleteScholarship } = require('../controllers/scholarshipController');
+const { getScholarships, createScholarship, updateScholarship, applyScholarship, updateApplication, deleteScholarship, getAnalytics } = require('../controllers/scholarshipController');
 const { protect } = require('../middleware/auth');
 
 router.get('/', protect, getScholarships);
+router.get('/analytics', protect, getAnalytics);
 router.post('/', protect, createScholarship);
 router.put('/:id', protect, updateScholarship);
 router.post('/:id/apply', protect, applyScholarship);

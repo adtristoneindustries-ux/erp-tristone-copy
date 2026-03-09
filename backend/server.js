@@ -75,6 +75,7 @@ app.use('/api/chat', require('./routes/chatRoutes'));
 app.use('/api/activities', require('./routes/activityRoutes'));
 app.use('/api/courses', require('./routes/courseRoutes'));
 app.use('/api/library', require('./routes/libraryRoutes'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
 
 // Health check endpoint
 app.get('/', (req, res) => {
