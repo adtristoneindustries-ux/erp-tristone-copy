@@ -146,15 +146,15 @@ const AdminDiscipline = () => {
     label: section
   }));
 
-  const studentOptions = students.map(student => ({
+  const studentOptions = Array.isArray(students) ? students.map(student => ({
     value: student._id,
     label: `${student.name} (${student.rollNumber || student._id})`
-  }));
+  })) : [];
 
-  const staffOptions = staff.map(member => ({
+  const staffOptions = Array.isArray(staff) ? staff.map(member => ({
     value: member._id,
     label: `${member.name} (${member.staffId || member._id})`
-  }));
+  })) : [];
 
   return (
     <div className="flex min-h-screen bg-gray-50">

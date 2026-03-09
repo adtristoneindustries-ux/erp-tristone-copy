@@ -165,53 +165,55 @@ const AdminFinanceManagement = () => {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
-      <div className="flex-1 lg:ml-64">
+      <div className="flex-1 lg:ml-64 overflow-x-hidden">
         <Navbar />
-        <div className="p-4 lg:p-6">
-          <div className="flex justify-between items-center mb-6">
+        <div className="p-3 sm:p-4 lg:p-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Fee & Scholarships Management</h1>
-              <p className="text-sm text-gray-600 mt-1">Manage student fees and scholarship discounts</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Fee & Scholarships Management</h1>
+              <p className="text-xs sm:text-sm text-gray-600 mt-1">Manage student fees and scholarship discounts</p>
             </div>
-            <div className="flex gap-3">
-              <button onClick={exportData} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-md">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+              <button onClick={exportData} className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-md text-sm w-full sm:w-auto">
                 <Download size={18} /> Export
               </button>
-              <button onClick={() => setShowFeeStructureModal(true)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md">
+              <button onClick={() => setShowFeeStructureModal(true)} className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md text-sm w-full sm:w-auto">
                 <Plus size={18} /> Set Class Fee Structure
               </button>
             </div>
           </div>
 
           {analytics && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-6 text-white">
+            <div className="overflow-x-auto mb-6" style={{scrollbarWidth: 'thin', scrollbarColor: '#9CA3AF #F3F4F6'}}>
+              <div className="flex gap-4 lg:grid lg:grid-cols-3 lg:gap-6 pb-2">
+              <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-4 sm:p-6 text-white min-w-[180px]">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-green-100 text-sm">Total Revenue</p>
-                    <p className="text-3xl font-bold mt-1">₹{(analytics.totalRevenue / 1000).toFixed(0)}K</p>
+                    <p className="text-xl sm:text-3xl font-bold mt-1">₹{(analytics.totalRevenue / 1000).toFixed(0)}K</p>
                   </div>
                   <DollarSign size={40} className="opacity-80" />
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-lg shadow-lg p-6 text-white">
+              <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-lg shadow-lg p-4 sm:p-6 text-white min-w-[180px]">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-red-100 text-sm">Pending Amount</p>
-                    <p className="text-3xl font-bold mt-1">₹{(analytics.totalPending / 1000).toFixed(0)}K</p>
+                    <p className="text-xl sm:text-3xl font-bold mt-1">₹{(analytics.totalPending / 1000).toFixed(0)}K</p>
                   </div>
                   <TrendingUp size={40} className="opacity-80" />
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-4 sm:p-6 text-white min-w-[180px]">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-purple-100 text-sm">Scholarship Discounts</p>
-                    <p className="text-3xl font-bold mt-1">₹{(analytics.totalScholarship / 1000).toFixed(0)}K</p>
+                    <p className="text-xl sm:text-3xl font-bold mt-1">₹{(analytics.totalScholarship / 1000).toFixed(0)}K</p>
                   </div>
                   <Award size={40} className="opacity-80" />
                 </div>
               </div>
+            </div>
             </div>
           )}
 
@@ -265,7 +267,8 @@ const AdminFinanceManagement = () => {
           </div>
 
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="overflow-x-auto">
+            <div style={{overflowX: 'scroll', overflowY: 'scroll', maxHeight: '500px', WebkitOverflowScrolling: 'touch'}}>
+              <div style={{minWidth: '1400px'}}>
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
@@ -316,6 +319,7 @@ const AdminFinanceManagement = () => {
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
             {filteredFinances.length === 0 && (
               <div className="text-center py-12">

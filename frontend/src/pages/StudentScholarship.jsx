@@ -58,10 +58,10 @@ const StudentScholarship = () => {
   };
 
   const stats = {
-    total: scholarships.length,
-    pending: scholarships.filter(s => s.status === 'Pending').length,
-    approved: scholarships.filter(s => s.status === 'Approved').length,
-    totalAmount: scholarships.filter(s => s.status === 'Approved').reduce((sum, s) => sum + (s.amount || 0), 0)
+    total: scholarships?.length || 0,
+    pending: scholarships?.filter(s => s.status === 'Pending').length || 0,
+    approved: scholarships?.filter(s => s.status === 'Approved').length || 0,
+    totalAmount: scholarships?.filter(s => s.status === 'Approved').reduce((sum, s) => sum + (s.amount || 0), 0) || 0
   };
 
   return (
@@ -122,7 +122,7 @@ const StudentScholarship = () => {
 
           {/* Scholarships Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {scholarships.map((s) => (
+            {scholarships?.map((s) => (
               <div key={s._id} className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow border border-gray-200">
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
@@ -182,7 +182,7 @@ const StudentScholarship = () => {
             ))}
           </div>
 
-          {scholarships.length === 0 && (
+          {(!scholarships || scholarships.length === 0) && (
             <div className="text-center py-16 bg-white rounded-lg shadow-md">
               <FileText size={64} className="mx-auto text-gray-300 mb-4" />
               <h3 className="text-xl font-semibold text-gray-700 mb-2">No Applications Yet</h3>
