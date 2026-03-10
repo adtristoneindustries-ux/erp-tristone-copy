@@ -98,6 +98,8 @@ import TimetableModule from "./pages/TimetableModule";
 import AdminExamSchedule from "./pages/AdminExamSchedule";
 import StaffExamSchedule from "./pages/StaffExamSchedule";
 import StudentExamSchedule from "./pages/StudentExamSchedule";
+import StudentBadges from "./pages/StudentBadges";
+import AdminBadgeVerification from "./pages/AdminBadgeVerification";
 import NotFound from "./pages/NotFound";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -416,6 +418,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminAchievements />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/badge-verification"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminBadgeVerification />
             </ProtectedRoute>
           }
         />
@@ -852,6 +862,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentLibrary />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/badges"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentBadges />
             </ProtectedRoute>
           }
         />

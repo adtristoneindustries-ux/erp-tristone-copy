@@ -17,49 +17,65 @@ const sampleBadges = [
     name: 'Academic Excellence',
     icon: '🏆',
     category: 'Academic',
-    description: 'Achieved 90% or above in final exams'
+    description: 'Achieved 90% or above in final exams',
+    autoCalculate: false,
+    calculationType: 'manual'
   },
   {
     name: 'Perfect Attendance',
     icon: '⭐',
     category: 'Attendance',
-    description: '100% attendance for the semester'
+    description: '100% attendance for the month',
+    autoCalculate: true,
+    calculationType: 'perfect_attendance'
   },
   {
     name: 'Sports Champion',
     icon: '🥇',
     category: 'Sports',
-    description: 'Won first place in sports competition'
+    description: 'Won first place in sports competition',
+    autoCalculate: false,
+    calculationType: 'manual'
   },
   {
     name: 'Cultural Star',
     icon: '🎭',
     category: 'Cultural',
-    description: 'Outstanding performance in cultural events'
+    description: 'Outstanding performance in cultural events',
+    autoCalculate: false,
+    calculationType: 'manual'
   },
   {
     name: 'Leadership Award',
     icon: '👑',
     category: 'Leadership',
-    description: 'Demonstrated exceptional leadership skills'
+    description: 'Demonstrated exceptional leadership skills',
+    autoCalculate: false,
+    calculationType: 'manual'
   },
   {
     name: 'Science Olympiad',
     icon: '🔬',
     category: 'Academic',
-    description: 'Participated in Science Olympiad'
+    description: 'Participated in Science Olympiad',
+    autoCalculate: false,
+    calculationType: 'manual'
   },
   {
     name: 'Community Service',
     icon: '💎',
     category: 'Service',
-    description: 'Completed 50+ hours of community service'
+    description: 'Completed 50+ hours of community service',
+    autoCalculate: false,
+    calculationType: 'manual'
   },
   {
     name: 'Tech Innovator',
     icon: '🚀',
     category: 'Technology',
-    description: 'Created innovative tech project'
+    description: 'Created innovative tech project',
+    autoCalculate: false,
+    calculationType: 'manual'
   }
 ];
 

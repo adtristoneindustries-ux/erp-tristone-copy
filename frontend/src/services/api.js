@@ -279,6 +279,7 @@ export const badgeAPI = {
     }).post('/badges/upload-certificate', formData);
   },
   getPendingApprovals: () => API.get('/badges/pending'),
+  getApprovedBadges: () => API.get('/badges/approved'),
   approveCertificate: (id, data) => API.put(`/badges/approve/${id}`, data),
   createBadge: (data) => API.post('/badges', data),
   updateBadge: (id, data) => API.put(`/badges/${id}`, data),

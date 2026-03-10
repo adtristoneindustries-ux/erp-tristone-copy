@@ -1,5 +1,6 @@
 const Badge = require('../models/Badge');
 const StudentBadge = require('../models/StudentBadge');
+const StudentAttendance = require('../models/StudentAttendance');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -27,6 +28,69 @@ const upload = multer({
   }
 }).single('certificate');
 
+// Calculate Perfect Attendance
+const calculatePerfectAttendance = async (studentId) => {
+  const currentMonth = new Date();
+  const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+  const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+
+  const attendance = await StudentAttendance.find({
+    student: studentId,
+    date: { $gte: startOfMonth, $lte: endOfMonth }
+  });
+
+  const totalDays = attendance.length;
+  const presentDays = attendance.filter(a => a.status === 'present').length;
+  
+  return totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0;
+};
+
+// Auto-assign Perfect Attendance badge
+const autoAssignPerfectAttendance = async (studentId, io) => {
+  const badge = await Badge.findOne({ calculationType: 'perfect_attendance', isActive: true });
+  if (!badge) return;
+
+  const progress = await calculatePerfectAttendance(studentId);
+  
+  let studentBadge = await StudentBadge.findOne({ student: studentId, badge: badge._id });
+  
+  if (progress === 100) {
+    if (studentBadge) {
+      if (studentBadge.status !== 'earned') {
+        studentBadge.status = 'earned';
+        studentBadge.earnedDate = new Date();
+        studentBadge.progress = 100;
+        await studentBadge.save();
+        io.emit('badgeUpdate', { studentId });
+      }
+    } else {
+      studentBadge = new StudentBadge({
+        student: studentId,
+        badge: badge._id,
+        status: 'earned',
+        earnedDate: new Date(),
+        progress: 100
+      });
+      await studentBadge.save();
+      io.emit('badgeUpdate', { studentId });
+    }
+  } else {
+    if (studentBadge) {
+      studentBadge.progress = progress;
+      studentBadge.status = progress > 0 ? 'locked' : 'locked';
+      await studentBadge.save();
+    } else {
+      studentBadge = new StudentBadge({
+        student: studentId,
+        badge: badge._id,
+        progress,
+        status: 'locked'
+      });
+      await studentBadge.save();
+    }
+  }
+};
+
 // Get all badges
 exports.getAllBadges = async (req, res) => {
   try {
@@ -41,6 +105,10 @@ exports.getAllBadges = async (req, res) => {
 exports.getStudentBadges = async (req, res) => {
   try {
     const studentId = req.user.role === 'student' ? req.user.id : req.query.studentId;
+    
+    // Auto-calculate Perfect Attendance
+    await autoAssignPerfectAttendance(studentId, req.io);
+    
     const badges = await Badge.find({ isActive: true });
     const studentBadges = await StudentBadge.find({ student: studentId }).populate('badge');
     
@@ -56,7 +124,9 @@ exports.getStudentBadges = async (req, res) => {
         progress: studentBadge?.progress || 0,
         certificateUrl: studentBadge?.certificateUrl,
         earnedDate: studentBadge?.earnedDate,
-        studentBadgeId: studentBadge?._id
+        studentBadgeId: studentBadge?._id,
+        autoCalculate: badge.autoCalculate,
+        calculationType: badge.calculationType
       };
     });
 
@@ -170,6 +240,20 @@ exports.deleteBadge = async (req, res) => {
   try {
     await Badge.findByIdAndUpdate(req.params.id, { isActive: false });
     res.json({ success: true, message: 'Badge deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Get approved badges history (Admin)
+exports.getApprovedBadges = async (req, res) => {
+  try {
+    const approved = await StudentBadge.find({ status: 'earned' })
+      .populate('student', 'name email rollNumber class')
+      .populate('badge')
+      .populate('approvedBy', 'name')
+      .sort({ earnedDate: -1 });
+    res.json({ success: true, data: approved });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

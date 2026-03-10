@@ -13,6 +13,7 @@ router.post('/', protect, authorize('admin'), badgeController.createBadge);
 router.put('/:id', protect, authorize('admin'), badgeController.updateBadge);
 router.delete('/:id', protect, authorize('admin'), badgeController.deleteBadge);
 router.get('/pending', protect, authorize('admin'), badgeController.getPendingApprovals);
+router.get('/approved', protect, authorize('admin'), badgeController.getApprovedBadges);
 router.put('/approve/:id', protect, authorize('admin'), badgeController.approveCertificate);
 router.post('/assign', protect, authorize('admin'), badgeController.assignBadge);
 

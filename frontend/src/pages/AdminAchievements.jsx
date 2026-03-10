@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { Award, Plus, Edit, Trash2, CheckCircle, XCircle, Eye } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import StudentDetailsModal from '../components/StudentDetailsModal';
 import { badgeAPI, userAPI } from '../services/api';
 
 const AdminAchievements = () => {
   const [badges, setBadges] = useState([]);
   const [pendingApprovals, setPendingApprovals] = useState([]);
+  const [approvedBadges, setApprovedBadges] = useState([]);
   const [students, setStudents] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
@@ -14,10 +16,13 @@ const AdminAchievements = () => {
   const [formData, setFormData] = useState({ name: '', icon: '🏆', category: '', description: '' });
   const [assignData, setAssignData] = useState({ studentId: '', badgeId: '' });
   const [activeTab, setActiveTab] = useState('badges');
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
 
   useEffect(() => {
     fetchBadges();
     fetchPendingApprovals();
+    fetchApprovedBadges();
     fetchStudents();
   }, []);
 
@@ -36,6 +41,15 @@ const AdminAchievements = () => {
       setPendingApprovals(res.data.data);
     } catch (error) {
       console.error('Error fetching approvals:', error);
+    }
+  };
+
+  const fetchApprovedBadges = async () => {
+    try {
+      const res = await badgeAPI.getApprovedBadges();
+      setApprovedBadges(res.data.data);
+    } catch (error) {
+      console.error('Error fetching approved badges:', error);
     }
   };
 
@@ -83,6 +97,7 @@ const AdminAchievements = () => {
       await badgeAPI.approveCertificate(id, { action });
       alert(`Certificate ${action}d successfully`);
       fetchPendingApprovals();
+      fetchApprovedBadges();
     } catch (error) {
       alert('Error: ' + error.message);
     }
@@ -146,6 +161,12 @@ const AdminAchievements = () => {
             >
               Pending Approvals ({pendingApprovals.length})
             </button>
+            <button
+              onClick={() => setActiveTab('history')}
+              className={`pb-2 px-4 ${activeTab === 'history' ? 'border-b-2 border-blue-600 text-blue-600 font-medium' : 'text-gray-600'}`}
+            >
+              Approved History ({approvedBadges.length})
+            </button>
           </div>
 
           {/* Badges Tab */}
@@ -202,7 +223,12 @@ const AdminAchievements = () => {
                     <tr key={approval._id}>
                       <td className="px-6 py-4">
                         <div>
-                          <p className="font-medium">{approval.student?.name}</p>
+                          <button
+                            onClick={() => { setSelectedStudent(approval.student); setIsStudentModalOpen(true); }}
+                            className="font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer text-left"
+                          >
+                            {approval.student?.name}
+                          </button>
                           <p className="text-sm text-gray-500">{approval.student?.rollNumber}</p>
                         </div>
                       </td>
@@ -250,6 +276,79 @@ const AdminAchievements = () => {
                     <tr>
                       <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
                         No pending approvals
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Approved History Tab */}
+          {activeTab === 'history' && (
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Student</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Class</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Badge</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Earned Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Approved By</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Certificate</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {approvedBadges.map((item) => (
+                    <tr key={item._id}>
+                      <td className="px-6 py-4">
+                        <div>
+                          <button
+                            onClick={() => { setSelectedStudent(item.student); setIsStudentModalOpen(true); }}
+                            className="font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer text-left"
+                          >
+                            {item.student?.name}
+                          </button>
+                          <p className="text-sm text-gray-500">{item.student?.rollNumber}</p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm">{item.student?.class}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">{item.badge?.icon}</span>
+                          <div>
+                            <p className="font-medium">{item.badge?.name}</p>
+                            <p className="text-xs text-gray-500">{item.badge?.category}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {new Date(item.earnedDate).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        {item.approvedBy?.name || 'Auto-assigned'}
+                      </td>
+                      <td className="px-6 py-4">
+                        {item.certificateUrl ? (
+                          <a
+                            href={`http://localhost:5000${item.certificateUrl}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline flex items-center gap-1"
+                          >
+                            <Eye size={16} />
+                            View
+                          </a>
+                        ) : (
+                          <span className="text-gray-400 text-sm">Auto-earned</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                  {approvedBadges.length === 0 && (
+                    <tr>
+                      <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
+                        No approved badges yet
                       </td>
                     </tr>
                   )}
@@ -382,6 +481,12 @@ const AdminAchievements = () => {
           </div>
         </div>
       )}
+
+      <StudentDetailsModal
+        student={selectedStudent}
+        isOpen={isStudentModalOpen}
+        onClose={() => setIsStudentModalOpen(false)}
+      />
     </div>
   );
 };
