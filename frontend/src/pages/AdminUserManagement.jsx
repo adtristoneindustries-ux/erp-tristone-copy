@@ -28,19 +28,19 @@ const AdminUserManagement = () => {
 
           {/* Tabs */}
           <div className="bg-white rounded-lg shadow-md mb-6">
-            <div className="flex border-b overflow-x-auto">
+            <div className="flex border-b overflow-x-auto scrollbar-hide">
               {tabs.map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
                   onClick={() => setActiveTab(id)}
-                  className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 font-medium whitespace-nowrap transition-all ${
+                  className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-4 font-medium whitespace-nowrap transition-all text-xs sm:text-base ${
                     activeTab === id
                       ? 'border-b-2 border-blue-500 text-blue-600 bg-blue-50'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
-                  <Icon size={18} />
-                  <span className="text-sm sm:text-base">{label}</span>
+                  <Icon size={16} className="sm:w-[18px] sm:h-[18px]" />
+                  <span>{label}</span>
                 </button>
               ))}
             </div>

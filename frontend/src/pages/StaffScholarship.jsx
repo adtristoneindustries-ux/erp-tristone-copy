@@ -25,14 +25,15 @@ const StaffScholarship = () => {
   const fetchScholarships = async () => {
     try {
       const res = await api.get('/scholarships');
-      setScholarships(res.data.data);
+      setScholarships(res.data.data || []);
     } catch (error) {
       console.error(error);
+      setScholarships([]);
     }
   };
 
   const filterData = () => {
-    let filtered = scholarships;
+    let filtered = scholarships || [];
     if (searchTerm) {
       filtered = filtered.filter(s => 
         s.student?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -72,10 +73,10 @@ const StaffScholarship = () => {
   };
 
   const stats = {
-    total: scholarships.length,
-    pending: scholarships.filter(s => s.status === 'Pending').length,
-    verified: scholarships.filter(s => s.status === 'Verified').length,
-    rejected: scholarships.filter(s => s.status === 'Rejected').length
+    total: scholarships?.length || 0,
+    pending: scholarships?.filter(s => s.status === 'Pending').length || 0,
+    verified: scholarships?.filter(s => s.status === 'Verified').length || 0,
+    rejected: scholarships?.filter(s => s.status === 'Rejected').length || 0
   };
 
   return (

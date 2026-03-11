@@ -123,15 +123,15 @@ const AdminAchievements = () => {
       <div className="flex-1 lg:ml-64">
         <Navbar />
         <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Achievements Management</h1>
-            <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+            <h1 className="text-xl sm:text-2xl font-bold">Achievements Management</h1>
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
               <button
                 onClick={() => setShowAssignModal(true)}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2"
+                className="bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-green-700 flex items-center justify-center gap-2 text-sm"
               >
-                <Award size={20} />
-                Assign Badge
+                <Award size={18} className="sm:w-5 sm:h-5" />
+                <span className="text-xs sm:text-sm">Assign Badge</span>
               </button>
               <button
                 onClick={() => {
@@ -139,46 +139,46 @@ const AdminAchievements = () => {
                   setFormData({ name: '', icon: '🏆', category: '', description: '' });
                   setShowModal(true);
                 }}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 text-sm"
               >
-                <Plus size={20} />
-                Create Badge
+                <Plus size={18} className="sm:w-5 sm:h-5" />
+                <span className="text-xs sm:text-sm">Create Badge</span>
               </button>
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-4 mb-6 border-b">
+          <div className="flex gap-2 sm:gap-4 mb-6 border-b overflow-x-auto scrollbar-hide">
             <button
               onClick={() => setActiveTab('badges')}
-              className={`pb-2 px-4 ${activeTab === 'badges' ? 'border-b-2 border-blue-600 text-blue-600 font-medium' : 'text-gray-600'}`}
+              className={`pb-2 px-3 sm:px-4 whitespace-nowrap text-xs sm:text-sm ${activeTab === 'badges' ? 'border-b-2 border-blue-600 text-blue-600 font-medium' : 'text-gray-600'}`}
             >
               All Badges ({badges.length})
             </button>
             <button
               onClick={() => setActiveTab('approvals')}
-              className={`pb-2 px-4 ${activeTab === 'approvals' ? 'border-b-2 border-blue-600 text-blue-600 font-medium' : 'text-gray-600'}`}
+              className={`pb-2 px-3 sm:px-4 whitespace-nowrap text-xs sm:text-sm ${activeTab === 'approvals' ? 'border-b-2 border-blue-600 text-blue-600 font-medium' : 'text-gray-600'}`}
             >
-              Pending Approvals ({pendingApprovals.length})
+              Pending ({pendingApprovals.length})
             </button>
             <button
               onClick={() => setActiveTab('history')}
-              className={`pb-2 px-4 ${activeTab === 'history' ? 'border-b-2 border-blue-600 text-blue-600 font-medium' : 'text-gray-600'}`}
+              className={`pb-2 px-3 sm:px-4 whitespace-nowrap text-xs sm:text-sm ${activeTab === 'history' ? 'border-b-2 border-blue-600 text-blue-600 font-medium' : 'text-gray-600'}`}
             >
-              Approved History ({approvedBadges.length})
+              History ({approvedBadges.length})
             </button>
           </div>
 
           {/* Badges Tab */}
           {activeTab === 'badges' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {badges.map((badge) => (
-                <div key={badge._id} className="bg-white rounded-lg shadow-md p-6">
-                  <div className="text-center mb-4">
-                    <div className="text-5xl mb-3">{badge.icon}</div>
-                    <h3 className="font-bold text-lg mb-1">{badge.name}</h3>
-                    <p className="text-sm text-gray-600 mb-2">{badge.category}</p>
-                    <p className="text-xs text-gray-500">{badge.description}</p>
+                <div key={badge._id} className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+                  <div className="text-center mb-3 sm:mb-4">
+                    <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">{badge.icon}</div>
+                    <h3 className="font-bold text-base sm:text-lg mb-1">{badge.name}</h3>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2">{badge.category}</p>
+                    <p className="text-xs text-gray-500 line-clamp-2">{badge.description}</p>
                   </div>
                   <div className="flex gap-2">
                     <button
@@ -187,16 +187,16 @@ const AdminAchievements = () => {
                         setFormData(badge);
                         setShowModal(true);
                       }}
-                      className="flex-1 bg-blue-100 text-blue-600 py-2 rounded-lg hover:bg-blue-200 flex items-center justify-center gap-1"
+                      className="flex-1 bg-blue-100 text-blue-600 py-1.5 sm:py-2 rounded-lg hover:bg-blue-200 flex items-center justify-center gap-1 text-xs sm:text-sm"
                     >
-                      <Edit size={16} />
+                      <Edit size={14} className="sm:w-4 sm:h-4" />
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(badge._id)}
-                      className="flex-1 bg-red-100 text-red-600 py-2 rounded-lg hover:bg-red-200 flex items-center justify-center gap-1"
+                      className="flex-1 bg-red-100 text-red-600 py-1.5 sm:py-2 rounded-lg hover:bg-red-200 flex items-center justify-center gap-1 text-xs sm:text-sm"
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={14} className="sm:w-4 sm:h-4" />
                       Delete
                     </button>
                   </div>
@@ -208,79 +208,81 @@ const AdminAchievements = () => {
           {/* Approvals Tab */}
           {activeTab === 'approvals' && (
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Student</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Badge</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Certificate</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {pendingApprovals.map((approval) => (
-                    <tr key={approval._id}>
-                      <td className="px-6 py-4">
-                        <div>
-                          <button
-                            onClick={() => { setSelectedStudent(approval.student); setIsStudentModalOpen(true); }}
-                            className="font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer text-left"
-                          >
-                            {approval.student?.name}
-                          </button>
-                          <p className="text-sm text-gray-500">{approval.student?.rollNumber}</p>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl">{approval.badge?.icon}</span>
-                          <span>{approval.badge?.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <a
-                          href={`http://localhost:5000${approval.certificateUrl}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline flex items-center gap-1"
-                        >
-                          <Eye size={16} />
-                          View
-                        </a>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
-                        {new Date(approval.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleApproval(approval._id, 'approve')}
-                            className="bg-green-100 text-green-600 px-3 py-1 rounded hover:bg-green-200 flex items-center gap-1"
-                          >
-                            <CheckCircle size={16} />
-                            Approve
-                          </button>
-                          <button
-                            onClick={() => handleApproval(approval._id, 'reject')}
-                            className="bg-red-100 text-red-600 px-3 py-1 rounded hover:bg-red-200 flex items-center gap-1"
-                          >
-                            <XCircle size={16} />
-                            Reject
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {pendingApprovals.length === 0 && (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
                     <tr>
-                      <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
-                        No pending approvals
-                      </td>
+                      <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Student</th>
+                      <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Badge</th>
+                      <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">Certificate</th>
+                      <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase hidden md:table-cell">Date</th>
+                      <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {pendingApprovals.map((approval) => (
+                      <tr key={approval._id}>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4">
+                          <div>
+                            <button
+                              onClick={() => { setSelectedStudent(approval.student); setIsStudentModalOpen(true); }}
+                              className="font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer text-left text-xs sm:text-sm"
+                            >
+                              {approval.student?.name}
+                            </button>
+                            <p className="text-xs text-gray-500">{approval.student?.rollNumber}</p>
+                          </div>
+                        </td>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4">
+                          <div className="flex items-center gap-1.5 sm:gap-2">
+                            <span className="text-xl sm:text-2xl">{approval.badge?.icon}</span>
+                            <span className="text-xs sm:text-sm">{approval.badge?.name}</span>
+                          </div>
+                        </td>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 hidden sm:table-cell">
+                          <a
+                            href={`http://192.168.1.9:5000${approval.certificateUrl}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline flex items-center gap-1 text-xs sm:text-sm"
+                          >
+                            <Eye size={14} className="sm:w-4 sm:h-4" />
+                            View
+                          </a>
+                        </td>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-500 hidden md:table-cell">
+                          {new Date(approval.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4">
+                          <div className="flex gap-1 sm:gap-2">
+                            <button
+                              onClick={() => handleApproval(approval._id, 'approve')}
+                              className="bg-green-100 text-green-600 px-2 sm:px-3 py-1 rounded hover:bg-green-200 flex items-center gap-1 text-xs"
+                            >
+                              <CheckCircle size={12} className="sm:w-4 sm:h-4" />
+                              <span className="hidden sm:inline">Approve</span>
+                            </button>
+                            <button
+                              onClick={() => handleApproval(approval._id, 'reject')}
+                              className="bg-red-100 text-red-600 px-2 sm:px-3 py-1 rounded hover:bg-red-200 flex items-center gap-1 text-xs"
+                            >
+                              <XCircle size={12} className="sm:w-4 sm:h-4" />
+                              <span className="hidden sm:inline">Reject</span>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {pendingApprovals.length === 0 && (
+                      <tr>
+                        <td colSpan="5" className="px-6 py-8 text-center text-gray-500 text-sm">
+                          No pending approvals
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
