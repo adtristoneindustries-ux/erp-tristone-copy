@@ -59,6 +59,11 @@ const AdminStudents = () => {
   }, [students, filterClass, filterSection]);
 
   const applyFilters = () => {
+    if (!Array.isArray(students)) {
+      setFilteredStudents([]);
+      return;
+    }
+    
     let filtered = students;
     
     if (filterClass) {
@@ -84,8 +89,13 @@ const AdminStudents = () => {
 
   const fetchStudents = () => {
     userAPI.getUsers({ role: 'student', search }).then(res => {
-      setStudents(res.data);
-      setFilteredStudents(res.data);
+      const studentData = Array.isArray(res.data) ? res.data : [];
+      setStudents(studentData);
+      setFilteredStudents(studentData);
+    }).catch(error => {
+      console.error('Error fetching students:', error);
+      setStudents([]);
+      setFilteredStudents([]);
     });
   };
 
@@ -187,10 +197,12 @@ const AdminStudents = () => {
   };
 
   const getUniqueClasses = () => {
+    if (!Array.isArray(students)) return [];
     return [...new Set(students.map(s => s.class).filter(Boolean))].sort();
   };
 
   const getUniqueSections = () => {
+    if (!Array.isArray(students)) return [];
     return [...new Set(students.map(s => s.section).filter(Boolean))].sort();
   };
 

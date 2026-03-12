@@ -225,9 +225,9 @@ const StaffDashboard = () => {
       color: "bg-green-500",
     },
     {
-      title: "Upload Materials",
+      title: "Digital Classroom",
       icon: FileText,
-      link: "/staff/materials",
+      link: "/staff/digital-classroom",
       color: "bg-purple-500",
     },
     {
