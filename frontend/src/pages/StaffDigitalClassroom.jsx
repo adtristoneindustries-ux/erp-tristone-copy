@@ -43,7 +43,7 @@ export default function StaffDigitalClassroom() {
   const fetchClassesAndSections = async () => {
     try {
       const res = await api.get('/users?role=student');
-      const students = res.data;
+      const students = Array.isArray(res.data) ? res.data : [];
       
       const uniqueClasses = [...new Set(students.map(s => s.class).filter(Boolean))];
       const uniqueSections = [...new Set(students.map(s => s.section).filter(Boolean))];
@@ -56,6 +56,8 @@ export default function StaffDigitalClassroom() {
       setSections([...uniqueSections.sort(), 'All Sections']);
     } catch (error) {
       console.error('Error fetching classes:', error);
+      setClasses([]);
+      setSections([]);
     }
   };
 

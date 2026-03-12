@@ -76,7 +76,6 @@ import StudentFeedback from "./pages/StudentFeedback";
 import StudentScholarship from "./pages/StudentScholarship";
 import StudentFinance from "./pages/StudentFinance";
 import StudentMaterials from "./pages/StudentMaterials";
-import StudentActivities from "./pages/StudentActivities";
 import StudentCourses from "./pages/StudentCourses";
 import StudentAchievements from "./pages/StudentAchievements";
 import AdminAchievements from "./pages/AdminAchievements";
@@ -830,14 +829,6 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentPlacements />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/student/activities"
-          element={
-            <ProtectedRoute allowedRoles={["student"]}>
-              <StudentActivities />
             </ProtectedRoute>
           }
         />
