@@ -69,7 +69,7 @@ const Sidebar = () => {
     { to: '/staff/scholarships', icon: Award, label: 'Scholarships' },
     ...(user?.hasPlacementAccess ? [{ to: '/staff/placement', icon: Briefcase, label: 'Placement' }] : []),
     { to: '/staff/library', icon: Book, label: 'Library' },
-    { to: '/staff/cafeteria', icon: UtensilsCrossed, label: 'Canteen Management' },
+    ...(isCanteenStaff ? [{ to: '/staff/cafeteria', icon: UtensilsCrossed, label: 'Canteen Management' }] : []),
     { to: '/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },
     { to: '/staff/chat', icon: MessageCircle, label: 'Chat with Students' },
     { to: '/staff/announcements', icon: Bell, label: 'Announcements' },
