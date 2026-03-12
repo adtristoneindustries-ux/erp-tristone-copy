@@ -108,48 +108,48 @@ const RolesPermissionsTab = () => {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-3">
         <div>
-          <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-            <Shield size={24} />
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800 flex items-center gap-2">
+            <Shield size={20} className="sm:w-6 sm:h-6" />
             Roles & Permissions
           </h2>
-          <p className="text-sm text-gray-600 mt-1">Configure access control for different user roles</p>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1">Configure access control for different user roles</p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={handleReset}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors flex items-center gap-2"
+            className="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center gap-2 text-sm"
           >
-            <RotateCcw size={18} /> Reset
+            <RotateCcw size={16} className="sm:w-[18px] sm:h-[18px]" /> <span className="hidden sm:inline">Reset</span>
           </button>
           <button
             onClick={handleSave}
-            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+            className="flex-1 sm:flex-none px-4 sm:px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 text-sm"
           >
-            <Save size={18} /> Save Changes
+            <Save size={16} className="sm:w-[18px] sm:h-[18px]" /> Save
           </button>
         </div>
       </div>
 
       {/* Role Selector */}
-      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Select Role</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 mb-4 sm:mb-6">
+        <h3 className="text-xs sm:text-sm font-semibold text-gray-700 mb-3">Select Role</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
           {roles.map(({ key, label, color }) => (
             <button
               key={key}
               onClick={() => setSelectedRole(key)}
-              className={`p-4 rounded-lg border-2 transition-all ${
+              className={`p-3 sm:p-4 rounded-lg border-2 transition-all ${
                 selectedRole === key
                   ? `border-${color}-500 bg-${color}-50`
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-gray-800">{label}</span>
+                <span className="text-sm sm:text-base font-semibold text-gray-800">{label}</span>
                 {selectedRole === key && (
-                  <div className={`w-3 h-3 rounded-full bg-${color}-500`}></div>
+                  <div className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-${color}-500`}></div>
                 )}
               </div>
             </button>
@@ -157,18 +157,18 @@ const RolesPermissionsTab = () => {
         </div>
       </div>
 
-      {/* Permissions Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      {/* Desktop Table View */}
+      <div className="hidden md:block bg-white rounded-lg shadow-md overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Module</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Create</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Read</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Update</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Delete</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">All</th>
+                <th className="px-3 lg:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Module</th>
+                <th className="px-3 lg:px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Create</th>
+                <th className="px-3 lg:px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Read</th>
+                <th className="px-3 lg:px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Update</th>
+                <th className="px-3 lg:px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Delete</th>
+                <th className="px-3 lg:px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">All</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -179,23 +179,23 @@ const RolesPermissionsTab = () => {
                 
                 return (
                   <tr key={key} className="hover:bg-gray-50">
-                    <td className="px-4 py-4 text-sm font-medium text-gray-900">{label}</td>
+                    <td className="px-3 lg:px-4 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-900">{label}</td>
                     {['create', 'read', 'update', 'delete'].map(action => (
-                      <td key={action} className="px-4 py-4 text-center">
+                      <td key={action} className="px-3 lg:px-4 py-3 sm:py-4 text-center">
                         <label className="inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
                             checked={modulePerms[action]}
                             onChange={() => togglePermission(key, action)}
-                            className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                            className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
                           />
                         </label>
                       </td>
                     ))}
-                    <td className="px-4 py-4 text-center">
+                    <td className="px-3 lg:px-4 py-3 sm:py-4 text-center">
                       <button
                         onClick={() => toggleAllForModule(key, !allEnabled)}
-                        className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                        className={`px-2 sm:px-3 py-1 rounded text-xs font-medium transition-colors ${
                           allEnabled
                             ? 'bg-green-100 text-green-800 hover:bg-green-200'
                             : noneEnabled
@@ -214,23 +214,40 @@ const RolesPermissionsTab = () => {
         </div>
       </div>
 
-      {/* Mobile View */}
-      <div className="lg:hidden mt-6 space-y-4">
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-3">
         {modules.map(({ key, label }) => {
           const modulePerms = permissions[selectedRole][key];
+          const allEnabled = Object.values(modulePerms).every(v => v);
+          const noneEnabled = Object.values(modulePerms).every(v => !v);
+          
           return (
             <div key={key} className="bg-white rounded-lg shadow-md p-4">
-              <h4 className="font-semibold text-gray-800 mb-3">{label}</h4>
+              <div className="flex justify-between items-start mb-3">
+                <h4 className="font-semibold text-sm text-gray-800">{label}</h4>
+                <button
+                  onClick={() => toggleAllForModule(key, !allEnabled)}
+                  className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                    allEnabled
+                      ? 'bg-green-100 text-green-800'
+                      : noneEnabled
+                      ? 'bg-gray-100 text-gray-600'
+                      : 'bg-yellow-100 text-yellow-800'
+                  }`}
+                >
+                  {allEnabled ? 'All' : noneEnabled ? 'None' : 'Some'}
+                </button>
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 {['create', 'read', 'update', 'delete'].map(action => (
-                  <label key={action} className="flex items-center gap-2 cursor-pointer">
+                  <label key={action} className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-gray-50">
                     <input
                       type="checkbox"
                       checked={modulePerms[action]}
                       onChange={() => togglePermission(key, action)}
                       className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
                     />
-                    <span className="text-sm capitalize">{action}</span>
+                    <span className="text-sm capitalize text-gray-700">{action}</span>
                   </label>
                 ))}
               </div>
@@ -240,14 +257,18 @@ const RolesPermissionsTab = () => {
       </div>
 
       {/* Summary */}
-      <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="font-semibold text-blue-900 mb-2">Permission Summary</h3>
-        <p className="text-sm text-blue-800">
-          Role: <span className="font-semibold capitalize">{selectedRole}</span> • 
-          Total Modules: {modules.length} • 
-          Full Access: {modules.filter(m => Object.values(permissions[selectedRole][m.key]).every(v => v)).length} • 
-          No Access: {modules.filter(m => Object.values(permissions[selectedRole][m.key]).every(v => !v)).length}
-        </p>
+      <div className="mt-4 sm:mt-6 bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+        <h3 className="text-sm sm:text-base font-semibold text-blue-900 mb-2">Permission Summary</h3>
+        <div className="text-xs sm:text-sm text-blue-800 space-y-1">
+          <p>
+            <span className="font-semibold">Role:</span> <span className="capitalize">{selectedRole}</span>
+          </p>
+          <p>
+            <span className="font-semibold">Total Modules:</span> {modules.length} • 
+            <span className="font-semibold"> Full Access:</span> {modules.filter(m => Object.values(permissions[selectedRole][m.key]).every(v => v)).length} • 
+            <span className="font-semibold"> No Access:</span> {modules.filter(m => Object.values(permissions[selectedRole][m.key]).every(v => !v)).length}
+          </p>
+        </div>
       </div>
     </div>
   );
