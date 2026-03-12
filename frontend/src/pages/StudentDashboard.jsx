@@ -338,15 +338,15 @@ const StudentDashboard = () => {
                 <Calendar className="mx-auto mb-2" size={24} />
                 <p className="font-medium text-sm lg:text-base">Timetable</p>
               </Link>
-              <Link to="/student/materials" className="p-3 lg:p-4 bg-orange-50 rounded-lg text-center hover:bg-orange-100 transition">
+              <Link to="/student/digital-classroom" className="p-3 lg:p-4 bg-orange-50 rounded-lg text-center hover:bg-orange-100 transition">
                 <TrendingUp className="mx-auto mb-2" size={24} />
-                <p className="font-medium text-sm lg:text-base">Materials</p>
+                <p className="font-medium text-sm lg:text-base">Digital Classroom</p>
               </Link>
             </div>
             
             {/* New Quick Links */}
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
-              <Link to="/student/activities" className="p-3 lg:p-4 bg-indigo-50 rounded-lg text-center hover:bg-indigo-100 transition">
+            <div className="grid grid-cols-2 lg:grid-cols-2 gap-3 lg:gap-4">
+              <Link to="/student/courses" className="p-3 lg:p-4 bg-indigo-50 rounded-lg text-center hover:bg-indigo-100 transition">
                 <Activity className="mx-auto mb-2" size={24} />
                 <p className="font-medium text-sm lg:text-base">Courses & Activities</p>
               </Link>
@@ -357,10 +357,6 @@ const StudentDashboard = () => {
               <Link to="/student/announcements" className="p-3 lg:p-4 bg-yellow-50 rounded-lg text-center hover:bg-yellow-100 transition">
                 <Bell className="mx-auto mb-2" size={24} />
                 <p className="font-medium text-sm lg:text-base">Announcements</p>
-              </Link>
-              <Link to="/student/materials" className="p-3 lg:p-4 bg-indigo-50 rounded-lg text-center hover:bg-indigo-100 transition">
-                <Download className="mx-auto mb-2" size={24} />
-                <p className="font-medium text-sm lg:text-base">Download Materials</p>
               </Link>
             </div>
           </div>
