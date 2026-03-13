@@ -4,6 +4,10 @@ const Mark = require('../models/Mark');
 const StaffAttendance = require('../models/StaffAttendance');
 const LeaveRequest = require('../models/LeaveRequest');
 const Timetable = require('../models/Timetable');
+const Book = require('../models/Book');
+const BookIssue = require('../models/BookIssue');
+const BookReservation = require('../models/BookReservation');
+const { FoodItem, Order } = require('../models/Cafeteria');
 
 exports.getAdminStats = async (req, res) => {
   try {
@@ -125,6 +129,102 @@ exports.getStaffStats = async (req, res) => {
         studentName: mark.student?.name || 'Unknown',
         updatedAt: mark.updatedAt
       }))
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getLibraryStats = async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const totalBooks = await Book.countDocuments();
+    const issuedBooks = await BookIssue.countDocuments({ status: 'issued' });
+    const overdueBooks = await BookIssue.countDocuments({ 
+      status: 'issued',
+      dueDate: { $lt: today }
+    });
+    const activeMembers = await User.countDocuments({ 
+      role: { $in: ['student', 'staff'] }
+    });
+    const todayIssues = await BookIssue.countDocuments({ 
+      issueDate: today 
+    });
+    const todayReturns = await BookIssue.countDocuments({ 
+      returnDate: today 
+    });
+    const pendingReservations = await BookReservation.countDocuments({ 
+      status: 'pending' 
+    });
+    const availableBooks = await Book.countDocuments({ 
+      availableCopies: { $gt: 0 } 
+    });
+    
+    res.json({
+      totalBooks,
+      issuedBooks,
+      overdueBooks,
+      activeMembers,
+      todayIssues,
+      todayReturns,
+      pendingReservations,
+      availableBooks
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getCanteenStats = async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const todayOrders = await Order.countDocuments({ 
+      createdAt: { $gte: today, $lt: tomorrow } 
+    });
+    
+    const todayRevenueData = await Order.aggregate([
+      { $match: { createdAt: { $gte: today, $lt: tomorrow }, status: 'Completed' } },
+      { $group: { _id: null, total: { $sum: '$totalAmount' } } }
+    ]);
+    const todayRevenue = todayRevenueData[0]?.total || 0;
+    
+    const pendingOrders = await Order.countDocuments({ status: 'Pending' });
+    const completedOrders = await Order.countDocuments({ 
+      createdAt: { $gte: today, $lt: tomorrow },
+      status: 'Completed' 
+    });
+    
+    const totalMenuItems = await FoodItem.countDocuments();
+    
+    const activeCustomers = await Order.distinct('customer', {
+      createdAt: { $gte: today, $lt: tomorrow }
+    });
+    
+    const lowStockItems = await FoodItem.countDocuments({ 
+      quantityAvailable: { $lt: 10 } 
+    });
+    
+    const avgOrderData = await Order.aggregate([
+      { $match: { createdAt: { $gte: today, $lt: tomorrow }, status: 'Completed' } },
+      { $group: { _id: null, avg: { $avg: '$totalAmount' } } }
+    ]);
+    const averageOrderValue = Math.round(avgOrderData[0]?.avg || 0);
+    
+    res.json({
+      todayOrders,
+      todayRevenue,
+      pendingOrders,
+      completedOrders,
+      totalMenuItems,
+      activeCustomers: activeCustomers.length,
+      lowStockItems,
+      averageOrderValue
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -48,9 +48,28 @@ const Login = () => {
         navigate(redirectUrl, { replace: true });
       } else {
         sessionStorage.removeItem('redirectUrl');
-        // Librarian should go to staff dashboard
-        const routeRole = user.role === 'librarian' ? 'staff' : user.role;
-        navigate(`/${routeRole}`, { replace: true });
+        // Route based on actual user role
+        if (user.role === 'librarian') {
+          navigate('/librarian', { replace: true });
+        } else if (user.role === 'staff') {
+          // Check if canteen staff
+          try {
+            const token = localStorage.getItem('token');
+            const res = await fetch('http://localhost:5000/api/cafeteria/check-staff', {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.isCanteenStaff) {
+              navigate('/staff/cafeteria', { replace: true });
+            } else {
+              navigate('/staff', { replace: true });
+            }
+          } catch (error) {
+            navigate('/staff', { replace: true });
+          }
+        } else {
+          navigate(`/${user.role}`, { replace: true });
+        }
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.');

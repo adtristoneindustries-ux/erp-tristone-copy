@@ -19,15 +19,16 @@ const canteenStaffSchema = new mongoose.Schema({
 
 const foodItemSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  category: { type: String, enum: ['Snacks', 'Meals', 'Juice', 'Beverages'], required: true },
+  category: { type: String, enum: ['Breakfast', 'Lunch', 'Snacks', 'Beverages', 'Desserts'], required: true },
   price: { type: Number, required: true },
   description: String,
   preparationTime: { type: Number, default: 10 },
   quantityAvailable: { type: Number, default: 0 },
   image: String,
+  available: { type: Boolean, default: true },
   isAvailable: { type: Boolean, default: true },
   isTodaySpecial: { type: Boolean, default: false },
-  canteen: { type: mongoose.Schema.Types.ObjectId, ref: 'Canteen', required: true },
+  canteen: { type: mongoose.Schema.Types.ObjectId, ref: 'Canteen' },
   averageRating: { type: Number, default: 0 }
 }, { timestamps: true });
 
@@ -39,16 +40,18 @@ const orderSchema = new mongoose.Schema({
     price: { type: Number, required: true }
   }],
   totalAmount: { type: Number, required: true },
-  paymentMethod: { type: String, enum: ['UPI', 'Card', 'Cash'], required: true },
-  status: { type: String, enum: ['Pending', 'Approved', 'In Preparation', 'Ready for Pickup', 'Completed', 'Rejected', 'Out of Stock'], default: 'Pending' },
-  canteen: { type: mongoose.Schema.Types.ObjectId, ref: 'Canteen', required: true },
-  pickupTime: String
+  paymentMethod: { type: String, enum: ['UPI', 'Card', 'Cash'], default: 'Cash' },
+  status: { type: String, enum: ['Pending', 'In Preparation', 'Ready', 'Completed', 'Cancelled'], default: 'Pending' },
+  canteen: { type: mongoose.Schema.Types.ObjectId, ref: 'Canteen' },
+  pickupTime: String,
+  orderNumber: String
 }, { timestamps: true });
 
 const ratingSchema = new mongoose.Schema({
   customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  foodItem: { type: mongoose.Schema.Types.ObjectId, ref: 'FoodItem', required: true },
+  foodItem: { type: mongoose.Schema.Types.ObjectId, ref: 'FoodItem' },
   rating: { type: Number, min: 1, max: 5, required: true },
+  comment: String,
   review: String,
   staffResponse: String
 }, { timestamps: true });
