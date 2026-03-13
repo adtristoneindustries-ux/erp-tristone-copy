@@ -88,7 +88,12 @@ import StaffLibrary from "./pages/StaffLibrary";
 import StudentLibrary from "./pages/StudentLibrary";
 import AdminCafeteria from "./pages/AdminCafeteria";
 import StaffCafeteria from "./pages/StaffCafeteria";
+import StaffCafeteriaOrders from "./pages/StaffCafeteriaOrders";
+import StaffCafeteriaMenu from "./pages/StaffCafeteriaMenu";
+import StaffCafeteriaRatings from "./pages/StaffCafeteriaRatings";
 import CafeteriaOrdering from "./pages/CafeteriaOrdering";
+import LibrarianDashboard from "./pages/LibrarianDashboard";
+import CanteenDashboard from "./pages/CanteenDashboard";
 import AdminTimetable from "./pages/AdminTimetable";
 import AdminStudentTimetable from "./pages/AdminStudentTimetable";
 import AdminStaffTimetable from "./pages/AdminStaffTimetable";
@@ -430,17 +435,25 @@ function App() {
         />
 
         <Route
-          path="/staff"
+          path="/librarian"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
-              <StaffDashboard />
+            <ProtectedRoute allowedRoles={["librarian"]}>
+              <LibrarianDashboard />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/librarian"
+          path="/canteen"
           element={
-            <ProtectedRoute allowedRoles={["librarian"]}>
+            <ProtectedRoute allowedRoles={["canteen"]}>
+              <CanteenDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff"
+          element={
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffDashboard />
             </ProtectedRoute>
           }
@@ -456,7 +469,7 @@ function App() {
         <Route
           path="/staff/profile"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffProfile />
             </ProtectedRoute>
           }
@@ -464,7 +477,7 @@ function App() {
         <Route
           path="/staff/marks"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffMarks />
             </ProtectedRoute>
           }
@@ -472,7 +485,7 @@ function App() {
         <Route
           path="/staff/attendance"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffAttendance />
             </ProtectedRoute>
           }
@@ -480,7 +493,7 @@ function App() {
         <Route
           path="/staff/my-attendance"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffMyAttendance />
             </ProtectedRoute>
           }
@@ -489,7 +502,7 @@ function App() {
         <Route
           path="/staff/announcements"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffAnnouncements />
             </ProtectedRoute>
           }
@@ -497,7 +510,7 @@ function App() {
         <Route
           path="/staff/leaves"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffLeaves />
             </ProtectedRoute>
           }
@@ -505,7 +518,7 @@ function App() {
         <Route
           path="/staff/student-leaves"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffStudentLeaves />
             </ProtectedRoute>
           }
@@ -513,7 +526,7 @@ function App() {
         <Route
           path="/staff/timetable"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffTimetable />
             </ProtectedRoute>
           }
@@ -521,7 +534,7 @@ function App() {
         <Route
           path="/staff/homework"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffHomework />
             </ProtectedRoute>
           }
@@ -529,7 +542,7 @@ function App() {
         <Route
           path="/staff/feedback"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffFeedback />
             </ProtectedRoute>
           }
@@ -537,7 +550,7 @@ function App() {
         <Route
           path="/staff/digital-classroom"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffDigitalClassroom />
             </ProtectedRoute>
           }
@@ -545,7 +558,7 @@ function App() {
         <Route
           path="/staff/exam-schedule"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffExamSchedule />
             </ProtectedRoute>
           }
@@ -553,7 +566,7 @@ function App() {
         <Route
           path="/staff/scholarships"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffScholarship />
             </ProtectedRoute>
           }
@@ -561,7 +574,7 @@ function App() {
         <Route
           path="/staff/chat"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffChatWithStudents />
             </ProtectedRoute>
           }
@@ -569,7 +582,7 @@ function App() {
         <Route
           path="/staff/placement"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <PlacementOfficerDashboard />
             </ProtectedRoute>
           }
@@ -577,7 +590,7 @@ function App() {
         <Route
           path="/staff/financial"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffFinancial />
             </ProtectedRoute>
           }
@@ -585,7 +598,7 @@ function App() {
         <Route
           path="/staff/scholarships-new"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffScholarships />
             </ProtectedRoute>
           }
@@ -593,7 +606,7 @@ function App() {
         <Route
           path="/staff/placements-new"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffPlacements />
             </ProtectedRoute>
           }
@@ -601,7 +614,7 @@ function App() {
         <Route
           path="/staff/courses"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffCourses />
             </ProtectedRoute>
           }
@@ -633,7 +646,7 @@ function App() {
         <Route
           path="/staff/library"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffLibrary />
             </ProtectedRoute>
           }
@@ -641,8 +654,32 @@ function App() {
         <Route
           path="/staff/cafeteria"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian"]}>
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
               <StaffCafeteria />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/cafeteria/orders"
+          element={
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
+              <StaffCafeteriaOrders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/cafeteria/menu"
+          element={
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
+              <StaffCafeteriaMenu />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/cafeteria/ratings"
+          element={
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
+              <StaffCafeteriaRatings />
             </ProtectedRoute>
           }
         />
@@ -867,7 +904,7 @@ function App() {
         <Route
           path="/cafeteria"
           element={
-            <ProtectedRoute allowedRoles={["admin", "staff", "student", "librarian"]}>
+            <ProtectedRoute allowedRoles={["admin", "staff", "student", "librarian", "canteen"]}>
               <CafeteriaOrdering />
             </ProtectedRoute>
           }

@@ -55,12 +55,18 @@ router.get('/admin/reports/items', protect, authorize('admin'), getItemWiseSales
 router.get('/admin/reports/payment', protect, authorize('admin'), getPaymentMethodReport);
 
 // Staff Routes
+router.post('/menu', protect, authorize('admin', 'staff'), createFoodItem);
+router.get('/menu', protect, getAvailableFoodItems);
+router.put('/menu/:id', protect, authorize('admin', 'staff'), updateFoodItem);
+router.delete('/menu/:id', protect, authorize('admin', 'staff'), deleteFoodItem);
+
 router.post('/food-items', protect, authorize('admin', 'staff'), createFoodItem);
 router.get('/food-items', protect, getFoodItems);
 router.put('/food-items/:id', protect, authorize('admin', 'staff'), updateFoodItem);
 router.delete('/food-items/:id', protect, authorize('admin', 'staff'), deleteFoodItem);
 
 router.get('/orders', protect, getOrders);
+router.put('/orders/:id', protect, authorize('admin', 'staff'), updateOrderStatus);
 router.put('/orders/:id/status', protect, authorize('admin', 'staff'), updateOrderStatus);
 
 router.get('/ratings', protect, getRatings);

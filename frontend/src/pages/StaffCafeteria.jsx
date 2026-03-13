@@ -3,15 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { TrendingUp, Users, DollarSign, ShoppingCart, Clock, CheckCircle, XCircle, Package } from 'lucide-react';
 
 const StaffCafeteria = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('orders');
-  const [foodItems, setFoodItems] = useState([]);
-  const [orders, setOrders] = useState([]);
-  const [ratings, setRatings] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({});
+  const [stats, setStats] = useState({
+    todayOrders: 0,
+    todayRevenue: 0,
+    pendingOrders: 0,
+    completedOrders: 0,
+    totalMenuItems: 0,
+    activeCustomers: 0,
+    lowStockItems: 0,
+    averageOrderValue: 0
+  });
   const [isCanteenStaff, setIsCanteenStaff] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -30,85 +35,24 @@ const StaffCafeteria = () => {
         return;
       }
       setIsCanteenStaff(true);
-      setLoading(false);
+      fetchDashboardData();
     } catch (error) {
       navigate('/staff');
     }
   };
 
-  useEffect(() => {
-    if (isCanteenStaff) {
-      fetchData();
-    }
-  }, [activeTab, isCanteenStaff]);
-
-  const fetchData = async () => {
+  const fetchDashboardData = async () => {
     const token = localStorage.getItem('token');
     try {
-      if (activeTab === 'orders') {
-        const res = await axios.get('http://localhost:5000/api/cafeteria/orders', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setOrders(res.data.data);
-      } else if (activeTab === 'foodItems') {
-        const res = await axios.get('http://localhost:5000/api/cafeteria/food-items', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setFoodItems(res.data.data);
-      } else if (activeTab === 'ratings') {
-        const res = await axios.get('http://localhost:5000/api/cafeteria/ratings', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setRatings(res.data.data);
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem('token');
-    try {
-      if (formData._id) {
-        await axios.put(`http://localhost:5000/api/cafeteria/food-items/${formData._id}`, formData, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-      } else {
-        await axios.post('http://localhost:5000/api/cafeteria/food-items', formData, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-      }
-      setShowModal(false);
-      setFormData({});
-      fetchData();
-    } catch (error) {
-      console.error('Error submitting:', error);
-    }
-  };
-
-  const updateOrderStatus = async (orderId, status) => {
-    const token = localStorage.getItem('token');
-    try {
-      await axios.put(`http://localhost:5000/api/cafeteria/orders/${orderId}/status`, { status }, {
+      const statsRes = await axios.get('http://localhost:5000/api/dashboard/canteen', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      fetchData();
+      
+      setStats(statsRes.data);
+      setLoading(false);
     } catch (error) {
-      console.error('Error updating status:', error);
-    }
-  };
-
-  const deleteItem = async (id) => {
-    if (!confirm('Delete this item?')) return;
-    const token = localStorage.getItem('token');
-    try {
-      await axios.delete(`http://localhost:5000/api/cafeteria/food-items/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      fetchData();
-    } catch (error) {
-      console.error('Error deleting:', error);
+      console.error('Error fetching dashboard data:', error);
+      setLoading(false);
     }
   };
 
@@ -117,7 +61,7 @@ const StaffCafeteria = () => {
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Checking access...</p>
+          <p className="text-gray-600">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -126,194 +70,158 @@ const StaffCafeteria = () => {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
-      <div className="flex-1 lg:ml-64 overflow-x-hidden">
+      <div className="flex-1 lg:ml-64">
         <Navbar />
-        <div className="p-3 sm:p-4 lg:p-6">
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 sm:mb-6">Canteen Staff Dashboard</h1>
-
-      <div className="overflow-x-auto mb-6">
-        <div className="flex gap-2 border-b min-w-max">
-        {['orders', 'foodItems', 'ratings'].map(tab => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-3 sm:px-4 py-2 font-medium text-sm sm:text-base whitespace-nowrap ${activeTab === tab ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600'}`}
-          >
-            {tab === 'foodItems' ? 'Food Items' : tab.charAt(0).toUpperCase() + tab.slice(1)}
-          </button>
-        ))}
-        </div>
-      </div>
-
-      {activeTab === 'orders' && (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div style={{maxHeight: '500px', overflow: 'scroll', WebkitOverflowScrolling: 'touch'}}>
-            <table className="w-full min-w-[800px]">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-4 py-3 text-left">Customer</th>
-                <th className="px-4 py-3 text-left">Role</th>
-                <th className="px-4 py-3 text-left">Items</th>
-                <th className="px-4 py-3 text-left">Amount</th>
-                <th className="px-4 py-3 text-left">Payment</th>
-                <th className="px-4 py-3 text-left">Status</th>
-                <th className="px-4 py-3 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map(order => (
-                <tr key={order._id} className="border-t">
-                  <td className="px-4 py-3">{order.customer?.name}</td>
-                  <td className="px-4 py-3 capitalize">{order.customer?.role}</td>
-                  <td className="px-4 py-3">
-                    {order.items.map((item, i) => (
-                      <div key={i}>{item.foodItem?.name} x{item.quantity}</div>
-                    ))}
-                  </td>
-                  <td className="px-4 py-3">₹{order.totalAmount}</td>
-                  <td className="px-4 py-3">{order.paymentMethod}</td>
-                  <td className="px-4 py-3">
-                    <select
-                      value={order.status}
-                      onChange={(e) => updateOrderStatus(order._id, e.target.value)}
-                      className="border rounded px-2 py-1 text-sm"
-                    >
-                      <option value="Pending">Pending</option>
-                      <option value="Approved">Approved</option>
-                      <option value="In Preparation">In Preparation</option>
-                      <option value="Ready for Pickup">Ready for Pickup</option>
-                      <option value="Completed">Completed</option>
-                      <option value="Rejected">Rejected</option>
-                      <option value="Out of Stock">Out of Stock</option>
-                    </select>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-500">
-                    {new Date(order.createdAt).toLocaleString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="p-4 sm:p-6">
+          <div className="mb-6">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Canteen Dashboard</h1>
+            <p className="text-sm text-gray-600 mt-1">Overview of today's canteen operations</p>
           </div>
-        </div>
-      )}
 
-      {activeTab === 'foodItems' && (
-        <div>
-          <button
-            onClick={() => { setShowModal(true); setFormData({}); }}
-            className="mb-4 bg-blue-600 text-white px-3 sm:px-4 py-2 rounded hover:bg-blue-700 text-sm sm:text-base w-full sm:w-auto"
-          >
-            Add Food Item
-          </button>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {foodItems.map(item => (
-              <div key={item._id} className="bg-white rounded-lg shadow p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-bold text-lg">{item.name}</h3>
-                  {item.isTodaySpecial && (
-                    <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">Special</span>
-                  )}
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-blue-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Today's Orders</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.todayOrders}</p>
                 </div>
-                <p className="text-sm text-gray-600 mb-2">{item.description}</p>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-lg font-bold text-green-600">₹{item.price}</span>
-                  <span className="text-sm text-gray-500">{item.category}</span>
+                <ShoppingCart className="text-blue-500" size={32} />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-green-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Today's Revenue</p>
+                  <p className="text-2xl font-bold text-gray-900">₹{stats.todayRevenue}</p>
                 </div>
-                <div className="flex justify-between text-sm text-gray-600 mb-2">
-                  <span>Prep: {item.preparationTime}min</span>
-                  <span>Qty: {item.quantityAvailable}</span>
+                <DollarSign className="text-green-500" size={32} />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-yellow-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Pending Orders</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.pendingOrders}</p>
                 </div>
-                <div className="flex justify-between text-sm mb-3">
-                  <span>Rating: ⭐ {item.averageRating.toFixed(1)}</span>
-                  <span className={item.isAvailable ? 'text-green-600' : 'text-red-600'}>
-                    {item.isAvailable ? 'Available' : 'Out of Stock'}
-                  </span>
+                <Clock className="text-yellow-500" size={32} />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-purple-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Completed</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.completedOrders}</p>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => { setShowModal(true); setFormData(item); }}
-                    className="flex-1 bg-blue-600 text-white py-1 rounded text-sm hover:bg-blue-700"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteItem(item._id)}
-                    className="flex-1 bg-red-600 text-white py-1 rounded text-sm hover:bg-red-700"
-                  >
-                    Delete
-                  </button>
+                <CheckCircle className="text-purple-500" size={32} />
+              </div>
+            </div>
+          </div>
+
+          {/* Secondary Stats */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="bg-white rounded-lg shadow-md p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-600">Menu Items</p>
+                  <p className="text-xl font-bold text-gray-900">{stats.totalMenuItems}</p>
+                </div>
+                <Package className="text-indigo-500" size={24} />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-600">Active Customers</p>
+                  <p className="text-xl font-bold text-gray-900">{stats.activeCustomers}</p>
+                </div>
+                <Users className="text-blue-500" size={24} />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-600">Avg Order Value</p>
+                  <p className="text-xl font-bold text-gray-900">₹{stats.averageOrderValue}</p>
+                </div>
+                <TrendingUp className="text-green-500" size={24} />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-600">Low Stock Items</p>
+                  <p className="text-xl font-bold text-gray-900">{stats.lowStockItems}</p>
+                </div>
+                <XCircle className="text-red-500" size={24} />
+              </div>
+            </div>
+          </div>
+
+          {/* Performance Overview */}
+          <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-lg shadow-md p-4 sm:p-6 mb-6">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full shadow-md mb-4">
+                <TrendingUp className="text-orange-500" size={32} />
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Today's Performance</h2>
+              <p className="text-sm text-gray-600 mb-6">Real-time canteen operations overview</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm">
+                  <p className="text-2xl sm:text-3xl font-bold text-blue-600">{stats.todayOrders}</p>
+                  <p className="text-xs text-gray-600 mt-1">Orders</p>
+                </div>
+                <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm">
+                  <p className="text-2xl sm:text-3xl font-bold text-green-600">₹{stats.todayRevenue}</p>
+                  <p className="text-xs text-gray-600 mt-1">Revenue</p>
+                </div>
+                <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm">
+                  <p className="text-2xl sm:text-3xl font-bold text-yellow-600">{stats.pendingOrders}</p>
+                  <p className="text-xs text-gray-600 mt-1">Pending</p>
+                </div>
+                <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm">
+                  <p className="text-2xl sm:text-3xl font-bold text-purple-600">{stats.completedOrders}</p>
+                  <p className="text-xs text-gray-600 mt-1">Completed</p>
                 </div>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
-      )}
 
-      {activeTab === 'ratings' && (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div style={{maxHeight: '500px', overflow: 'scroll', WebkitOverflowScrolling: 'touch'}}>
-            <table className="w-full min-w-[700px]">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-4 py-3 text-left">Customer</th>
-                <th className="px-4 py-3 text-left">Food Item</th>
-                <th className="px-4 py-3 text-left">Rating</th>
-                <th className="px-4 py-3 text-left">Review</th>
-                <th className="px-4 py-3 text-left">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ratings.map(rating => (
-                <tr key={rating._id} className="border-t">
-                  <td className="px-4 py-3">{rating.customer?.name}</td>
-                  <td className="px-4 py-3">{rating.foodItem?.name}</td>
-                  <td className="px-4 py-3">{'⭐'.repeat(rating.rating)}</td>
-                  <td className="px-4 py-3">{rating.review}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500">
-                    {new Date(rating.createdAt).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          </div>
-        </div>
-      )}
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <button
+              onClick={() => navigate('/staff/cafeteria/orders')}
+              className="bg-blue-500 text-white p-6 rounded-lg shadow-md hover:bg-blue-600 transition-colors"
+            >
+              <ShoppingCart className="mx-auto mb-2" size={32} />
+              <h3 className="font-semibold text-lg">Manage Orders</h3>
+              <p className="text-sm text-blue-100 mt-1">View and update order status</p>
+            </button>
 
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">{formData._id ? 'Edit' : 'Add'} Food Item</h2>
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <input type="text" placeholder="Name" value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full border p-2 rounded" required />
-              <select value={formData.category || ''} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full border p-2 rounded" required>
-                <option value="">Select Category</option>
-                <option value="Snacks">Snacks</option>
-                <option value="Meals">Meals</option>
-                <option value="Juice">Juice</option>
-                <option value="Beverages">Beverages</option>
-              </select>
-              <input type="number" placeholder="Price" value={formData.price || ''} onChange={e => setFormData({...formData, price: e.target.value})} className="w-full border p-2 rounded" required />
-              <textarea placeholder="Description" value={formData.description || ''} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full border p-2 rounded" rows="2"></textarea>
-              <input type="number" placeholder="Preparation Time (min)" value={formData.preparationTime || ''} onChange={e => setFormData({...formData, preparationTime: e.target.value})} className="w-full border p-2 rounded" />
-              <input type="number" placeholder="Quantity Available" value={formData.quantityAvailable || ''} onChange={e => setFormData({...formData, quantityAvailable: e.target.value})} className="w-full border p-2 rounded" />
-              <label className="flex items-center gap-2">
-                <input type="checkbox" checked={formData.isAvailable || false} onChange={e => setFormData({...formData, isAvailable: e.target.checked})} />
-                <span>Available</span>
-              </label>
-              <label className="flex items-center gap-2">
-                <input type="checkbox" checked={formData.isTodaySpecial || false} onChange={e => setFormData({...formData, isTodaySpecial: e.target.checked})} />
-                <span>Today's Special</span>
-              </label>
-              <div className="flex gap-2">
-                <button type="submit" className="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Save</button>
-                <button type="button" onClick={() => { setShowModal(false); setFormData({}); }} className="flex-1 bg-gray-300 py-2 rounded hover:bg-gray-400">Cancel</button>
-              </div>
-            </form>
+            <button
+              onClick={() => navigate('/staff/cafeteria/menu')}
+              className="bg-green-500 text-white p-6 rounded-lg shadow-md hover:bg-green-600 transition-colors"
+            >
+              <Package className="mx-auto mb-2" size={32} />
+              <h3 className="font-semibold text-lg">Menu Management</h3>
+              <p className="text-sm text-green-100 mt-1">Add and update food items</p>
+            </button>
+
+            <button
+              onClick={() => navigate('/staff/cafeteria/ratings')}
+              className="bg-purple-500 text-white p-6 rounded-lg shadow-md hover:bg-purple-600 transition-colors"
+            >
+              <TrendingUp className="mx-auto mb-2" size={32} />
+              <h3 className="font-semibold text-lg">Ratings & Reviews</h3>
+              <p className="text-sm text-purple-100 mt-1">View customer feedback</p>
+            </button>
           </div>
-        </div>
-      )}
         </div>
       </div>
     </div>
