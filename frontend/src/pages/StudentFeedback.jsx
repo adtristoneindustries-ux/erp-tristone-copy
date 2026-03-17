@@ -23,7 +23,8 @@ const StudentFeedback = () => {
   const fetchStaff = async () => {
     try {
       const res = await userAPI.getUsers({ role: 'staff' });
-      setStaffList(Array.isArray(res.data) ? res.data : res.data.users || []);
+      const staffData = res.data?.data || res.data || [];
+      setStaffList(Array.isArray(staffData) ? staffData : []);
     } catch (error) {
       console.error('Error fetching staff:', error);
       setStaffList([]);
@@ -61,9 +62,18 @@ const StudentFeedback = () => {
       let recipientId;
       if (recipientType === 'admin') {
         const adminRes = await userAPI.getUsers({ role: 'admin' });
-        recipientId = adminRes.data[0]?._id;
+        const adminData = adminRes.data?.data || adminRes.data || [];
+        recipientId = Array.isArray(adminData) ? adminData[0]?._id : adminData[0]?._id;
+        if (!recipientId) {
+          alert('Admin not found. Please contact support.');
+          return;
+        }
       } else {
         recipientId = selectedRecipient;
+        if (!recipientId) {
+          alert('Please select a teacher');
+          return;
+        }
       }
 
       await feedbackAPI.sendFeedback({
@@ -77,6 +87,7 @@ const StudentFeedback = () => {
       setSelectedRecipient('');
       fetchSentFeedback();
     } catch (error) {
+      console.error('Feedback error:', error);
       alert('Failed to send feedback: ' + (error.response?.data?.message || error.message));
     }
   };
