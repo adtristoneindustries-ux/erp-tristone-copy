@@ -4,6 +4,10 @@ exports.sendFeedback = async (req, res) => {
   try {
     const { to, message, isAnonymous } = req.body;
     
+    if (!to || !message) {
+      return res.status(400).json({ message: 'Recipient and message are required' });
+    }
+    
     const feedback = await Feedback.create({
       from: req.user.id,
       to,
@@ -13,7 +17,9 @@ exports.sendFeedback = async (req, res) => {
 
     await feedback.populate('from to', 'name role');
     
-    req.io.emit('newFeedback', { recipientId: to });
+    if (req.io) {
+      req.io.emit('newFeedback', { recipientId: to });
+    }
     
     res.status(201).json(feedback);
   } catch (error) {

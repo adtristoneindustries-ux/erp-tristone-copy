@@ -3,7 +3,7 @@ import { Calendar, Clock } from "lucide-react";
 import Layout from "../components/Layout";
 import { AuthContext } from "../context/AuthContext";
 import { SocketContext } from "../context/SocketContext";
-import axios from "axios";
+import { timetableAPI } from "../services/api";
 
 const StaffTimetable = () => {
   const [timetable, setTimetable] = useState(null);
@@ -12,7 +12,7 @@ const StaffTimetable = () => {
   const socket = useContext(SocketContext);
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?._id || user?.id) {
       fetchStaffTimetable();
     }
   }, [user]);
@@ -20,7 +20,7 @@ const StaffTimetable = () => {
   useEffect(() => {
     if (socket) {
       socket.on("timetableUpdate", () => {
-        if (user?.id) {
+        if (user?._id || user?.id) {
           fetchStaffTimetable();
         }
       });
@@ -31,12 +31,12 @@ const StaffTimetable = () => {
   const fetchStaffTimetable = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/timetable/staff/${user.id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      const staffId = user._id || user.id;
+      const response = await timetableAPI.getStaffTimetable(staffId);
       setTimetable(response.data);
     } catch (error) {
       console.error("Error fetching staff timetable:", error);
+      setTimetable({});
     } finally {
       setLoading(false);
     }

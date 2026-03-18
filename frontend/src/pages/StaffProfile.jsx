@@ -9,26 +9,51 @@ import { userAPI } from '../services/api';
 const StaffProfile = () => {
   const { user, setUser } = useContext(AuthContext);
   const socket = useContext(SocketContext);
-  const [profileData, setProfileData] = useState(user);
-  const [loading, setLoading] = useState(false);
+  const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [documentViewerOpen, setDocumentViewerOpen] = useState(false);
   const [viewingDocument, setViewingDocument] = useState(null);
 
+  // Use user data immediately if available
+  const displayData = profileData || user;
+
   useEffect(() => {
-    console.log('StaffProfile mounted, user:', user);
-    if (user?._id || user?.id) {
-      fetchProfileData();
-    } else {
-      console.log('No user ID found in context');
-    }
+    const initializeProfile = async () => {
+      if (user) {
+        // Set initial data immediately to prevent blinking
+        setProfileData(user);
+        setLoading(false);
+        
+        // Then fetch updated data in background
+        if (user._id || user.id) {
+          try {
+            const userId = user._id || user.id;
+            const response = await userAPI.getUser(userId);
+            if (response.data && response.data.data) {
+              setProfileData(response.data.data);
+              if (setUser) {
+                setUser(response.data.data);
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching profile:', error);
+            // Keep using initial user data on error
+          }
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+
+    initializeProfile();
     
     if (socket) {
       socket.on('staffUpdate', (data) => {
-        console.log('Staff update received:', data);
         if (data.staffId === (user?._id || user?.id)) {
-          console.log('Updating profile with:', data.updatedData);
           setProfileData(data.updatedData);
-          setUser(data.updatedData);
+          if (setUser) {
+            setUser(data.updatedData);
+          }
         }
       });
     }
@@ -38,35 +63,7 @@ const StaffProfile = () => {
         socket.off('staffUpdate');
       }
     };
-  }, [user?._id, user?.id, socket]);
-
-  const fetchProfileData = async () => {
-    const userId = user?._id || user?.id;
-    if (!userId) {
-      console.log('No user ID found, user:', user);
-      setLoading(false);
-      return;
-    }
-    
-    setLoading(true);
-    try {
-      console.log('Fetching profile for user ID:', userId);
-      const response = await userAPI.getUser(userId);
-      console.log('Profile data received:', response.data);
-      
-      // Update both profileData and user context
-      setProfileData(response.data);
-      if (setUser) {
-        setUser(response.data);
-      }
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      console.log('Falling back to user context data:', user);
-      setProfileData(user);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [user?._id, socket]);
 
   const Field = ({ label, value }) => (
     <div>
@@ -75,7 +72,8 @@ const StaffProfile = () => {
     </div>
   );
 
-  if (loading) {
+  // Show loading only if we have no data at all
+  if (loading && !displayData) {
     return (
       <div className="flex min-h-screen bg-gray-50">
         <Sidebar />
@@ -89,7 +87,8 @@ const StaffProfile = () => {
     );
   }
 
-  if (!profileData) {
+  // If no data available at all, show error
+  if (!displayData) {
     return (
       <div className="flex min-h-screen bg-gray-50">
         <Sidebar />
@@ -97,7 +96,13 @@ const StaffProfile = () => {
           <Navbar />
           <div className="p-6">
             <div className="text-center py-12">
-              <p className="text-gray-600">Unable to load profile data</p>
+              <p className="text-gray-600">Unable to load profile data. Please try refreshing the page.</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Refresh Page
+              </button>
             </div>
           </div>
         </div>
@@ -115,16 +120,16 @@ const StaffProfile = () => {
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg p-8 mb-6 text-white">
             <div className="flex items-center gap-6">
               <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg">
-                {profileData?.passportPhoto?.data && profileData?.passportPhoto?.contentType ? (
-                  <img src={`data:${profileData.passportPhoto.contentType};base64,${profileData.passportPhoto.data}`} alt="Profile" className="w-24 h-24 rounded-full object-cover" />
+                {displayData?.passportPhoto?.data && displayData?.passportPhoto?.contentType ? (
+                  <img src={`data:${displayData.passportPhoto.contentType};base64,${displayData.passportPhoto.data}`} alt="Profile" className="w-24 h-24 rounded-full object-cover" />
                 ) : (
                   <User size={48} className="text-blue-600" />
                 )}
               </div>
               <div>
-                <h1 className="text-3xl font-bold mb-2">{profileData?.name || 'Staff Member'}</h1>
-                <p className="text-blue-100 text-lg mb-1">{profileData?.designation || profileData?.role || 'Staff'} • {profileData?.department || 'N/A'}</p>
-                <p className="text-blue-200 text-sm">Staff ID: {profileData?.staffId || 'N/A'}</p>
+                <h1 className="text-3xl font-bold mb-2">{displayData?.name || 'Staff Member'}</h1>
+                <p className="text-blue-100 text-lg mb-1">{displayData?.designation || displayData?.role || 'Staff'} • {displayData?.department || 'N/A'}</p>
+                <p className="text-blue-200 text-sm">Staff ID: {displayData?.staffId || 'N/A'}</p>
               </div>
             </div>
           </div>
@@ -136,7 +141,7 @@ const StaffProfile = () => {
                 <Mail className="text-blue-600" size={24} />
                 <div>
                   <p className="text-xs text-gray-500">Email</p>
-                  <p className="text-sm font-medium">{profileData?.email || 'N/A'}</p>
+                  <p className="text-sm font-medium">{displayData?.email || 'N/A'}</p>
                 </div>
               </div>
             </div>
@@ -145,7 +150,7 @@ const StaffProfile = () => {
                 <Phone className="text-green-600" size={24} />
                 <div>
                   <p className="text-xs text-gray-500">Phone</p>
-                  <p className="text-sm font-medium">{profileData?.phone || 'N/A'}</p>
+                  <p className="text-sm font-medium">{displayData?.phone || 'N/A'}</p>
                 </div>
               </div>
             </div>
@@ -154,7 +159,7 @@ const StaffProfile = () => {
                 <Calendar className="text-purple-600" size={24} />
                 <div>
                   <p className="text-xs text-gray-500">Joining Date</p>
-                  <p className="text-sm font-medium">{profileData?.joiningDate ? new Date(profileData.joiningDate).toLocaleDateString() : (profileData?.dateOfJoining ? new Date(profileData.dateOfJoining).toLocaleDateString() : 'N/A')}</p>
+                  <p className="text-sm font-medium">{displayData?.joiningDate ? new Date(displayData.joiningDate).toLocaleDateString() : (displayData?.dateOfJoining ? new Date(displayData.dateOfJoining).toLocaleDateString() : 'N/A')}</p>
                 </div>
               </div>
             </div>
@@ -163,7 +168,7 @@ const StaffProfile = () => {
                 <Briefcase className="text-orange-600" size={24} />
                 <div>
                   <p className="text-xs text-gray-500">Experience</p>
-                  <p className="text-sm font-medium">{profileData?.yearsOfExperience ? `${profileData.yearsOfExperience} years` : 'N/A'}</p>
+                  <p className="text-sm font-medium">{displayData?.yearsOfExperience ? `${displayData.yearsOfExperience} years` : 'N/A'}</p>
                 </div>
               </div>
             </div>
@@ -180,20 +185,20 @@ const StaffProfile = () => {
                   Personal Information
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Field label="Full Name" value={profileData?.name || profileData?.fullName} />
-                  <Field label="Email" value={profileData?.email} />
-                  <Field label="Phone" value={profileData?.phone} />
-                  <Field label="Date of Birth" value={profileData?.dob ? new Date(profileData.dob).toLocaleDateString() : (profileData?.dateOfBirth ? new Date(profileData.dateOfBirth).toLocaleDateString() : null)} />
-                  <Field label="Gender" value={profileData?.gender} />
-                  <Field label="Blood Group" value={profileData?.bloodGroup} />
-                  <Field label="Aadhaar Number" value={profileData?.aadhaarNumber} />
-                  <Field label="PAN Number" value={profileData?.panNumber} />
-                  <Field label="Marital Status" value={profileData?.maritalStatus} />
-                  <Field label="Nationality" value={profileData?.nationality} />
-                  <Field label="Religion" value={profileData?.religion} />
-                  <Field label="Caste Category" value={profileData?.casteCategory} />
-                  <Field label="Identification Mark 1" value={profileData?.identificationMark1} />
-                  <Field label="Identification Mark 2" value={profileData?.identificationMark2} />
+                  <Field label="Full Name" value={displayData?.name || displayData?.fullName} />
+                  <Field label="Email" value={displayData?.email} />
+                  <Field label="Phone" value={displayData?.phone} />
+                  <Field label="Date of Birth" value={displayData?.dob ? new Date(displayData.dob).toLocaleDateString() : (displayData?.dateOfBirth ? new Date(displayData.dateOfBirth).toLocaleDateString() : null)} />
+                  <Field label="Gender" value={displayData?.gender} />
+                  <Field label="Blood Group" value={displayData?.bloodGroup} />
+                  <Field label="Aadhaar Number" value={displayData?.aadhaarNumber} />
+                  <Field label="PAN Number" value={displayData?.panNumber} />
+                  <Field label="Marital Status" value={displayData?.maritalStatus} />
+                  <Field label="Nationality" value={displayData?.nationality} />
+                  <Field label="Religion" value={displayData?.religion} />
+                  <Field label="Caste Category" value={displayData?.casteCategory} />
+                  <Field label="Identification Mark 1" value={displayData?.identificationMark1} />
+                  <Field label="Identification Mark 2" value={displayData?.identificationMark2} />
                 </div>
               </div>
 
@@ -204,17 +209,17 @@ const StaffProfile = () => {
                   Professional Details
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Field label="Staff ID" value={profileData?.staffId} />
-                  <Field label="Employee Code" value={profileData?.employeeCode} />
-                  <Field label="Department" value={profileData?.department} />
-                  <Field label="Designation" value={profileData?.designation} />
-                  <Field label="Employment Type" value={profileData?.employmentType} />
-                  <Field label="Qualification" value={profileData?.qualification} />
-                  <Field label="Date of Joining" value={profileData?.joiningDate ? new Date(profileData.joiningDate).toLocaleDateString() : (profileData?.dateOfJoining ? new Date(profileData.dateOfJoining).toLocaleDateString() : null)} />
-                  <Field label="Years of Experience" value={profileData?.yearsOfExperience} />
-                  <Field label="Previous Institution" value={profileData?.previousInstitution} />
-                  <Field label="Specialization" value={profileData?.specialization} />
-                  <Field label="Employee Status" value={profileData?.status || profileData?.employeeStatus} />
+                  <Field label="Staff ID" value={displayData?.staffId} />
+                  <Field label="Employee Code" value={displayData?.employeeCode} />
+                  <Field label="Department" value={displayData?.department} />
+                  <Field label="Designation" value={displayData?.designation} />
+                  <Field label="Employment Type" value={displayData?.employmentType} />
+                  <Field label="Qualification" value={displayData?.qualification} />
+                  <Field label="Date of Joining" value={displayData?.joiningDate ? new Date(displayData.joiningDate).toLocaleDateString() : (displayData?.dateOfJoining ? new Date(displayData.dateOfJoining).toLocaleDateString() : null)} />
+                  <Field label="Years of Experience" value={displayData?.yearsOfExperience} />
+                  <Field label="Previous Institution" value={displayData?.previousInstitution} />
+                  <Field label="Specialization" value={displayData?.specialization} />
+                  <Field label="Employee Status" value={displayData?.status || displayData?.employeeStatus} />
                 </div>
               </div>
 
@@ -225,13 +230,13 @@ const StaffProfile = () => {
                   Salary & Payroll
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Field label="Basic Salary" value={profileData?.basicSalary ? `₹${profileData.basicSalary}` : null} />
-                  <Field label="Allowances" value={profileData?.allowances ? `₹${profileData.allowances}` : null} />
-                  <Field label="PF Number" value={profileData?.pfNumber} />
-                  <Field label="ESI Number" value={profileData?.esiNumber} />
-                  <Field label="UAN Number" value={profileData?.uanNumber} />
+                  <Field label="Basic Salary" value={displayData?.basicSalary ? `₹${displayData.basicSalary}` : null} />
+                  <Field label="Allowances" value={displayData?.allowances ? `₹${displayData.allowances}` : null} />
+                  <Field label="PF Number" value={displayData?.pfNumber} />
+                  <Field label="ESI Number" value={displayData?.esiNumber} />
+                  <Field label="UAN Number" value={displayData?.uanNumber} />
                   <div className="md:col-span-2">
-                    <Field label="Tax Deduction Details" value={profileData?.taxDeduction} />
+                    <Field label="Tax Deduction Details" value={displayData?.taxDeduction} />
                   </div>
                 </div>
               </div>
@@ -243,19 +248,19 @@ const StaffProfile = () => {
                   Contact & Address
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Field label="Alternate Contact" value={profileData?.alternateContact} />
-                  <Field label="Emergency Contact Name" value={profileData?.emergencyContactName} />
-                  <Field label="Emergency Contact Number" value={profileData?.emergencyContactNumber} />
+                  <Field label="Alternate Contact" value={displayData?.alternateContact} />
+                  <Field label="Emergency Contact Name" value={displayData?.emergencyContactName} />
+                  <Field label="Emergency Contact Number" value={displayData?.emergencyContactNumber} />
                   <div className="md:col-span-2">
-                    <Field label="Permanent Address" value={profileData?.permanentAddress || profileData?.address} />
+                    <Field label="Permanent Address" value={displayData?.permanentAddress || displayData?.address} />
                   </div>
                   <div className="md:col-span-2">
-                    <Field label="Current Address" value={profileData?.currentAddress} />
+                    <Field label="Current Address" value={displayData?.currentAddress} />
                   </div>
-                  <Field label="City" value={profileData?.city} />
-                  <Field label="State" value={profileData?.state} />
-                  <Field label="Pincode" value={profileData?.pincode} />
-                  <Field label="Country" value={profileData?.country} />
+                  <Field label="City" value={displayData?.city} />
+                  <Field label="State" value={displayData?.state} />
+                  <Field label="Pincode" value={displayData?.pincode} />
+                  <Field label="Country" value={displayData?.country} />
                 </div>
               </div>
             </div>
@@ -271,12 +276,12 @@ const StaffProfile = () => {
                 <div className="space-y-4">
                   <div>
                     <p className="text-xs text-gray-500">Basic Salary</p>
-                    <p className="text-lg font-bold text-green-600">{profileData?.basicSalary ? `₹${profileData.basicSalary}` : 'N/A'}</p>
+                    <p className="text-lg font-bold text-green-600">{displayData?.basicSalary ? `₹${displayData.basicSalary}` : 'N/A'}</p>
                   </div>
-                  <Field label="Bank Name" value={profileData?.bankName} />
-                  <Field label="Account Number" value={profileData?.salaryAccountNumber} />
-                  <Field label="IFSC Code" value={profileData?.ifscCode} />
-                  <Field label="Branch" value={profileData?.branchName} />
+                  <Field label="Bank Name" value={displayData?.bankName} />
+                  <Field label="Account Number" value={displayData?.salaryAccountNumber} />
+                  <Field label="IFSC Code" value={displayData?.ifscCode} />
+                  <Field label="Branch" value={displayData?.branchName} />
                 </div>
               </div>
 
@@ -287,26 +292,26 @@ const StaffProfile = () => {
                   Medical Information
                 </h2>
                 <div className="space-y-4">
-                  <Field label="Medical Conditions" value={profileData?.medicalConditions} />
-                  <Field label="Health Insurance" value={profileData?.healthInsurance} />
-                  <Field label="Emergency Medical Contact" value={profileData?.emergencyMedicalContact} />
-                  {profileData?.disability && (
-                    <Field label="Disability Details" value={profileData?.disabilityDetails} />
+                  <Field label="Medical Conditions" value={displayData?.medicalConditions} />
+                  <Field label="Health Insurance" value={displayData?.healthInsurance} />
+                  <Field label="Emergency Medical Contact" value={displayData?.emergencyMedicalContact} />
+                  {displayData?.disability && (
+                    <Field label="Disability Details" value={displayData?.disabilityDetails} />
                   )}
                 </div>
               </div>
 
               {/* Accommodation */}
-              {profileData?.accommodationRequired && (
+              {displayData?.accommodationRequired && (
                 <div className="bg-white rounded-lg shadow p-6">
                   <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
                     <MapPin className="text-blue-600" size={20} />
                     Accommodation Details
                   </h2>
                   <div className="space-y-4">
-                    <Field label="Room Number" value={profileData?.accommodationRoomNumber} />
-                    <Field label="Block" value={profileData?.accommodationBlock} />
-                    <Field label="Warden Name" value={profileData?.accommodationWardenName} />
+                    <Field label="Room Number" value={displayData?.accommodationRoomNumber} />
+                    <Field label="Block" value={displayData?.accommodationBlock} />
+                    <Field label="Warden Name" value={displayData?.accommodationWardenName} />
                   </div>
                 </div>
               )}
@@ -317,9 +322,9 @@ const StaffProfile = () => {
                   <FileText className="text-blue-600" size={20} />
                   Documents
                 </h2>
-                {profileData?.documents && profileData.documents.length > 0 ? (
+                {displayData?.documents && displayData.documents.length > 0 ? (
                   <div className="space-y-2">
-                    {profileData.documents.map((doc, idx) => (
+                    {displayData.documents.map((doc, idx) => (
                       <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100">
                         <div className="flex items-center gap-2">
                           <FileText size={16} className="text-gray-600" />
