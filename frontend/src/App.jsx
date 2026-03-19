@@ -104,6 +104,9 @@ import StaffExamSchedule from "./pages/StaffExamSchedule";
 import StudentExamSchedule from "./pages/StudentExamSchedule";
 import StudentBadges from "./pages/StudentBadges";
 import AdminBadgeVerification from "./pages/AdminBadgeVerification";
+import AdminNotifications from "./pages/AdminNotifications";
+import StaffNotifications from "./pages/StaffNotifications";
+import StudentNotifications from "./pages/StudentNotifications";
 import NotFound from "./pages/NotFound";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -433,6 +436,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/notifications"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminNotifications />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/librarian"
@@ -683,6 +694,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/staff/notifications"
+          element={
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
+              <StaffNotifications />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/student"
@@ -898,6 +917,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentBadges />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/notifications"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentNotifications />
             </ProtectedRoute>
           }
         />
