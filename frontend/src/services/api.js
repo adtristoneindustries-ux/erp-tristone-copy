@@ -170,7 +170,13 @@ export const timetableAPI = {
 export const dashboardAPI = {
   getAdminStats: () => API.get('/dashboard/admin'),
   getStudentStats: () => API.get('/dashboard/student'),
-  getStaffStats: () => API.get('/dashboard/staff')
+  getStaffStats: () => API.get('/dashboard/staff'),
+  getSystemHealth: () => API.get('/dashboard/system-health'),
+  getReports: (params) => API.get('/dashboard/reports', { params }),
+  bulkImport: (data) => API.post('/dashboard/bulk-import', data)
+  getStaffStats: () => API.get('/dashboard/staff'),
+  getLibraryStats: () => API.get('/dashboard/library'),
+  getCanteenStats: () => API.get('/dashboard/canteen')
 };
 
 export const cafeteriaAPI = {
