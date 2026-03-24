@@ -173,8 +173,7 @@ export const dashboardAPI = {
   getStaffStats: () => API.get('/dashboard/staff'),
   getSystemHealth: () => API.get('/dashboard/system-health'),
   getReports: (params) => API.get('/dashboard/reports', { params }),
-  bulkImport: (data) => API.post('/dashboard/bulk-import', data)
-  getStaffStats: () => API.get('/dashboard/staff'),
+  bulkImport: (data) => API.post('/dashboard/bulk-import', data),
   getLibraryStats: () => API.get('/dashboard/library'),
   getCanteenStats: () => API.get('/dashboard/canteen')
 };
