@@ -25,12 +25,19 @@ exports.authorize = (...roles) => {
     if (!req.user) {
       return res.status(401).json({ message: 'Not authenticated' });
     }
-    // Allow librarian to access staff routes
     const userRole = req.user.role;
     const allowedRoles = [...roles];
+    
+    // Allow librarian to access staff routes
     if (allowedRoles.includes('staff') && userRole === 'librarian') {
       return next();
     }
+    
+    // Allow staff with Cafeteria department to access canteen routes
+    if (allowedRoles.includes('canteen') && userRole === 'staff' && req.user.department === 'Cafeteria') {
+      return next();
+    }
+    
     if (!allowedRoles.includes(userRole)) {
       return res.status(403).json({ message: 'Access denied' });
     }

@@ -6,7 +6,7 @@ import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 
 export default function StudentPlacement() {
-  const { user } = useContext(AuthContext);
+  const { user, refreshUser } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState('drives');
   const [drives, setDrives] = useState([]);
   const [myApplications, setMyApplications] = useState([]);
@@ -24,7 +24,10 @@ export default function StudentPlacement() {
 
   useEffect(() => {
     fetchData();
-    // Update profile from user context
+  }, []);
+
+  useEffect(() => {
+    // Update profile from user context whenever user changes
     if (user) {
       setProfile({
         cgpa: user.cgpa || '',
@@ -71,28 +74,36 @@ export default function StudentPlacement() {
     e.preventDefault();
     try {
       const profileData = {
-        ...profile,
         year: parseInt(profile.year) || 0,
+        department: profile.department,
         cgpa: parseFloat(profile.cgpa) || 0,
-        arrears_count: parseInt(profile.arrears_count) || 0
+        arrears_count: parseInt(profile.arrears_count) || 0,
+        resume_url: profile.resume_url,
+        skills: profile.skills,
+        portfolio_link: profile.portfolio_link
       };
-      await api.put('/placement/profile/student', profileData);
       
-      // Fetch updated user data
-      const userRes = await api.get('/auth/me');
-      setProfile({
-        cgpa: userRes.data.cgpa || '',
-        arrears_count: userRes.data.arrears_count || 0,
-        resume_url: userRes.data.resume_url || '',
-        skills: userRes.data.skills || [],
-        portfolio_link: userRes.data.portfolio_link || '',
-        year: userRes.data.year || '',
-        department: userRes.data.department || ''
-      });
+      const response = await api.put('/placement/profile/student', profileData);
+      
+      // Update local profile state with response data
+      if (response.data.data) {
+        const updatedData = response.data.data;
+        setProfile({
+          cgpa: updatedData.cgpa || '',
+          arrears_count: updatedData.arrears_count || 0,
+          resume_url: updatedData.resume_url || '',
+          skills: updatedData.skills || [],
+          portfolio_link: updatedData.portfolio_link || '',
+          year: updatedData.year || '',
+          department: updatedData.department || ''
+        });
+      }
+      
+      // Refresh user context to update UI immediately
+      await refreshUser();
       
       alert('Profile updated successfully!');
       setShowProfileModal(false);
-      window.location.reload();
     } catch (error) {
       console.error('Update error:', error);
       alert(error.response?.data?.message || 'Error updating profile');
@@ -134,12 +145,12 @@ export default function StudentPlacement() {
       {/* Profile Summary */}
       <div className="bg-white rounded-lg shadow p-6 mb-6">
         <div className="flex justify-between items-start">
-          <div>
-            <h2 className="text-xl font-semibold mb-2">Your Profile</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="flex-1">
+            <h2 className="text-xl font-semibold mb-4">Your Profile</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               <div>
                 <p className="text-gray-500 text-sm">Year</p>
-                <p className="text-lg font-semibold">{user?.year || 'Not set'}</p>
+                <p className="text-lg font-semibold">{user?.year ? `${user.year}${['st', 'nd', 'rd', 'th'][user.year - 1] || 'th'} Year` : 'Not set'}</p>
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Department</p>
@@ -151,7 +162,7 @@ export default function StudentPlacement() {
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Arrears</p>
-                <p className="text-lg font-semibold">{user?.arrears_count || 0}</p>
+                <p className="text-lg font-semibold">{user?.arrears_count !== undefined ? user.arrears_count : 'Not set'}</p>
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Skills</p>
@@ -159,13 +170,13 @@ export default function StudentPlacement() {
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Resume</p>
-                <p className="text-lg font-semibold">{user?.resume_url ? 'Uploaded' : 'Not uploaded'}</p>
+                <p className="text-lg font-semibold">{user?.resume_url ? '✓ Uploaded' : 'Not uploaded'}</p>
               </div>
             </div>
           </div>
           <button
             onClick={() => setShowProfileModal(true)}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors whitespace-nowrap ml-4"
           >
             Update Profile
           </button>
@@ -329,11 +340,11 @@ export default function StudentPlacement() {
               <h2 className="text-2xl font-bold mb-4">Update Your Profile</h2>
               <form onSubmit={updateProfile} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Year *</label>
                   <select
-                    value={profile.year}
-                    onChange={(e) => setProfile({ ...profile, year: parseInt(e.target.value) })}
-                    className="w-full px-4 py-2 border rounded-lg"
+                    value={profile.year || ''}
+                    onChange={(e) => setProfile({ ...profile, year: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   >
                     <option value="">Select Year</option>
@@ -344,11 +355,11 @@ export default function StudentPlacement() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Department *</label>
                   <select
-                    value={profile.department}
+                    value={profile.department || ''}
                     onChange={(e) => setProfile({ ...profile, department: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg"
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   >
                     <option value="">Select Department</option>
@@ -361,23 +372,28 @@ export default function StudentPlacement() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">CGPA</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">CGPA *</label>
                   <input
                     type="number"
                     step="0.01"
-                    value={profile.cgpa}
-                    onChange={(e) => setProfile({ ...profile, cgpa: parseFloat(e.target.value) })}
-                    className="w-full px-4 py-2 border rounded-lg"
+                    min="0"
+                    max="10"
+                    value={profile.cgpa || ''}
+                    onChange={(e) => setProfile({ ...profile, cgpa: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="e.g., 8.5"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Arrears Count</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Arrears Count *</label>
                   <input
                     type="number"
-                    value={profile.arrears_count}
-                    onChange={(e) => setProfile({ ...profile, arrears_count: parseInt(e.target.value) })}
-                    className="w-full px-4 py-2 border rounded-lg"
+                    min="0"
+                    value={profile.arrears_count || ''}
+                    onChange={(e) => setProfile({ ...profile, arrears_count: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="e.g., 0"
                     required
                   />
                 </div>
@@ -386,9 +402,9 @@ export default function StudentPlacement() {
                   <input
                     type="url"
                     placeholder="https://drive.google.com/..."
-                    value={profile.resume_url}
+                    value={profile.resume_url || ''}
                     onChange={(e) => setProfile({ ...profile, resume_url: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg"
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <p className="text-xs text-gray-500 mt-1">Upload your resume to Google Drive and paste the shareable link</p>
                 </div>
@@ -397,9 +413,9 @@ export default function StudentPlacement() {
                   <input
                     type="text"
                     placeholder="JavaScript, React, Node.js, Python"
-                    value={profile.skills?.join(', ')}
-                    onChange={(e) => setProfile({ ...profile, skills: e.target.value.split(',').map(s => s.trim()) })}
-                    className="w-full px-4 py-2 border rounded-lg"
+                    value={profile.skills?.join(', ') || ''}
+                    onChange={(e) => setProfile({ ...profile, skills: e.target.value.split(',').map(s => s.trim()).filter(s => s) })}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -407,19 +423,19 @@ export default function StudentPlacement() {
                   <input
                     type="url"
                     placeholder="https://yourportfolio.com"
-                    value={profile.portfolio_link}
+                    value={profile.portfolio_link || ''}
                     onChange={(e) => setProfile({ ...profile, portfolio_link: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg"
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
-                <div className="flex gap-4">
-                  <button type="submit" className="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">
+                <div className="flex gap-4 pt-4">
+                  <button type="submit" className="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors font-medium">
                     Save Profile
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowProfileModal(false)}
-                    className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400"
+                    className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400 transition-colors font-medium"
                   >
                     Cancel
                   </button>

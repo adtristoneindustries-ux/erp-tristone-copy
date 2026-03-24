@@ -163,16 +163,14 @@ export const announcementAPI = {
 export const timetableAPI = {
   getTimetable: (params) => API.get('/timetable', { params }),
   createTimetable: (data) => API.post('/timetable', data),
-  updateTimetable: (id, data) => API.put(`/timetable/${id}`, data)
+  updateTimetable: (id, data) => API.put(`/timetable/${id}`, data),
+  getStaffTimetable: (staffId) => API.get(`/timetable/staff/${staffId}`)
 };
 
 export const dashboardAPI = {
   getAdminStats: () => API.get('/dashboard/admin'),
   getStudentStats: () => API.get('/dashboard/student'),
-  getStaffStats: () => API.get('/dashboard/staff'),
-  getSystemHealth: () => API.get('/dashboard/system-health'),
-  getReports: (params) => API.get('/dashboard/reports', { params }),
-  bulkImport: (data) => API.post('/dashboard/bulk-import', data)
+  getStaffStats: () => API.get('/dashboard/staff')
 };
 
 export const cafeteriaAPI = {
@@ -268,6 +266,33 @@ export const courseAPI = {
   getEnrollments: (params) => API.get('/courses/enrollments/all', { params }),
   updateEnrollmentStatus: (id, data) => API.put(`/courses/enrollments/${id}`, data),
   getMyEnrollments: () => API.get('/courses/enrollments/my')
+};
+
+export const placementAPI = {
+  // Statistics
+  getAdminStats: () => API.get('/placement/stats/admin'),
+  getStudentStats: () => API.get('/placement/stats/student'),
+  
+  // Student Profile
+  getStudentProfile: () => API.get('/placement/profile/student'),
+  updateStudentProfile: (data) => API.put('/placement/profile/student', data),
+  
+  // Companies
+  getCompanies: () => API.get('/placement/companies'),
+  createCompany: (data) => API.post('/placement/companies', data),
+  updateCompany: (id, data) => API.put(`/placement/companies/${id}`, data),
+  deleteCompany: (id) => API.delete(`/placement/companies/${id}`),
+  
+  // Drives
+  getDrives: (params) => API.get('/placement/drives', { params }),
+  createDrive: (data) => API.post('/placement/drives', data),
+  updateDrive: (id, data) => API.put(`/placement/drives/${id}`, data),
+  deleteDrive: (id) => API.delete(`/placement/drives/${id}`),
+  
+  // Applications
+  applyToDrive: (data) => API.post('/placement/applications/apply', data),
+  getApplications: (params) => API.get('/placement/applications', { params }),
+  updateApplicationStatus: (id, data) => API.put(`/placement/applications/${id}/status`, data)
 };
 
 export const badgeAPI = {

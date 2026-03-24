@@ -228,7 +228,11 @@ exports.getPaymentMethodReport = async (req, res) => {
 // Food Item Management
 exports.createFoodItem = async (req, res) => {
   try {
-    const foodItem = await FoodItem.create(req.body);
+    const foodData = { ...req.body };
+    if (foodData.available !== undefined) {
+      foodData.isAvailable = foodData.available;
+    }
+    const foodItem = await FoodItem.create(foodData);
     res.json({ success: true, data: foodItem });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -248,7 +252,11 @@ exports.getFoodItems = async (req, res) => {
 
 exports.updateFoodItem = async (req, res) => {
   try {
-    const foodItem = await FoodItem.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const foodData = { ...req.body };
+    if (foodData.available !== undefined) {
+      foodData.isAvailable = foodData.available;
+    }
+    const foodItem = await FoodItem.findByIdAndUpdate(req.params.id, foodData, { new: true });
     res.json({ success: true, data: foodItem });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -315,7 +323,7 @@ exports.respondToRating = async (req, res) => {
 // Get Available Food Items
 exports.getAvailableFoodItems = async (req, res) => {
   try {
-    const items = await FoodItem.find({ isAvailable: true }).populate('canteen');
+    const items = await FoodItem.find().populate('canteen');
     res.json({ success: true, data: items });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -331,20 +339,22 @@ exports.placeOrder = async (req, res) => {
 
     for (const item of items) {
       const foodItem = await FoodItem.findById(item.foodItem);
-      if (!foodItem || !foodItem.isAvailable) {
-        return res.status(400).json({ success: false, message: `Item ${foodItem?.name || 'unknown'} not available` });
+      if (!foodItem) {
+        return res.status(400).json({ success: false, message: `Item not found` });
       }
       totalAmount += foodItem.price * item.quantity;
       orderItems.push({ foodItem: foodItem._id, quantity: item.quantity, price: foodItem.price });
     }
 
+    const orderNumber = `ORD${Date.now()}`;
     const order = await Order.create({
       customer: req.user.id,
       items: orderItems,
       totalAmount,
-      paymentMethod,
+      paymentMethod: paymentMethod || 'Cash',
       canteen,
-      pickupTime
+      pickupTime,
+      orderNumber
     });
 
     res.json({ success: true, data: await order.populate('customer items.foodItem canteen') });
@@ -366,19 +376,27 @@ exports.getUserOrders = async (req, res) => {
 // Submit Rating
 exports.submitRating = async (req, res) => {
   try {
-    const { foodItem, rating, review } = req.body;
+    const { foodItem, rating, review, comment } = req.body;
+    const reviewText = comment || review;
     const existingRating = await Rating.findOne({ customer: req.user.id, foodItem });
     
     if (existingRating) {
       existingRating.rating = rating;
-      existingRating.review = review;
+      existingRating.review = reviewText;
+      existingRating.comment = reviewText;
       await existingRating.save();
-      await updateAverageRating(foodItem);
+      if (foodItem) await updateAverageRating(foodItem);
       return res.json({ success: true, data: existingRating });
     }
 
-    const newRating = await Rating.create({ customer: req.user.id, foodItem, rating, review });
-    await updateAverageRating(foodItem);
+    const newRating = await Rating.create({ 
+      customer: req.user.id, 
+      foodItem, 
+      rating, 
+      review: reviewText,
+      comment: reviewText
+    });
+    if (foodItem) await updateAverageRating(foodItem);
     res.json({ success: true, data: newRating });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -411,11 +429,11 @@ async function updateAverageRating(foodItemId) {
   await FoodItem.findByIdAndUpdate(foodItemId, { averageRating: avg });
 }
 
-
 exports.checkCanteenStaff = async (req, res) => {
   try {
     const canteenStaff = await CanteenStaff.findOne({ user: req.user.id, isActive: true });
-    res.json({ success: true, isCanteenStaff: !!canteenStaff });
+    const isCanteenStaff = !!canteenStaff || (req.user.role === 'staff' && req.user.department === 'Cafeteria');
+    res.json({ success: true, isCanteenStaff });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
