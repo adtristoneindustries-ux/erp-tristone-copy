@@ -99,6 +99,9 @@ import StaffExamSchedule from "./pages/StaffExamSchedule";
 import StudentExamSchedule from "./pages/StudentExamSchedule";
 import StudentBadges from "./pages/StudentBadges";
 import AdminBadgeVerification from "./pages/AdminBadgeVerification";
+import AdminReports from "./pages/AdminReports";
+import AdminSystemHealth from "./pages/AdminSystemHealth";
+import AdminBulkOperations from "./pages/AdminBulkOperations";
 import NotFound from "./pages/NotFound";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -425,6 +428,30 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminBadgeVerification />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/reports"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminReports />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/system-health"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminSystemHealth />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/bulk-operations"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminBulkOperations />
             </ProtectedRoute>
           }
         />
