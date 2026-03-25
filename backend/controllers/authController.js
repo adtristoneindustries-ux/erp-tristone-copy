@@ -44,7 +44,14 @@ exports.login = async (req, res) => {
         class: user.class,
         section: user.section,
         rollNumber: user.rollNumber,
-        hasPlacementAccess: user.hasPlacementAccess
+        hasPlacementAccess: user.hasPlacementAccess,
+        year: user.year,
+        department: user.department,
+        cgpa: user.cgpa,
+        arrears_count: user.arrears_count,
+        resume_url: user.resume_url,
+        skills: user.skills,
+        portfolio_link: user.portfolio_link
       }
     });
   } catch (error) {

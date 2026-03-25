@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Building2, Bus, GraduationCap, CheckCircle, XCircle, Clock } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { Download } from 'lucide-react';
@@ -7,25 +8,117 @@ import jsPDF from 'jspdf';
 
 export default function StudentFees() {
   const [fees, setFees] = useState([]);
-  const [user, setUser] = useState(null);
+  const [hasHostel, setHasHostel] = useState(false);
+  const [hasTransport, setHasTransport] = useState(false);
+  const [hostelDetails, setHostelDetails] = useState(null);
+  const [transportDetails, setTransportDetails] = useState(null);
 
   useEffect(() => {
-    fetchUser();
+    fetchFees();
   }, []);
 
-  const fetchUser = async () => {
-    const { data } = await axios.get('http://localhost:5000/api/auth/me', {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    });
-    setUser(data);
-    fetchFees(data._id);
+  const fetchFees = async () => {
+    try {
+      const { data } = await axios.get('http://localhost:5000/api/fees/my-fees', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      setFees(data.fees || []);
+      setHasHostel(data.hasHostel);
+      setHasTransport(data.hasTransport);
+      setHostelDetails(data.hostelDetails);
+      setTransportDetails(data.transportDetails);
+    } catch (error) {
+      console.error('Error fetching fees:', error);
+    }
   };
 
-  const fetchFees = async (studentId) => {
-    const { data } = await axios.get(`http://localhost:5000/api/fees?student=${studentId}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    });
-    setFees(data);
+  const getFeeByType = (type) => fees.find(f => f.feeType === type);
+  const tuitionFee = getFeeByType('Tuition');
+  const hostelFee = getFeeByType('Hostel');
+  const transportFee = getFeeByType('Transport');
+
+  const totalFees = fees.reduce((a, b) => a + b.totalAmount, 0);
+  const totalPaid = fees.reduce((a, b) => a + b.paidAmount, 0);
+  const totalDue = fees.reduce((a, b) => a + b.dueAmount, 0);
+
+  const FeeCard = ({ fee, icon: Icon, title, color, showDetails = true }) => {
+    if (!fee) {
+      return (
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className={`p-3 rounded-full ${color}`}>
+              <Icon size={24} className="text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold">{title}</h3>
+              <p className="text-sm text-gray-500">Not Applicable</p>
+            </div>
+          </div>
+          <div className="text-center py-4">
+            <p className="text-gray-400">No {title.toLowerCase()} fee assigned</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className={`p-3 rounded-full ${color}`}>
+              <Icon size={24} className="text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold">{title}</h3>
+              <p className="text-sm text-gray-500">{fee.academicYear}</p>
+            </div>
+          </div>
+          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+            fee.status === 'Paid' ? 'bg-green-100 text-green-800' : 
+            fee.status === 'Overdue' ? 'bg-red-100 text-red-800' : 
+            'bg-orange-100 text-orange-800'
+          }`}>
+            {fee.status}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4 mb-4">
+          <div>
+            <p className="text-xs text-gray-500">Total Amount</p>
+            <p className="text-lg font-bold">₹{fee.totalAmount.toLocaleString()}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Paid</p>
+            <p className="text-lg font-bold text-green-600">₹{fee.paidAmount.toLocaleString()}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Due</p>
+            <p className="text-lg font-bold text-red-600">₹{fee.dueAmount.toLocaleString()}</p>
+          </div>
+        </div>
+
+        {showDetails && fee.payments.length > 0 && (
+          <div className="mt-4 pt-4 border-t">
+            <h4 className="font-semibold mb-2 text-sm">Payment History</h4>
+            <div className="space-y-2">
+              {fee.payments.map((payment, idx) => (
+                <div key={idx} className="flex justify-between items-center text-sm bg-gray-50 p-2 rounded">
+                  <div>
+                    <p className="font-medium">₹{payment.amount.toLocaleString()}</p>
+                    <p className="text-xs text-gray-500">{new Date(payment.date).toLocaleDateString()}</p>
+                  </div>
+                  <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                    payment.paymentMethod === 'Online' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                  }`}>
+                    {payment.paymentMethod}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
   };
 
   const downloadFeeReceipt = (fee) => {
@@ -170,88 +263,111 @@ export default function StudentFees() {
       <div className="flex-1 lg:ml-64">
         <Navbar />
         <div className="p-4 md:p-6">
-      <h1 className="text-2xl md:text-3xl font-bold mb-6">My Fees</h1>
+          <h1 className="text-2xl md:text-3xl font-bold mb-6">Fee Management</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="text-gray-500 text-sm">Total Fees</h3>
-          <p className="text-2xl font-bold">₹{fees.reduce((a, b) => a + b.totalAmount, 0).toLocaleString()}</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="text-gray-500 text-sm">Paid</h3>
-          <p className="text-2xl font-bold text-green-600">₹{fees.reduce((a, b) => a + b.paidAmount, 0).toLocaleString()}</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="text-gray-500 text-sm">Due</h3>
-          <p className="text-2xl font-bold text-red-600">₹{fees.reduce((a, b) => a + b.dueAmount, 0).toLocaleString()}</p>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        {fees.map(fee => (
-          <div key={fee._id} className="bg-white rounded-lg shadow p-4 md:p-6">
-            <div className="flex flex-col md:flex-row justify-between mb-4 gap-2">
-              <div>
-                <h3 className="text-lg font-bold">Academic Year: {fee.academicYear}</h3>
-                <p className="text-sm text-gray-500">Due Date: {new Date(fee.dueDate).toLocaleDateString()}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className={`px-3 py-1 rounded text-sm h-fit ${fee.status === 'Paid' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'}`}>
-                  {fee.status}
-                </span>
-                <button
-                  onClick={() => downloadFeeReceipt(fee)}
-                  className="flex items-center gap-1 bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition-colors"
-                >
-                  <Download size={14} />
-                  Receipt
-                </button>
-              </div>
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow">
+              <h3 className="text-sm opacity-90 mb-1">Total Fees</h3>
+              <p className="text-3xl font-bold">₹{totalFees.toLocaleString()}</p>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-              <div>
-                <p className="text-sm text-gray-500">Total Amount</p>
-                <p className="text-xl font-bold">₹{fee.totalAmount.toLocaleString()}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Paid Amount</p>
-                <p className="text-xl font-bold text-green-600">₹{fee.paidAmount.toLocaleString()}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Due Amount</p>
-                <p className="text-xl font-bold text-red-600">₹{fee.dueAmount.toLocaleString()}</p>
-              </div>
+            <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-lg shadow">
+              <h3 className="text-sm opacity-90 mb-1">Paid Amount</h3>
+              <p className="text-3xl font-bold">₹{totalPaid.toLocaleString()}</p>
             </div>
-
-            {fee.payments.length > 0 && (
-              <div className="overflow-x-auto">
-                <h4 className="font-semibold mb-2">Payment History</h4>
-                <table className="w-full min-w-[480px]">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-xs">Date</th>
-                      <th className="px-3 py-2 text-left text-xs">Amount</th>
-                      <th className="px-3 py-2 text-left text-xs">Method</th>
-                      <th className="px-3 py-2 text-left text-xs">Transaction ID</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {fee.payments.map((payment, idx) => (
-                      <tr key={idx} className="border-t">
-                        <td className="px-3 py-2">{new Date(payment.date).toLocaleDateString()}</td>
-                        <td className="px-3 py-2">₹{payment.amount.toLocaleString()}</td>
-                        <td className="px-3 py-2">{payment.method}</td>
-                        <td className="px-3 py-2">{payment.transactionId}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            <div className="bg-gradient-to-br from-red-500 to-red-600 text-white p-6 rounded-lg shadow">
+              <h3 className="text-sm opacity-90 mb-1">Pending Amount</h3>
+              <p className="text-3xl font-bold">₹{totalDue.toLocaleString()}</p>
+            </div>
           </div>
-        ))}
-      </div>
+
+          {/* Fee Type Cards */}
+          <div className="space-y-6">
+            <FeeCard 
+              fee={tuitionFee} 
+              icon={GraduationCap} 
+              title="Tuition Fee" 
+              color="bg-blue-500"
+            />
+            
+            <FeeCard 
+              fee={hostelFee} 
+              icon={Building2} 
+              title="Hostel Fee" 
+              color="bg-purple-500"
+            />
+            
+            <FeeCard 
+              fee={transportFee} 
+              icon={Bus} 
+              title="Transport Fee" 
+              color="bg-green-500"
+            />
+          </div>
+
+          {/* Hostel Details */}
+          {hasHostel && hostelDetails && (
+            <div className="mt-6 bg-white rounded-lg shadow p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <Building2 className="text-purple-600" size={28} />
+                <h2 className="text-xl font-bold">Hostel Details</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Hostel Name</p>
+                  <p className="font-semibold">{hostelDetails.hostelName}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Room Number</p>
+                  <p className="font-semibold">{hostelDetails.roomNumber}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Room Type</p>
+                  <p className="font-semibold">{hostelDetails.roomType}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Warden</p>
+                  <p className="font-semibold">{hostelDetails.wardenName}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Transport Details */}
+          {hasTransport && transportDetails && transportDetails.route && (
+            <div className="mt-6 bg-white rounded-lg shadow p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <Bus className="text-green-600" size={28} />
+                <h2 className="text-xl font-bold">Transport Details</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Route Number</p>
+                  <p className="font-semibold">{transportDetails.route.routeNumber}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Bus Number</p>
+                  <p className="font-semibold">{transportDetails.route.busNumber}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Pickup Point</p>
+                  <p className="font-semibold">{transportDetails.route.pickupPoint}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Pickup Time</p>
+                  <p className="font-semibold">{transportDetails.route.pickupTime}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Driver Name</p>
+                  <p className="font-semibold">{transportDetails.route.driverName}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Driver Contact</p>
+                  <p className="font-semibold">{transportDetails.route.driverContact}</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

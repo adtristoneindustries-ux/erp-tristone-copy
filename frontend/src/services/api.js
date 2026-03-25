@@ -68,7 +68,8 @@ export const userAPI = {
     }).post('/users/staff-with-docs', formData);
   },
   updateUser: (id, data) => API.put(`/users/${id}`, data),
-  deleteUser: (id) => API.delete(`/users/${id}`)
+  deleteUser: (id) => API.delete(`/users/${id}`),
+  getFees: () => API.get('/fees')
 };
 
 export const classAPI = {

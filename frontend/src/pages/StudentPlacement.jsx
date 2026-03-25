@@ -22,12 +22,8 @@ export default function StudentPlacement() {
   });
   const [showProfileModal, setShowProfileModal] = useState(false);
 
+  // Initialize profile from user context when component mounts or user changes
   useEffect(() => {
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    // Update profile from user context whenever user changes
     if (user) {
       setProfile({
         cgpa: user.cgpa || '',
@@ -39,7 +35,11 @@ export default function StudentPlacement() {
         department: user.department || ''
       });
     }
-  }, [user]);
+  }, [user?._id]); // Only when user ID changes (login/logout)
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const fetchData = async () => {
     try {
@@ -48,10 +48,12 @@ export default function StudentPlacement() {
         api.get('/placement/applications'),
         api.get('/placement/stats/student')
       ]);
+      console.log('Drives fetched:', drivesRes.data.data);
       // Filter drives that haven't expired
       const activeDrives = drivesRes.data.data.filter(drive => 
         new Date(drive.application_deadline) >= new Date()
       );
+      console.log('Active drives after filter:', activeDrives);
       setDrives(activeDrives);
       setMyApplications(applicationsRes.data.data);
       setStats(statsRes.data.data);
@@ -83,27 +85,13 @@ export default function StudentPlacement() {
         portfolio_link: profile.portfolio_link
       };
       
-      const response = await api.put('/placement/profile/student', profileData);
+      await api.put('/placement/profile/student', profileData);
       
-      // Update local profile state with response data
-      if (response.data.data) {
-        const updatedData = response.data.data;
-        setProfile({
-          cgpa: updatedData.cgpa || '',
-          arrears_count: updatedData.arrears_count || 0,
-          resume_url: updatedData.resume_url || '',
-          skills: updatedData.skills || [],
-          portfolio_link: updatedData.portfolio_link || '',
-          year: updatedData.year || '',
-          department: updatedData.department || ''
-        });
-      }
-      
-      // Refresh user context to update UI immediately
-      await refreshUser();
-      
-      alert('Profile updated successfully!');
+      alert('Profile updated successfully! Please refresh the page to see changes.');
       setShowProfileModal(false);
+      
+      // Reload page to get fresh data from server
+      window.location.reload();
     } catch (error) {
       console.error('Update error:', error);
       alert(error.response?.data?.message || 'Error updating profile');
@@ -150,27 +138,27 @@ export default function StudentPlacement() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               <div>
                 <p className="text-gray-500 text-sm">Year</p>
-                <p className="text-lg font-semibold">{user?.year ? `${user.year}${['st', 'nd', 'rd', 'th'][user.year - 1] || 'th'} Year` : 'Not set'}</p>
+                <p className="text-lg font-semibold">{profile.year ? `${profile.year}${['st', 'nd', 'rd', 'th'][profile.year - 1] || 'th'} Year` : 'Not set'}</p>
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Department</p>
-                <p className="text-lg font-semibold">{user?.department || 'Not set'}</p>
+                <p className="text-lg font-semibold">{profile.department || 'Not set'}</p>
               </div>
               <div>
                 <p className="text-gray-500 text-sm">CGPA</p>
-                <p className="text-lg font-semibold">{user?.cgpa || 'Not set'}</p>
+                <p className="text-lg font-semibold">{profile.cgpa || 'Not set'}</p>
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Arrears</p>
-                <p className="text-lg font-semibold">{user?.arrears_count !== undefined ? user.arrears_count : 'Not set'}</p>
+                <p className="text-lg font-semibold">{profile.arrears_count !== undefined && profile.arrears_count !== '' ? profile.arrears_count : 'Not set'}</p>
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Skills</p>
-                <p className="text-lg font-semibold">{user?.skills?.length || 0}</p>
+                <p className="text-lg font-semibold">{profile.skills?.length || 0}</p>
               </div>
               <div>
                 <p className="text-gray-500 text-sm">Resume</p>
-                <p className="text-lg font-semibold">{user?.resume_url ? '✓ Uploaded' : 'Not uploaded'}</p>
+                <p className="text-lg font-semibold">{profile.resume_url ? '✓ Uploaded' : 'Not uploaded'}</p>
               </div>
             </div>
           </div>
@@ -205,6 +193,20 @@ export default function StudentPlacement() {
 
         <div className="p-6">
           {activeTab === 'drives' && (
+            <div>
+              {drives.length === 0 ? (
+                <div className="text-center py-12">
+                  <Briefcase className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <p className="text-gray-500 mb-2">No placement drives available at the moment</p>
+                  <p className="text-sm text-gray-400">Check back later for new opportunities</p>
+                  <button
+                    onClick={fetchData}
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                  >
+                    Refresh
+                  </button>
+                </div>
+              ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {drives.map((drive) => {
                 const eligible = isEligible(drive);
@@ -279,6 +281,8 @@ export default function StudentPlacement() {
                   </div>
                 );
               })}
+            </div>
+              )}
             </div>
           )}
 
