@@ -3,6 +3,7 @@ import { Shield, Users, GraduationCap, ArrowLeft, AlertTriangle, Mail, Lock } fr
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { SettingsContext } from '../context/SettingsContext';
+import ParticleBackground from '../components/ParticleBackground';
 
 const Login = () => {
   const [selectedRole, setSelectedRole] = useState('');
@@ -86,15 +87,45 @@ const Login = () => {
 
   if (!selectedRole) {
     return (
-      <div 
-        className="min-h-screen flex items-center justify-center p-4"
+      <div
+        className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
         style={{
-          backgroundImage: settings.loginBackgroundUrl ? `url(${settings.loginBackgroundUrl})` : 'linear-gradient(to bottom right, #f9fafb, #e5e7eb)',
+          backgroundImage: settings.loginBackgroundUrl
+            ? `url(${settings.loginBackgroundUrl})`
+            : 'linear-gradient(135deg, #f0f4ff 0%, #fdf2f8 50%, #f0fdf4 100%)',
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
       >
-        <div className="w-full max-w-6xl">
+        <ParticleBackground role="default" />
+        {!settings.loginBackgroundUrl && (
+          <svg
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            viewBox="0 0 1440 900"
+            preserveAspectRatio="xMidYMid slice"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <defs>
+              <linearGradient id="wg1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#c7d7ff" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="#3859ff" stopOpacity="0.35" />
+              </linearGradient>
+              <linearGradient id="wg2" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#bfdbfe" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#c4b5fd" stopOpacity="0.3" />
+              </linearGradient>
+              <linearGradient id="wg3" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#e0e7ff" stopOpacity="0.55" />
+                <stop offset="100%" stopColor="#3406ff" stopOpacity="0.35" />
+              </linearGradient>
+            </defs>
+            <path d="M0,0 C360,90 720,10 1080,70 C1260,100 1380,45 1440,20 L1440,0 Z" fill="url(#wg3)" />
+            <path d="M0,300 C200,240 480,390 720,320 C960,250 1200,370 1440,300 L1440,450 C1200,510 960,390 720,450 C480,510 200,390 0,450 Z" fill="url(#wg1)" />
+            <path d="M0,680 C300,620 600,750 900,690 C1100,650 1300,710 1440,680 L1440,900 L0,900 Z" fill="url(#wg2)" />
+          </svg>
+        )}
+        <div className="relative w-full max-w-6xl" style={{ zIndex: 1 }}>
           <div className="text-center mb-12">
             {settings.logoUrl ? (
               <img src={settings.logoUrl} alt={settings.schoolName} className="h-16 w-auto mx-auto mb-4 object-contain" />
@@ -125,7 +156,7 @@ const Login = () => {
             ))}
           </div>
 
-          <div className="mt-12 text-center">
+          {/* <div className="mt-12 text-center">
             <div className="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Demo Credentials</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
@@ -149,7 +180,7 @@ const Login = () => {
                 ))}
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     );
@@ -159,10 +190,11 @@ const Login = () => {
   const RoleIcon = currentCard.icon;
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${currentCard.gradient} flex items-center justify-center p-4`}>
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #f0f4ff 0%, #fdf2f8 50%, #f0fdf4 100%)' }}>
+      <ParticleBackground role={selectedRole} />
+      <div className="bg-white rounded-2xl shadow-2xl w-full overflow-hidden relative" style={{ zIndex: 1, maxWidth: '780px' }}>
         <div className="grid md:grid-cols-2">
-          <div className="p-8 md:p-12">
+          <div className="p-6 md:p-8">
             <button
               onClick={() => setSelectedRole('')}
               className="text-gray-500 hover:text-gray-700 mb-6 flex items-center gap-2 transition-colors"
@@ -171,12 +203,12 @@ const Login = () => {
               <span className="text-sm">Back to Role Selection</span>
             </button>
 
-            <div className="mb-8">
-              <div className={`w-16 h-16 mb-4 rounded-2xl bg-gradient-to-br ${currentCard.gradient} flex items-center justify-center shadow-lg`}>
-                <RoleIcon size={32} className="text-white" />
+            <div className="mb-5">
+              <div className={`w-12 h-12 mb-3 rounded-xl bg-gradient-to-br ${currentCard.gradient} flex items-center justify-center shadow-lg`}>
+                <RoleIcon size={24} className="text-white" />
               </div>
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">{currentCard.title}</h2>
-              <p className="text-gray-600">Please enter your credentials to continue</p>
+              <h2 className="text-2xl font-bold text-gray-800 mb-1">{currentCard.title}</h2>
+              <p className="text-sm text-gray-600">Please enter your credentials to continue</p>
             </div>
 
             {error && (
@@ -186,7 +218,7 @@ const Login = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-3">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
                 <div className="relative">
@@ -196,7 +228,7 @@ const Login = () => {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
-                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all"
+                    className="w-full pl-11 pr-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all text-sm"
                     placeholder="Enter your email"
                   />
                 </div>
@@ -211,7 +243,7 @@ const Login = () => {
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     required
-                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all"
+                    className="w-full pl-11 pr-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all text-sm"
                     placeholder="Enter your password"
                   />
                 </div>
@@ -235,7 +267,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full bg-gradient-to-r ${currentCard.gradient} text-white py-3.5 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
+                className={`w-full bg-gradient-to-r ${currentCard.gradient} text-white py-2.5 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm`}
               >
                 {loading ? 'Signing in...' : 'Sign In'}
               </button>
@@ -243,18 +275,18 @@ const Login = () => {
               <button
                 type="button"
                 onClick={() => setFormData({ email: `${selectedRole}@school.com`, password: `${selectedRole}123`, rememberMe: false })}
-                className="w-full bg-gray-100 text-gray-700 py-2.5 rounded-xl font-medium hover:bg-gray-200 transition-colors text-sm"
+                className="w-full bg-gray-100 text-gray-700 py-2 rounded-xl font-medium hover:bg-gray-200 transition-colors text-sm"
               >
                 Use Demo Credentials
               </button>
             </form>
 
-            <div className="mt-6 text-center">
+            <div className="mt-4 text-center">
               <p className="text-xs text-gray-500">Demo: {selectedRole}@school.com / {selectedRole}123</p>
             </div>
           </div>
 
-          <div className={`hidden md:flex flex-col justify-center items-center p-12 bg-gradient-to-br ${currentCard.gradient} text-white relative overflow-hidden`}>
+          <div className={`hidden md:flex flex-col justify-center items-center p-8 bg-gradient-to-br ${currentCard.gradient} text-white relative overflow-hidden`}>
             <div className="absolute inset-0 opacity-10">
               <svg className="w-full h-full" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
                 <path fill="white" d="M0,200 Q100,100 200,200 T400,200 L400,400 L0,400 Z" />
@@ -263,24 +295,24 @@ const Login = () => {
               </svg>
             </div>
             <div className="relative z-10 text-center">
-              <div className="mb-6">
-                <RoleIcon size={80} className="mx-auto mb-4" />
+              <div className="mb-4">
+                <RoleIcon size={52} className="mx-auto mb-3" />
               </div>
-              <h3 className="text-4xl font-bold mb-4">{settings.welcomeMessage}</h3>
-              <p className="text-lg text-white/90 mb-6 max-w-sm">
+              <h3 className="text-2xl font-bold mb-2">{settings.welcomeMessage}</h3>
+              <p className="text-sm text-white/90 mb-5 max-w-xs">
                 {currentCard.description}
               </p>
-              <div className="space-y-3 text-left max-w-sm mx-auto">
-                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-3">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
+              <div className="space-y-2 text-left max-w-xs mx-auto">
+                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-2.5">
+                  <div className="w-2 h-2 bg-white rounded-full flex-shrink-0"></div>
                   <span className="text-sm">Secure & Fast Login</span>
                 </div>
-                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-3">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-2.5">
+                  <div className="w-2 h-2 bg-white rounded-full flex-shrink-0"></div>
                   <span className="text-sm">Real-time Updates</span>
                 </div>
-                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-3">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-2.5">
+                  <div className="w-2 h-2 bg-white rounded-full flex-shrink-0"></div>
                   <span className="text-sm">Easy to Use Dashboard</span>
                 </div>
               </div>

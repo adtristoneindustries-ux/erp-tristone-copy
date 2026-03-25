@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck , DollarSign, AlertTriangle, Settings, MessageCircle, Briefcase, Book } from 'lucide-react';
+import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck , DollarSign, AlertTriangle, Settings, MessageCircle, Briefcase, Book, BarChart2, Server, Upload } from 'lucide-react';
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { SettingsContext } from '../context/SettingsContext';
@@ -50,6 +50,9 @@ const Sidebar = () => {
     { to: '/admin/library', icon: Book, label: 'Library Management' },
     { to: '/admin/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria Management' },
     { to: '/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },
+    { to: '/admin/reports', icon: BarChart2, label: 'Reports' },
+    { to: '/admin/bulk-operations', icon: Upload, label: 'Bulk Operations' },
+    { to: '/admin/system-health', icon: Server, label: 'System Health' },
     { to: '/admin/settings', icon: Settings, label: 'Settings' }
   ];
 

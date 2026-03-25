@@ -107,6 +107,9 @@ import AdminBadgeVerification from "./pages/AdminBadgeVerification";
 import AdminNotifications from "./pages/AdminNotifications";
 import StaffNotifications from "./pages/StaffNotifications";
 import StudentNotifications from "./pages/StudentNotifications";
+import AdminReports from "./pages/AdminReports";
+import AdminSystemHealth from "./pages/AdminSystemHealth";
+import AdminBulkOperations from "./pages/AdminBulkOperations";
 import NotFound from "./pages/NotFound";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -441,6 +444,26 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminNotifications />
+          path="/admin/reports"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminReports />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/system-health"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminSystemHealth />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/bulk-operations"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminBulkOperations />
             </ProtectedRoute>
           }
         />

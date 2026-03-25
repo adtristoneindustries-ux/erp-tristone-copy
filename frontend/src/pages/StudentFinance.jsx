@@ -4,6 +4,7 @@ import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import api from '../services/api';
 import { useSocket } from '../context/SocketContext';
+import jsPDF from 'jspdf';
 
 const StudentFinance = () => {
   const [finance, setFinance] = useState(null);

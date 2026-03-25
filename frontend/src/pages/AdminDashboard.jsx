@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, BookOpen, Calendar, UserPlus, UserCheck, Clock, AlertTriangle, FileText, Bell, Activity, TrendingUp, CheckCircle, XCircle, Plus, UtensilsCrossed } from 'lucide-react';
+import { Users, BookOpen, Calendar, UserPlus, UserCheck, Clock, AlertTriangle, FileText, Bell, Activity, TrendingUp, CheckCircle, XCircle, Plus, UtensilsCrossed, DollarSign, Trophy, Server, BarChart2, Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Card from '../components/Card';
 import Sidebar from '../components/Sidebar';
@@ -18,6 +18,7 @@ const AdminDashboard = () => {
   const [timetableConflicts, setTimetableConflicts] = useState(0);
   const [attendanceTrend, setAttendanceTrend] = useState([]);
   const [growthData, setGrowthData] = useState([]);
+  const [systemHealth, setSystemHealth] = useState(null);
 
   useEffect(() => {
     fetchAllData();
@@ -152,6 +153,12 @@ const AdminDashboard = () => {
       }
       setGrowthData(growthTrend);
 
+      // Fetch system health
+      try {
+        const healthRes = await dashboardAPI.getSystemHealth();
+        setSystemHealth(healthRes.data);
+      } catch (e) {}
+
       generateMockData();
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -227,6 +234,37 @@ const AdminDashboard = () => {
             <Card title="Timetable Conflicts" value={timetableConflicts} icon={AlertTriangle} color="purple" />
           </div>
 
+          {/* Fee Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
+            <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-green-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide">Fee Collected</p>
+                  <p className="text-2xl font-bold text-green-600">₹{(stats.feeCollected || 0).toLocaleString()}</p>
+                </div>
+                <DollarSign className="text-green-400" size={32} />
+              </div>
+            </div>
+            <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-yellow-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide">Fee Pending</p>
+                  <p className="text-2xl font-bold text-yellow-600">₹{(stats.feePending || 0).toLocaleString()}</p>
+                </div>
+                <DollarSign className="text-yellow-400" size={32} />
+              </div>
+            </div>
+            <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-red-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide">Fee Overdue</p>
+                  <p className="text-2xl font-bold text-red-600">₹{(stats.feeOverdue || 0).toLocaleString()}</p>
+                </div>
+                <DollarSign className="text-red-400" size={32} />
+              </div>
+            </div>
+          </div>
+
           {/* Quick Actions */}
           <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 lg:p-6 mb-4 sm:mb-6 lg:mb-8">
             <h2 className="text-base sm:text-lg lg:text-xl font-bold mb-3 sm:mb-4">Quick Actions</h2>
@@ -254,6 +292,18 @@ const AdminDashboard = () => {
               <Link to="/cafeteria" className="flex items-center justify-center gap-2 px-3 py-2 sm:px-4 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
                 <UtensilsCrossed size={14} className="sm:w-4 sm:h-4" />
                 <span className="text-xs sm:text-sm">Cafeteria</span>
+              </Link>
+              <Link to="/admin/reports" className="flex items-center justify-center gap-2 px-3 py-2 sm:px-4 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors">
+                <BarChart2 size={14} className="sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-sm">Reports</span>
+              </Link>
+              <Link to="/admin/bulk-operations" className="flex items-center justify-center gap-2 px-3 py-2 sm:px-4 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors">
+                <Upload size={14} className="sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-sm">Bulk Import</span>
+              </Link>
+              <Link to="/admin/system-health" className="flex items-center justify-center gap-2 px-3 py-2 sm:px-4 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-colors">
+                <Server size={14} className="sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-sm">System</span>
               </Link>
             </div>
           </div>
@@ -372,6 +422,64 @@ const AdminDashboard = () => {
                   <div className="text-gray-500 text-xs sm:text-sm">No recent announcements</div>
                 )}
               </div>
+            </div>
+          </div>
+
+          {/* Top Performers + System Health */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6 lg:mb-8">
+            {/* Top Students */}
+            <div className="bg-white rounded-lg shadow-md p-4 lg:p-6">
+              <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center gap-2">
+                <Trophy className="text-yellow-500" size={18} /> Top Performers
+              </h3>
+              <div className="space-y-3">
+                {(stats.topStudents || []).length > 0 ? stats.topStudents.map((s, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                      i === 0 ? 'bg-yellow-100 text-yellow-700' : i === 1 ? 'bg-gray-100 text-gray-600' : 'bg-orange-100 text-orange-600'
+                    }`}>{i + 1}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">{s.name}</div>
+                      <div className="text-xs text-gray-400">Class {s.class}</div>
+                    </div>
+                    <div className="text-sm font-bold text-blue-600">{s.avg}%</div>
+                  </div>
+                )) : (
+                  <div className="text-gray-400 text-sm">No marks data available</div>
+                )}
+              </div>
+            </div>
+
+            {/* System Health Mini */}
+            <div className="bg-white rounded-lg shadow-md p-4 lg:p-6">
+              <h3 className="text-base sm:text-lg font-bold mb-4 flex items-center gap-2 justify-between">
+                <span className="flex items-center gap-2"><Server className="text-blue-600" size={18} /> System Health</span>
+                <Link to="/admin/system-health" className="text-xs text-blue-500 hover:underline">View Details →</Link>
+              </h3>
+              {systemHealth ? (
+                <div className="space-y-3">
+                  {[
+                    { label: 'Database', value: systemHealth.db.status, badge: true },
+                    { label: 'Memory Used', value: `${systemHealth.memory.usedPct}%` },
+                    { label: 'Online Users', value: `${systemHealth.users.online} / ${systemHealth.users.total}` },
+                    { label: 'Server Uptime', value: `${systemHealth.uptime.hours}h ${systemHealth.uptime.minutes}m` },
+                    { label: 'Node.js', value: systemHealth.nodeVersion }
+                  ].map(({ label, value, badge }) => (
+                    <div key={label} className="flex justify-between items-center py-1.5 border-b border-gray-50 last:border-0">
+                      <span className="text-sm text-gray-500">{label}</span>
+                      {badge ? (
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                          value === 'connected' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                        }`}>{value}</span>
+                      ) : (
+                        <span className="text-sm font-semibold text-gray-800">{value}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-gray-400 text-sm">Loading system info...</div>
+              )}
             </div>
           </div>
 
