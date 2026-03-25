@@ -172,18 +172,18 @@ const StudentDetailsModal = ({ student, isOpen, onClose }) => {
             </div>
 
             {/* Hostel Details */}
-            {(student.hostelName || student.roomNumber) && (
+            {(student.hostelInfo || student.hostelName || student.roomNumber) && (
               <div className="bg-pink-50 rounded-lg p-5">
                 <h3 className="text-lg font-bold text-pink-800 mb-4 flex items-center gap-2">
                   <Building size={20} /> Hostel Details
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <InfoRow label="Hostel Name" value={student.hostelName} />
-                  <InfoRow label="Room Number" value={student.roomNumber} />
+                  <InfoRow label="Hostel Name" value={student.hostelInfo?.hostelName || student.hostelName} />
+                  <InfoRow label="Room Number" value={student.hostelInfo?.roomNumber || student.roomNumber} />
+                  <InfoRow label="Room Type" value={student.hostelInfo?.roomType || student.roomType} />
+                  <InfoRow label="Warden Name" value={student.hostelInfo?.wardenName || student.wardenName} />
+                  <InfoRow label="Warden Contact" value={student.hostelInfo?.wardenContact || student.wardenContact} />
                   <InfoRow label="Bed Number" value={student.bedNumber} />
-                  <InfoRow label="Warden Name" value={student.wardenName} />
-                  <InfoRow label="Warden Contact" value={student.wardenContact} />
-                  <InfoRow label="Room Type" value={student.roomType} />
                   <InfoRow label="Mess Plan" value={student.messPlan} />
                   <InfoRow label="Hostel Fee" value={student.hostelFee} />
                 </div>
@@ -191,17 +191,18 @@ const StudentDetailsModal = ({ student, isOpen, onClose }) => {
             )}
 
             {/* Transport Details */}
-            {(student.routeNumber || student.pickupPoint) && (
+            {(student.transportInfo || student.routeNumber || student.pickupPoint) && (
               <div className="bg-orange-50 rounded-lg p-5">
                 <h3 className="text-lg font-bold text-orange-800 mb-4 flex items-center gap-2">
                   <Bus size={20} /> Transport Details
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <InfoRow label="Route Number" value={student.routeNumber} />
-                  <InfoRow label="Pickup Point" value={student.pickupPoint} />
-                  <InfoRow label="Driver Name" value={student.driverName} />
-                  <InfoRow label="Driver Contact" value={student.driverContact} />
-                  <InfoRow label="Bus Number" value={student.busNumber} />
+                  <InfoRow label="Route Number" value={student.transportInfo?.routeNumber || student.routeNumber} />
+                  <InfoRow label="Bus Number" value={student.transportInfo?.busNumber || student.busNumber} />
+                  <InfoRow label="Pickup Point" value={student.transportInfo?.pickupPoint || student.pickupPoint} />
+                  <InfoRow label="Pickup Time" value={student.transportInfo?.pickupTime} />
+                  <InfoRow label="Driver Name" value={student.transportInfo?.driverName || student.driverName} />
+                  <InfoRow label="Driver Contact" value={student.transportInfo?.driverContact || student.driverContact} />
                   <InfoRow label="Transport Fee" value={student.transportFee} />
                 </div>
               </div>

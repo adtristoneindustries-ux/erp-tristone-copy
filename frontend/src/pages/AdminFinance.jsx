@@ -3,6 +3,7 @@ import { DollarSign, TrendingUp, FileText, Download, Plus, Edit, Trash2, Search,
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { userAPI } from '../services/api';
+import axios from 'axios';
 
 const AdminFinance = () => {
   const [activeTab, setActiveTab] = useState('fee-collection');
@@ -22,29 +23,19 @@ const AdminFinance = () => {
 
   const fetchData = async () => {
     try {
-      const [studentsRes, staffRes] = await Promise.all([
+      const [studentsRes, staffRes, feesRes] = await Promise.all([
         userAPI.getUsers({ role: 'student' }),
-        userAPI.getUsers({ role: 'staff' })
+        userAPI.getUsers({ role: 'staff' }),
+        userAPI.getFees()
       ]);
       
       const studentsList = studentsRes.data.data || studentsRes.data.users || studentsRes.data || [];
       const staffList = staffRes.data.data || staffRes.data.users || staffRes.data || [];
+      const feesList = feesRes.data || [];
       
       setStudents(studentsList);
       setStaff(staffList);
-      
-      // Generate fee records from students
-      const fees = Array.isArray(studentsList) ? studentsList.map((student, idx) => ({
-        id: idx + 1,
-        studentId: student._id,
-        studentName: student.name,
-        department: student.class || 'N/A',
-        amount: 5000,
-        status: idx % 3 === 0 ? 'pending' : 'paid',
-        date: new Date(Date.now() - idx * 86400000).toISOString().split('T')[0],
-        dueDate: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0]
-      })) : [];
-      setFeeRecords(fees);
+      setFeeRecords(feesList);
 
       // Generate salary records from staff
       const salaries = staffList.map((member, idx) => ({
@@ -383,7 +374,11 @@ const AdminFinance = () => {
                         <>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Student Name</th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Class</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fee Type</th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Paid</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Due</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payment Method</th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
                         </>
@@ -440,19 +435,51 @@ const AdminFinance = () => {
                         ) : (
                           <>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-medium text-gray-900">{item.studentName}</div>
+                              <div className="text-sm font-medium text-gray-900">{item.student?.name || 'N/A'}</div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-600">{item.department}</div>
+                              <div className="text-sm text-gray-600">{item.student?.class || 'N/A'}</div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-semibold text-gray-900">₹{item.amount.toLocaleString()}</div>
+                              <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                                item.feeType === 'Tuition' ? 'bg-blue-100 text-blue-800' :
+                                item.feeType === 'Hostel' ? 'bg-purple-100 text-purple-800' :
+                                'bg-green-100 text-green-800'
+                              }`}>
+                                {item.feeType}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-semibold text-gray-900">₹{item.totalAmount?.toLocaleString()}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-semibold text-green-600">₹{item.paidAmount?.toLocaleString()}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-semibold text-red-600">₹{item.dueAmount?.toLocaleString()}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              {item.payments && item.payments.length > 0 ? (
+                                <div className="flex flex-wrap gap-1">
+                                  {[...new Set(item.payments.map(p => p.paymentMethod))].map((method, idx) => (
+                                    <span key={idx} className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                                      method === 'Online' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                                    }`}>
+                                      {method}
+                                    </span>
+                                  ))}
+                                </div>
+                              ) : (
+                                <span className="text-xs text-gray-400">No payments</span>
+                              )}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                item.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                item.status === 'Paid' ? 'bg-green-100 text-green-800' : 
+                                item.status === 'Overdue' ? 'bg-red-100 text-red-800' :
+                                'bg-yellow-100 text-yellow-800'
                               }`}>
-                                {item.status === 'paid' ? 'Paid' : 'Pending'}
+                                {item.status}
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
@@ -461,14 +488,6 @@ const AdminFinance = () => {
                                   <Download size={14} />
                                   Invoice
                                 </button>
-                                {item.status === 'pending' && (
-                                  <button
-                                    onClick={() => updateFeeStatus(item.id, 'paid')}
-                                    className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
-                                  >
-                                    Mark Paid
-                                  </button>
-                                )}
                               </div>
                             </td>
                           </>

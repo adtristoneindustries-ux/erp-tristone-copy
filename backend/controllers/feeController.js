@@ -1,11 +1,38 @@
 const Fee = require('../models/Fee');
+const Hostel = require('../models/Hostel');
+const { StudentTransport } = require('../models/Transport');
 
 exports.getFees = async (req, res) => {
   try {
     const { student } = req.query;
     const query = student ? { student } : {};
-    const fees = await Fee.find(query).populate('student', 'name email rollNumber');
+    const fees = await Fee.find(query).populate('student', 'name email rollNumber class');
     res.json(fees);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getStudentFees = async (req, res) => {
+  try {
+    const studentId = req.user._id;
+    
+    // Get all fees for student
+    const fees = await Fee.find({ student: studentId });
+    
+    // Check if student has hostel
+    const hostel = await Hostel.findOne({ student: studentId });
+    
+    // Check if student has transport
+    const transport = await StudentTransport.findOne({ student: studentId }).populate('route');
+    
+    res.json({
+      fees,
+      hasHostel: !!hostel,
+      hostelDetails: hostel,
+      hasTransport: !!transport,
+      transportDetails: transport
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
