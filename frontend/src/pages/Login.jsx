@@ -288,7 +288,7 @@ const Login = () => {
 
           <div className={`hidden md:flex flex-col justify-center items-center p-8 bg-gradient-to-br ${currentCard.gradient} text-white relative overflow-hidden`}>
             <div className="absolute inset-0 opacity-10">
-              <svg className="w-full h-full" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+              <svg className="w-full h-full mt-[11.5vh]" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
                 <path fill="white" d="M0,200 Q100,100 200,200 T400,200 L400,400 L0,400 Z" />
                 <circle cx="100" cy="100" r="80" fill="white" opacity="0.1" />
                 <circle cx="350" cy="300" r="100" fill="white" opacity="0.1" />
@@ -303,15 +303,15 @@ const Login = () => {
                 {currentCard.description}
               </p>
               <div className="space-y-2 text-left max-w-xs mx-auto">
-                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-2.5">
+                <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm rounded-lg p-2.5">
                   <div className="w-2 h-2 bg-white rounded-full flex-shrink-0"></div>
                   <span className="text-sm">Secure & Fast Login</span>
                 </div>
-                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-2.5">
+                <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm rounded-lg p-2.5">
                   <div className="w-2 h-2 bg-white rounded-full flex-shrink-0"></div>
                   <span className="text-sm">Real-time Updates</span>
                 </div>
-                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-2.5">
+                <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm rounded-lg p-2.5">
                   <div className="w-2 h-2 bg-white rounded-full flex-shrink-0"></div>
                   <span className="text-sm">Easy to Use Dashboard</span>
                 </div>
