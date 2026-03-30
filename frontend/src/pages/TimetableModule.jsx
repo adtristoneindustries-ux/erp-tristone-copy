@@ -52,8 +52,9 @@ const TimetableModule = () => {
   const fetchStaff = async () => {
     try {
       const response = await userAPI.getUsers({ role: 'staff' });
-      setStaff(response.data);
-      console.log('Staff fetched:', response.data);
+      const staffData = Array.isArray(response.data) ? response.data : response.data?.users || response.data?.data || [];
+      setStaff(staffData);
+      console.log('Staff fetched:', staffData);
     } catch (error) {
       console.error('Error fetching staff:', error);
     }

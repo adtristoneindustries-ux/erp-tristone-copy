@@ -60,19 +60,10 @@ const StaffAttendance = () => {
 
   const fetchStudents = async () => {
     try {
-      // First get all students
-      const response = await userAPI.getUsers({ role: 'student' });
-      
-      // Ensure response.data is an array
-      const studentData = Array.isArray(response.data) ? response.data : (response.data?.users || []);
-      
-      // Filter students by class and section on frontend
-      const filteredStudents = studentData.filter(student => 
-        student.class === selectedClass && student.section === selectedSection
-      );
-      
-      setStudents(filteredStudents);
-      console.log(`Students loaded for ${selectedClass}-${selectedSection}:`, filteredStudents.length);
+      const response = await userAPI.getUsers({ role: 'student', class: selectedClass, section: selectedSection });
+      const studentData = response.data?.data || response.data?.users || (Array.isArray(response.data) ? response.data : []);
+      setStudents(studentData);
+      console.log(`Students loaded for ${selectedClass}-${selectedSection}:`, studentData.length);
     } catch (error) {
       console.error('Failed to fetch students:', error);
       setStudents([]);
