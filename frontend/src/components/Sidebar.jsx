@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck , DollarSign, AlertTriangle, Settings, MessageCircle, Briefcase, Book, BarChart2, Server, Upload } from 'lucide-react';
+import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck , DollarSign, AlertTriangle, Settings, MessageCircle, Briefcase, Book, BarChart2, Server, Upload, CalendarDays } from 'lucide-react';
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { SettingsContext } from '../context/SettingsContext';
@@ -30,6 +30,7 @@ const Sidebar = () => {
 
   const adminLinks = [
     { to: '/admin', icon: Home, label: 'Dashboard' },
+    { to: '/admin/library-portal', icon: Book, label: 'Library Portal' },
     { to: '/admin/users', icon: Users, label: 'User Management' },
     { to: '/admin/subjects', icon: BookOpen, label: 'Subjects' },
     { to: '/admin/classes', icon: Users, label: 'Classes' },
@@ -58,6 +59,7 @@ const Sidebar = () => {
 
   const staffLinks = [
     { to: '/staff', icon: Home, label: 'Dashboard' },
+    { to: '/staff/events', icon: CalendarDays, label: 'Events' },
     { to: '/staff/students', icon: Users, label: 'My Students' },
     { to: '/staff/profile', icon: Users, label: 'My Profile' },
     { to: '/staff/attendance', icon: ClipboardList, label: 'Mark Attendance' },
@@ -82,6 +84,7 @@ const Sidebar = () => {
 
   const canteenStaffLinks = [
     { to: '/staff/cafeteria', icon: Home, label: 'Dashboard' },
+    { to: '/staff/events', icon: CalendarDays, label: 'Events' },
     { to: '/staff/cafeteria/orders', icon: ClipboardList, label: 'Orders Management' },
     { to: '/staff/cafeteria/menu', icon: UtensilsCrossed, label: 'Menu Management' },
     { to: '/staff/cafeteria/ratings', icon: Award, label: 'Ratings & Reviews' },
@@ -95,6 +98,7 @@ const Sidebar = () => {
 
   const librarianLinks = [
     { to: '/librarian', icon: Home, label: 'Dashboard' },
+    { to: '/staff/events', icon: CalendarDays, label: 'Events' },
     { to: '/staff/library/books', icon: Book, label: 'Library Management' },
     { to: '/staff/library/issues', icon: BookOpen, label: 'Issue & Return Management' },
     { to: '/staff/library/reservations', icon: ClipboardList, label: 'Book Reservations' },
@@ -108,6 +112,7 @@ const Sidebar = () => {
 
   const studentLinks = [
     { to: '/student', icon: Home, label: 'Dashboard' },
+    { to: '/student/events', icon: CalendarDays, label: 'Events' },
     { to: '/student/profile', icon: User, label: 'Profile' },
     { to: '/student/marks', icon: Award, label: 'My Marks' },
     { to: '/student/attendance', icon: ClipboardList, label: 'My Attendance' },

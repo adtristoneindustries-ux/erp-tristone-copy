@@ -77,6 +77,7 @@ app.use('/api/courses', require('./routes/courseRoutes'));
 app.use('/api/library', require('./routes/libraryRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/badges', require('./routes/badgeRoutes'));
+app.use('/api/events', require('./routes/eventRoutes'));
 
 // Health check endpoint
 app.get('/', (req, res) => {

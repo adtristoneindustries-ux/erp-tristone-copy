@@ -27,6 +27,8 @@ import AdminFinance from "./pages/AdminFinance";
 import AdminFinanceManagement from "./pages/AdminFinanceManagement";
 import AdminDiscipline from "./pages/AdminDiscipline";
 import AdminEvents from "./pages/AdminEvents";
+import EventsPage from "./pages/EventsPage";
+import LibraryPortal from "./pages/LibraryPortal";
 import AdminSettings from "./pages/AdminSettings";
 import AdminScholarship from "./pages/AdminScholarship";
 import AdminPlacement from "./pages/AdminPlacement";
@@ -400,6 +402,14 @@ function App() {
           }
         />
         <Route
+          path="/admin/library-portal"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <LibraryPortal />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/library"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
@@ -485,6 +495,22 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["canteen"]}>
               <CanteenDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/events"
+          element={
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
+              <EventsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/events"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <EventsPage />
             </ProtectedRoute>
           }
         />

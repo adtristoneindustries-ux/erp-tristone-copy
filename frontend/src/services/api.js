@@ -301,6 +301,13 @@ export const placementAPI = {
   updateApplicationStatus: (id, data) => API.put(`/placement/applications/${id}/status`, data)
 };
 
+export const eventAPI = {
+  getEvents: () => API.get('/events'),
+  createEvent: (data) => API.post('/events', data),
+  updateEvent: (id, data) => API.put(`/events/${id}`, data),
+  deleteEvent: (id) => API.delete(`/events/${id}`)
+};
+
 export const badgeAPI = {
   getAllBadges: () => API.get('/badges'),
   getStudentBadges: () => API.get('/badges/student'),

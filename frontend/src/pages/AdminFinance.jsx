@@ -386,8 +386,8 @@ const AdminFinance = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredData().map(item => (
-                      <tr key={item.id} className="hover:bg-gray-50">
+                    {filteredData().map((item, idx) => (
+                      <tr key={item._id || item.id || idx} className="hover:bg-gray-50">
                         {activeTab === 'salary' ? (
                           <>
                             <td className="px-6 py-4 whitespace-nowrap">

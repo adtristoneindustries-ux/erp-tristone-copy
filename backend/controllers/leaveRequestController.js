@@ -149,7 +149,7 @@ const markAsRead = async (req, res) => {
 const updateLeaveRequestStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, adminResponse } = req.body;
+    const { status, adminResponse, staffReason } = req.body;
     
     // Get the leave request to check user role
     const leaveRequest = await LeaveRequest.findById(id).populate('user', 'role');
@@ -173,7 +173,8 @@ const updateLeaveRequestStatus = async (req, res) => {
       isRead: false // Mark as unread for the user
     };
     
-    if (adminResponse) updateData.adminResponse = adminResponse;
+    if (adminResponse !== undefined) updateData.adminResponse = adminResponse;
+    if (staffReason !== undefined) updateData.staffReason = staffReason;
     
     const updatedLeaveRequest = await LeaveRequest.findByIdAndUpdate(id, updateData, { new: true })
       .populate('user', 'name class section role email')
