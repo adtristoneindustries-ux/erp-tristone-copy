@@ -112,6 +112,9 @@ import StudentNotifications from "./pages/StudentNotifications";
 import AdminReports from "./pages/AdminReports";
 import AdminSystemHealth from "./pages/AdminSystemHealth";
 import AdminBulkOperations from "./pages/AdminBulkOperations";
+import AdminStem from "./pages/AdminStem";
+import StaffStem from "./pages/StaffStem";
+import StudentStem from "./pages/StudentStem";
 import NotFound from "./pages/NotFound";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -481,6 +484,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/stem"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminStem />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/librarian"
@@ -755,6 +766,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/staff/stem"
+          element={
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
+              <StaffStem />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/student"
@@ -978,6 +997,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentNotifications />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/stem"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentStem />
             </ProtectedRoute>
           }
         />

@@ -1,5 +1,6 @@
 const LeaveRequest = require('../models/LeaveRequest');
 const User = require('../models/User');
+const Class = require('../models/Class');
 
 // Create leave request (Student and Staff)
 const createLeaveRequest = async (req, res) => {
@@ -39,14 +40,34 @@ const getLeaveRequests = async (req, res) => {
     } else if (req.user.role === 'staff') {
       // Staff can see:
       // 1. Their own leave requests
-      // 2. Student leave requests (for approval)
+      // 2. Student leave requests from their assigned classes ONLY
       if (req.query.type === 'my-requests') {
         query.user = req.user.id;
       } else {
-        // Show student leave requests for staff to manage
-        const students = await User.find({ role: 'student' }).select('_id');
-        const studentIds = students.map(user => user._id);
-        query.user = { $in: studentIds };
+        // Find classes where this staff is the class teacher
+        const assignedClasses = await Class.find({ 
+          classTeacher: req.user.id,
+          isActive: true 
+        }).select('className section');
+        
+        if (assignedClasses.length > 0) {
+          // Build query to find students from assigned classes
+          const classFilters = assignedClasses.map(cls => ({
+            class: cls.className,
+            section: cls.section
+          }));
+          
+          const students = await User.find({ 
+            role: 'student',
+            $or: classFilters
+          }).select('_id');
+          
+          const studentIds = students.map(user => user._id);
+          query.user = { $in: studentIds };
+        } else {
+          // Staff has no assigned classes, return empty
+          query.user = { $in: [] };
+        }
       }
     } else if (req.user.role === 'admin') {
       // Admin can only see staff leave requests
@@ -102,15 +123,34 @@ const getUnreadCount = async (req, res) => {
       const staffIds = staff.map(user => user._id);
       query = { user: { $in: staffIds }, status: 'pending' };
     } else if (req.user.role === 'staff') {
-      // Count pending student leave requests + own status updates
-      const students = await User.find({ role: 'student' }).select('_id');
-      const studentIds = students.map(user => user._id);
-      query = {
-        $or: [
-          { user: { $in: studentIds }, status: 'pending' },
-          { user: req.user.id, status: { $in: ['approved', 'rejected'] }, isRead: { $ne: true } }
-        ]
-      };
+      // Count pending student leave requests from assigned classes only
+      const assignedClasses = await Class.find({ 
+        classTeacher: req.user.id,
+        isActive: true 
+      }).select('className section');
+      
+      if (assignedClasses.length > 0) {
+        const classFilters = assignedClasses.map(cls => ({
+          class: cls.className,
+          section: cls.section
+        }));
+        
+        const students = await User.find({ 
+          role: 'student',
+          $or: classFilters
+        }).select('_id');
+        
+        const studentIds = students.map(user => user._id);
+        query = {
+          $or: [
+            { user: { $in: studentIds }, status: 'pending' },
+            { user: req.user.id, status: { $in: ['approved', 'rejected'] }, isRead: { $ne: true } }
+          ]
+        };
+      } else {
+        // No assigned classes, only show own status updates
+        query = { user: req.user.id, status: { $in: ['approved', 'rejected'] }, isRead: { $ne: true } };
+      }
     } else {
       // Students - count their own status updates
       query = { user: req.user.id, status: { $in: ['approved', 'rejected'] }, isRead: { $ne: true } };

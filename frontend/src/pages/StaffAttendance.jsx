@@ -241,7 +241,14 @@ const StaffAttendance = () => {
                 className="w-full px-3 py-2 border rounded-lg text-sm lg:text-base"
               >
                 <option value="">Select Class</option>
-                {[...new Set(classes.map(cls => cls.className))].sort().map(className => (
+                {[...new Set(classes.map(cls => cls.className))].sort((a, b) => {
+                  const numA = parseInt(a);
+                  const numB = parseInt(b);
+                  if (!isNaN(numA) && !isNaN(numB)) {
+                    return numA - numB;
+                  }
+                  return a.localeCompare(b);
+                }).map(className => (
                   <option key={className} value={className}>Class {className}</option>
                 ))}
               </select>

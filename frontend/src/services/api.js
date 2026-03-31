@@ -308,6 +308,22 @@ export const eventAPI = {
   deleteEvent: (id) => API.delete(`/events/${id}`)
 };
 
+export const stemAPI = {
+  getProjects: (params) => API.get('/stem', { params }),
+  getProject: (id) => API.get(`/stem/${id}`),
+  getStats: () => API.get('/stem/stats'),
+  getMyProjects: () => API.get('/stem/my-projects'),
+  getMentorProjects: () => API.get('/stem/mentor-projects'),
+  createProject: (data) => API.post('/stem', data),
+  updateProject: (id, data) => API.put(`/stem/${id}`, data),
+  deleteProject: (id) => API.delete(`/stem/${id}`),
+  enroll: (id) => API.post(`/stem/${id}/enroll`),
+  unenroll: (id) => API.post(`/stem/${id}/unenroll`),
+  submitWork: (id, data) => API.post(`/stem/${id}/submit`, data),
+  gradeSubmission: (id, subId, data) => API.put(`/stem/${id}/grade/${subId}`, data),
+  updateMilestone: (id, mId, data) => API.put(`/stem/${id}/milestone/${mId}`, data)
+};
+
 export const badgeAPI = {
   getAllBadges: () => API.get('/badges'),
   getStudentBadges: () => API.get('/badges/student'),
