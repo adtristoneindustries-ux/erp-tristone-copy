@@ -14,14 +14,24 @@ const Sidebar = () => {
   useEffect(() => {
     const checkStaff = async () => {
       if (user?.role === 'staff') {
+        // Check localStorage first for cached result
+        const cachedStatus = localStorage.getItem(`canteenStaff_${user.id}`);
+        if (cachedStatus !== null) {
+          setIsCanteenStaff(cachedStatus === 'true');
+          return;
+        }
+
         try {
           const res = await fetch('http://localhost:5000/api/cafeteria/check-staff', {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
           });
           const data = await res.json();
           setIsCanteenStaff(data.isCanteenStaff);
+          // Cache the result
+          localStorage.setItem(`canteenStaff_${user.id}`, data.isCanteenStaff.toString());
         } catch (error) {
           setIsCanteenStaff(false);
+          localStorage.setItem(`canteenStaff_${user.id}`, 'false');
         }
       }
     };
@@ -47,9 +57,9 @@ const Sidebar = () => {
     { to: '/admin/discipline', icon: AlertTriangle, label: 'Discipline Oversight' },
     { to: '/admin/events', icon: Calendar, label: 'Events Management' },
     { to: '/admin/placement', icon: Briefcase, label: 'Placement' },
-    { to: '/admin/stem', icon: Lightbulb, label: 'Innovation & STEM' },
     { to: '/admin/library', icon: Book, label: 'Library Management' },
     { to: '/admin/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria Management' },
+    { to: '/admin/stem', icon: Lightbulb, label: 'Innovation & STEM' },
     { to: '/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },
     { to: '/admin/settings', icon: Settings, label: 'Settings' }
   ];
@@ -69,8 +79,8 @@ const Sidebar = () => {
     { to: '/staff/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
     { to: '/staff/scholarships', icon: Award, label: 'Scholarships' },
     ...(user?.hasPlacementAccess ? [{ to: '/staff/placement', icon: Briefcase, label: 'Placement' }] : []),
-    { to: '/staff/stem', icon: Lightbulb, label: 'Innovation & STEM' },
     { to: '/staff/library', icon: Book, label: 'Library' },
+    { to: '/staff/stem', icon: Lightbulb, label: 'Innovation & STEM' },
     { to: '/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },
     { to: '/staff/chat', icon: MessageCircle, label: 'Chat with Students' },
     { to: '/staff/announcements', icon: Bell, label: 'Announcements' },
@@ -79,14 +89,20 @@ const Sidebar = () => {
   ];
 
   const canteenStaffLinks = [
+    { to: '/staff/cafeteria', icon: Home, label: 'Dashboard' },
     { to: '/staff/profile', icon: User, label: 'My Profile' },
-    { to: '/staff/cafeteria', icon: UtensilsCrossed, label: 'Canteen Management' },
-    { to: '/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },
+    { to: '/staff/cafeteria/orders', icon: ClipboardList, label: 'Orders' },
+    { to: '/staff/cafeteria/menu', icon: FileText, label: 'Menu Management' },
+    { to: '/staff/cafeteria/ratings', icon: Award, label: 'Ratings & Reviews' },
+    { to: '/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria Portal' },
+    { to: '/staff/my-attendance', icon: Calendar, label: 'My Attendance' },
+    { to: '/staff/leaves', icon: Calendar, label: 'My Leaves' },
     { to: '/staff/announcements', icon: Bell, label: 'Announcements' },
     { to: '/staff/feedback', icon: MessageSquare, label: 'Feedback' }
   ];
 
   const librarianLinks = [
+    { to: '/staff', icon: Home, label: 'Dashboard' },
     { to: '/staff/library', icon: Book, label: 'Library' },
     { to: '/staff/library/books', icon: Book, label: 'Library Management' },
     { to: '/staff/library/issues', icon: BookOpen, label: 'Issue & Return Management' },
@@ -95,6 +111,7 @@ const Sidebar = () => {
     { to: '/staff/leaves', icon: Calendar, label: 'My Leave Requests' },
     { to: '/staff/profile', icon: User, label: 'My Profile' },
     { to: '/staff/announcements', icon: Bell, label: 'Announcements' },
+    { to: '/staff/notifications', icon: Bell, label: 'Notifications' },
     { to: '/staff/feedback', icon: MessageSquare, label: 'Staff Feedback' }
   ];
 

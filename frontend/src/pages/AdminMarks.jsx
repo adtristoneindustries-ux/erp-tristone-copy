@@ -4,12 +4,13 @@ import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import Table from '../components/Table';
 import StudentDetailsModal from '../components/StudentDetailsModal';
-import { markAPI, userAPI, subjectAPI } from '../services/api';
+import { markAPI, userAPI, subjectAPI, classAPI } from '../services/api';
 
 const AdminMarks = () => {
   const [marks, setMarks] = useState([]);
   const [students, setStudents] = useState([]);
   const [subjects, setSubjects] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [filteredMarks, setFilteredMarks] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterClass, setFilterClass] = useState('');
@@ -20,8 +21,35 @@ const AdminMarks = () => {
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
 
   useEffect(() => {
-    userAPI.getUsers({ role: 'student' }).then(res => setStudents(Array.isArray(res.data) ? res.data : []));
-    subjectAPI.getSubjects().then(res => setSubjects(Array.isArray(res.data) ? res.data : []));
+    // Fetch students
+    userAPI.getUsers({ role: 'student' }).then(res => {
+      const studentData = Array.isArray(res.data) ? res.data : [];
+      console.log('Loaded students:', studentData.length);
+      console.log('Sample student:', studentData[0]);
+      setStudents(studentData);
+    }).catch(err => {
+      console.error('Error loading students:', err);
+      setStudents([]);
+    });
+    
+    // Fetch subjects
+    subjectAPI.getSubjects().then(res => {
+      setSubjects(Array.isArray(res.data) ? res.data : []);
+    }).catch(err => {
+      console.error('Error loading subjects:', err);
+      setSubjects([]);
+    });
+    
+    // Fetch classes
+    classAPI.getClasses().then(res => {
+      const classData = Array.isArray(res.data) ? res.data : [];
+      console.log('Loaded classes:', classData.length);
+      console.log('Sample class:', classData[0]);
+      setClasses(classData);
+    }).catch(err => {
+      console.error('Error loading classes:', err);
+      setClasses([]);
+    });
   }, []);
 
   // Auto-search with debounce effect
@@ -63,13 +91,60 @@ const AdminMarks = () => {
   };
 
   const getUniqueClasses = () => {
+    // Get unique class names from classes collection
+    if (Array.isArray(classes) && classes.length > 0) {
+      const uniqueClasses = [...new Set(classes.map(c => c.className).filter(Boolean))].sort((a, b) => {
+        // Sort numerically if possible, otherwise alphabetically
+        const numA = parseInt(a);
+        const numB = parseInt(b);
+        if (!isNaN(numA) && !isNaN(numB)) {
+          return numA - numB;
+        }
+        return a.localeCompare(b);
+      });
+      console.log('Unique classes from classes collection:', uniqueClasses);
+      return uniqueClasses;
+    }
+    
+    // Fallback to students if classes not available
     if (!Array.isArray(students)) return [];
-    return [...new Set(students.map(s => s.class).filter(Boolean))].sort();
+    const uniqueClasses = [...new Set(students.map(s => s.class).filter(Boolean))].sort((a, b) => {
+      const numA = parseInt(a);
+      const numB = parseInt(b);
+      if (!isNaN(numA) && !isNaN(numB)) {
+        return numA - numB;
+      }
+      return a.localeCompare(b);
+    });
+    console.log('Unique classes from students:', uniqueClasses);
+    return uniqueClasses;
   };
 
   const getUniqueSections = () => {
+    if (!filterClass) return [];
+    
+    // Get sections from classes collection for the selected class
+    if (Array.isArray(classes) && classes.length > 0) {
+      const sectionsFromClasses = classes
+        .filter(c => c.className === filterClass)
+        .map(c => c.section)
+        .filter(Boolean);
+      const uniqueSections = [...new Set(sectionsFromClasses)].sort();
+      console.log(`Sections for class ${filterClass} from classes:`, uniqueSections);
+      if (uniqueSections.length > 0) {
+        return uniqueSections;
+      }
+    }
+    
+    // Fallback to students
     if (!Array.isArray(students)) return [];
-    return [...new Set(students.map(s => s.section).filter(Boolean))].sort();
+    const sectionsFromStudents = students
+      .filter(s => s.class === filterClass)
+      .map(s => s.section)
+      .filter(Boolean);
+    const uniqueSections = [...new Set(sectionsFromStudents)].sort();
+    console.log(`Sections for class ${filterClass} from students:`, uniqueSections);
+    return uniqueSections;
   };
 
   const openStudentDetails = (student) => {
@@ -135,10 +210,13 @@ const AdminMarks = () => {
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               {/* Class Filter */}
               <div>
-                <label className="block text-sm font-medium mb-2">Class *</label>
+                <label className="block text-sm font-medium mb-2">Class * ({getUniqueClasses().length} available)</label>
                 <select
                   value={filterClass}
-                  onChange={(e) => setFilterClass(e.target.value)}
+                  onChange={(e) => {
+                    setFilterClass(e.target.value);
+                    setFilterSection(''); // Reset section when class changes
+                  }}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select Class</option>
@@ -150,7 +228,9 @@ const AdminMarks = () => {
 
               {/* Section Filter */}
               <div>
-                <label className="block text-sm font-medium mb-2">Section</label>
+                <label className="block text-sm font-medium mb-2">
+                  Section {filterClass && `(${getUniqueSections().length} available)`}
+                </label>
                 <select
                   value={filterSection}
                   onChange={(e) => setFilterSection(e.target.value)}
@@ -162,6 +242,9 @@ const AdminMarks = () => {
                     <option key={section} value={section}>Section {section}</option>
                   ))}
                 </select>
+                {!filterClass && (
+                  <p className="text-xs text-gray-500 mt-1">Select a class first</p>
+                )}
               </div>
 
               {/* Subject Filter */}
