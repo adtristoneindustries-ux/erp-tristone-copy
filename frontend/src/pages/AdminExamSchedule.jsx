@@ -65,9 +65,9 @@ const AdminExamSchedule = () => {
       });
 
       setExamSchedules(schedules);
-      setClasses(classesRes.data);
-      setSubjects(subjectsRes.data);
-      setStaff(staffRes.data);
+      setClasses(Array.isArray(classesRes.data) ? classesRes.data : classesRes.data?.classes || classesRes.data?.data || []);
+      setSubjects(Array.isArray(subjectsRes.data) ? subjectsRes.data : subjectsRes.data?.subjects || subjectsRes.data?.data || []);
+      setStaff(Array.isArray(staffRes.data) ? staffRes.data : staffRes.data?.users || staffRes.data?.data || []);
     } catch (error) {
       console.error('Fetch error:', error);
       toast.error('Failed to fetch data');
@@ -232,15 +232,6 @@ const AdminExamSchedule = () => {
     }
   };
 
-  const getClassesByGrade = () => {
-    const grades = ['10', '11', '12'];
-    return grades.map(grade => ({
-      _id: grade,
-      className: grade,
-      displayName: `Class ${grade} (All Sections)`
-    }));
-  };
-
   if (loading) {
     return (
       <Layout>
@@ -375,8 +366,8 @@ const AdminExamSchedule = () => {
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select Class</option>
-                    {getClassesByGrade().map(cls => (
-                      <option key={cls._id} value={cls.className}>{cls.displayName}</option>
+                    {classes.map(cls => (
+                      <option key={cls._id} value={cls._id}>Class {cls.className} - {cls.section}</option>
                     ))}
                   </select>
                 </div>

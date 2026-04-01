@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { DollarSign, Award, Users, TrendingUp, Plus, Download, Search, Eye, X } from 'lucide-react';
+import { DollarSign, Award, Users, TrendingUp, Plus, Download, Search, Eye, X, CreditCard } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import api from '../services/api';
@@ -10,6 +10,9 @@ const AdminFinanceManagement = () => {
   const [students, setStudents] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showFeeStructureModal, setShowFeeStructureModal] = useState(false);
+  const [showOfflinePaymentModal, setShowOfflinePaymentModal] = useState(false);
+  const [selectedFinance, setSelectedFinance] = useState(null);
+  const [offlinePaymentForm, setOfflinePaymentForm] = useState({ amount: '', description: '' });
   const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({ studentId: '', academicYear: '2024-2025', totalFee: '' });
   const [viewData, setViewData] = useState(null);
@@ -17,6 +20,7 @@ const AdminFinanceManagement = () => {
   const [feeStructures, setFeeStructures] = useState([]);
   const [showEditStructureModal, setShowEditStructureModal] = useState(false);
   const [editingStructure, setEditingStructure] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const [feeStructureForm, setFeeStructureForm] = useState({
     className: '',
     academicYear: '2024-2025',
@@ -134,6 +138,41 @@ const AdminFinanceManagement = () => {
     setShowEditStructureModal(true);
   };
 
+  const handleDeleteStructure = async (structureId) => {
+    try {
+      await api.delete(`/finance/fee-structure/${structureId}`);
+      alert('✅ Fee structure deleted successfully!');
+      setShowDeleteConfirm(null);
+      fetchData();
+    } catch (error) {
+      alert('❌ Error: ' + error.response?.data?.message);
+    }
+  };
+
+  const handleOfflinePayment = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post('/finance/offline-payment', {
+        financeId: selectedFinance._id,
+        amount: parseFloat(offlinePaymentForm.amount),
+        description: offlinePaymentForm.description || 'Offline Payment'
+      });
+      alert('✅ Offline payment recorded successfully!');
+      setShowOfflinePaymentModal(false);
+      setSelectedFinance(null);
+      setOfflinePaymentForm({ amount: '', description: '' });
+      fetchData();
+    } catch (error) {
+      alert('❌ Error: ' + error.response?.data?.message);
+    }
+  };
+
+  const openOfflinePaymentModal = (finance) => {
+    setSelectedFinance(finance);
+    setOfflinePaymentForm({ amount: finance.pendingAmount.toString(), description: '' });
+    setShowOfflinePaymentModal(true);
+  };
+
   const exportData = () => {
     const csv = [
       ['Student Name', 'Roll Number', 'Class', 'Total Fee', 'Scholarship Discount', 'Final Payable', 'Paid', 'Pending'],
@@ -228,12 +267,20 @@ const AdminFinanceManagement = () => {
                         <h3 className="font-bold text-lg">Class {structure.class}</h3>
                         <p className="text-sm text-gray-600">{structure.academicYear}</p>
                       </div>
-                      <button
-                        onClick={() => handleEditStructure(structure)}
-                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                      >
-                        Edit
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEditStructure(structure)}
+                          className="text-blue-600 hover:text-blue-800 text-sm font-medium px-2 py-1 rounded hover:bg-blue-50"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => setShowDeleteConfirm(structure)}
+                          className="text-red-600 hover:text-red-800 text-sm font-medium px-2 py-1 rounded hover:bg-red-50"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       {structure.components.map((comp, idx) => (
@@ -279,7 +326,8 @@ const AdminFinanceManagement = () => {
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Payable</th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Paid</th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Pending</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Action</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -311,9 +359,37 @@ const AdminFinanceManagement = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <button onClick={() => handleView(f)} className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">
-                          <Eye size={16} /> View
-                        </button>
+                        <div className="flex flex-col gap-1">
+                          <span className={`px-2 py-1 text-xs font-semibold rounded-full text-center ${
+                            f.pendingAmount === 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {f.pendingAmount === 0 ? 'Fully Paid' : 'Pending'}
+                          </span>
+                          {f.transactions.length > 0 && (
+                            <span className={`px-2 py-1 text-xs rounded-full text-center ${
+                              f.transactions[f.transactions.length - 1].paymentMethod === 'Online' 
+                                ? 'bg-blue-100 text-blue-800' 
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {f.transactions[f.transactions.length - 1].paymentMethod || 'N/A'}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2">
+                          <button onClick={() => handleView(f)} className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">
+                            <Eye size={16} /> View
+                          </button>
+                          {f.pendingAmount > 0 && (
+                            <button 
+                              onClick={() => openOfflinePaymentModal(f)} 
+                              className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700"
+                            >
+                              <CreditCard size={16} /> Pay Offline
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -634,6 +710,88 @@ const AdminFinanceManagement = () => {
 
             <div className="sticky bottom-0 bg-gray-50 border-t p-4">
               <button onClick={() => setViewData(null)} className="w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showOfflinePaymentModal && selectedFinance && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl">
+            <h2 className="text-xl font-bold mb-4">Record Offline Payment</h2>
+            <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+              <p className="font-semibold">{selectedFinance.student?.name}</p>
+              <p className="text-sm text-gray-600">{selectedFinance.student?.rollNumber} • {selectedFinance.student?.class}</p>
+              <p className="text-sm text-gray-600">Pending: ₹{selectedFinance.pendingAmount.toLocaleString()}</p>
+            </div>
+            <form onSubmit={handleOfflinePayment} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Payment Amount (₹) *</label>
+                <input 
+                  type="number" 
+                  value={offlinePaymentForm.amount} 
+                  onChange={(e) => setOfflinePaymentForm({ ...offlinePaymentForm, amount: e.target.value })} 
+                  className="w-full px-3 py-2 border rounded-lg" 
+                  required 
+                  min="1"
+                  max={selectedFinance.pendingAmount}
+                  step="0.01"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <input 
+                  type="text" 
+                  value={offlinePaymentForm.description} 
+                  onChange={(e) => setOfflinePaymentForm({ ...offlinePaymentForm, description: e.target.value })} 
+                  className="w-full px-3 py-2 border rounded-lg" 
+                  placeholder="Cash payment, Bank transfer, etc."
+                />
+              </div>
+              <div className="flex gap-3">
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    setShowOfflinePaymentModal(false);
+                    setSelectedFinance(null);
+                    setOfflinePaymentForm({ amount: '', description: '' });
+                  }} 
+                  className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                  Record Payment
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl">
+            <h2 className="text-xl font-bold mb-4 text-red-600">Delete Fee Structure</h2>
+            <p className="text-gray-700 mb-6">
+              Are you sure you want to delete the fee structure for <strong>Class {showDeleteConfirm.class}</strong> ({showDeleteConfirm.academicYear})?
+            </p>
+            <p className="text-sm text-red-600 mb-6">
+              ⚠️ This will also remove all associated finance records for students in this class.
+            </p>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setShowDeleteConfirm(null)}
+                className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => handleDeleteStructure(showDeleteConfirm._id)}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>

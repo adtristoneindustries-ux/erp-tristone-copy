@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Briefcase, Users, Download, Search, Plus, Edit2, Trash2 } from 'lucide-react';
 import api from '../services/api';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { AuthContext } from '../context/AuthContext';
 
 export default function PlacementOfficerDashboard() {
+  const { user } = useContext(AuthContext);
   const [drives, setDrives] = useState([]);
   const [selectedDrive, setSelectedDrive] = useState(null);
   const [applications, setApplications] = useState([]);
@@ -15,6 +17,30 @@ export default function PlacementOfficerDashboard() {
   const [driveFormData, setDriveFormData] = useState({});
   const [showDeptDropdown, setShowDeptDropdown] = useState(false);
   const [showYearDropdown, setShowYearDropdown] = useState(false);
+
+  // Check if user has placement access
+  if (!user?.hasPlacementAccess) {
+    return (
+      <div className="flex min-h-screen bg-gray-50">
+        <Sidebar />
+        <div className="flex-1 lg:ml-64 transition-all duration-300">
+          <Navbar />
+          <div className="p-6">
+            <div className="bg-white rounded-lg shadow p-12 text-center">
+              <Briefcase className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">No Access to Placement Module</h2>
+              <p className="text-gray-600 mb-4">
+                You don't have access to the placement module. Please contact the administrator to get access.
+              </p>
+              <p className="text-sm text-gray-500">
+                Access is granted when you are assigned to a company or placement drive by the admin.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     fetchDrives();
@@ -225,7 +251,39 @@ export default function PlacementOfficerDashboard() {
             </div>
           </div>
 
+          {/* Application Statistics */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-blue-50 rounded-lg p-4">
+              <p className="text-sm text-gray-600">Total Applied</p>
+              <p className="text-2xl font-bold text-blue-600">{applications.length}</p>
+            </div>
+            <div className="bg-green-50 rounded-lg p-4">
+              <p className="text-sm text-gray-600">Shortlisted</p>
+              <p className="text-2xl font-bold text-green-600">
+                {applications.filter(a => a.current_status === 'Shortlisted').length}
+              </p>
+            </div>
+            <div className="bg-purple-50 rounded-lg p-4">
+              <p className="text-sm text-gray-600">Selected</p>
+              <p className="text-2xl font-bold text-purple-600">
+                {applications.filter(a => a.current_status === 'Selected').length}
+              </p>
+            </div>
+            <div className="bg-red-50 rounded-lg p-4">
+              <p className="text-sm text-gray-600">Rejected</p>
+              <p className="text-2xl font-bold text-red-600">
+                {applications.filter(a => a.current_status === 'Rejected').length}
+              </p>
+            </div>
+          </div>
+
           <div className="overflow-x-auto">
+            {filteredApplications.length === 0 ? (
+              <div className="text-center py-12">
+                <Users className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                <p className="text-gray-500">No applications yet for this drive</p>
+              </div>
+            ) : (
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
@@ -327,6 +385,7 @@ export default function PlacementOfficerDashboard() {
                 ))}
               </tbody>
             </table>
+            )}
           </div>
         </div>
       )}

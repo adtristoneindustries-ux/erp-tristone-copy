@@ -110,6 +110,13 @@ const userSchema = new mongoose.Schema({
   hostelAdmissionDate: Date,
   hostelFee: String,
   parentConsentForm: Boolean,
+  hostelInfo: {
+    hostelName: String,
+    roomNumber: String,
+    roomType: String,
+    wardenName: String,
+    wardenContact: String
+  },
   
   // Transport Details
   transportRequired: Boolean,
@@ -122,6 +129,14 @@ const userSchema = new mongoose.Schema({
   busRoute: String,
   boardingPoint: String,
   dropPoint: String,
+  transportInfo: {
+    routeNumber: String,
+    busNumber: String,
+    pickupPoint: String,
+    pickupTime: String,
+    driverName: String,
+    driverContact: String
+  },
   
   // Bank Details
   bankName: String,
