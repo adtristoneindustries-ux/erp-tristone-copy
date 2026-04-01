@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck , DollarSign, AlertTriangle, Settings, MessageCircle, Briefcase, Book, BarChart2, Server, Upload } from 'lucide-react';
+import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck , DollarSign, AlertTriangle, Settings, MessageCircle, Briefcase, Book, BarChart2, Server, Upload, GraduationCap } from 'lucide-react';
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { SettingsContext } from '../context/SettingsContext';
@@ -42,6 +42,10 @@ const Sidebar = () => {
     { to: '/admin/announcements', icon: Bell, label: 'Announcements' },
     { to: '/admin/feedback', icon: MessageSquare, label: 'Feedback' },
     { to: '/admin/finance', icon: DollarSign, label: 'Finance Management' },
+    { to: '/admin/fee-structure', icon: DollarSign, label: 'Fee Structure Builder' },
+    { to: '/admin/payroll', icon: DollarSign, label: 'Payroll Management' },
+    { to: '/admin/academic-calendar', icon: Calendar, label: 'Academic Calendar' },
+    { to: '/admin/admissions', icon: GraduationCap, label: 'Admissions' },
     { to: '/admin/fee-scholarships', icon: DollarSign, label: 'Fee & Scholarships' },
     { to: '/admin/scholarships', icon: Award, label: 'Scholarships' },
     { to: '/admin/discipline', icon: AlertTriangle, label: 'Discipline Oversight' },

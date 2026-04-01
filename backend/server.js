@@ -77,6 +77,10 @@ app.use('/api/courses', require('./routes/courseRoutes'));
 app.use('/api/library', require('./routes/libraryRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/badges', require('./routes/badgeRoutes'));
+app.use('/api/fee-structures', require('./routes/feeStructureRoutes'));
+app.use('/api/payroll', require('./routes/payrollRoutes'));
+app.use('/api/academic-calendar', require('./routes/academicCalendarRoutes'));
+app.use('/api/admissions', require('./routes/admissionRoutes'));
 
 // Health check endpoint
 app.get('/', (req, res) => {

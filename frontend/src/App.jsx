@@ -110,6 +110,10 @@ import StudentNotifications from "./pages/StudentNotifications";
 import AdminReports from "./pages/AdminReports";
 import AdminSystemHealth from "./pages/AdminSystemHealth";
 import AdminBulkOperations from "./pages/AdminBulkOperations";
+import AdminFeeStructure from "./pages/AdminFeeStructure";
+import AdminPayroll from "./pages/AdminPayroll";
+import AdminAcademicCalendar from "./pages/AdminAcademicCalendar";
+import AdminAdmissions from "./pages/AdminAdmissions";
 import NotFound from "./pages/NotFound";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -468,6 +472,38 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminReports />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/fee-structure"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminFeeStructure />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/payroll"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminPayroll />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/academic-calendar"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminAcademicCalendar />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/admissions"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminAdmissions />
             </ProtectedRoute>
           }
         />
