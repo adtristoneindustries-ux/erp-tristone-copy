@@ -9,12 +9,15 @@ const {
   deleteBook,
   getCategories,
   createCategory,
+  updateCategory,
+  deleteCategory,
   issueBook,
   returnBook,
   renewBook,
   getIssues,
   collectFine,
   createReservation,
+  cancelReservation,
   getReservations,
   updateReservation,
   getLibraryStats,
@@ -35,13 +38,16 @@ router.post('/books', protect, authorize('librarian'), createBook);
 router.put('/books/:id', protect, authorize('librarian'), updateBook);
 router.delete('/books/:id', protect, authorize('librarian'), deleteBook);
 router.post('/categories', protect, authorize('librarian'), createCategory);
+router.put('/categories/:id', protect, authorize('librarian'), updateCategory);
+router.delete('/categories/:id', protect, authorize('librarian'), deleteCategory);
 router.post('/issues', protect, authorize('librarian'), issueBook);
 router.put('/issues/:id/return', protect, authorize('librarian'), returnBook);
 router.put('/issues/:id/collect-fine', protect, authorize('librarian'), collectFine);
 router.put('/reservations/:id', protect, authorize('librarian'), updateReservation);
 
 // Student routes
-router.post('/reservations', protect, authorize('student', 'staff'), createReservation);
+router.post('/reservations', protect, authorize('student', 'staff', 'admin'), createReservation);
+router.put('/reservations/:id/cancel', protect, cancelReservation);
 router.put('/issues/:id/renew', protect, authorize('student'), renewBook);
 
 module.exports = router;

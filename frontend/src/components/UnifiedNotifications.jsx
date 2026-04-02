@@ -139,7 +139,15 @@ const UnifiedNotifications = () => {
                     key={notif._id}
                     onClick={() => {
                       if (!notif.read) markAsRead(notif._id);
-                      if (notif.link) navigate(notif.link);
+                      if (notif.link) {
+                        // Handle librarian role - convert librarian routes to staff routes
+                        let targetLink = notif.link;
+                        if (user?.role === 'librarian') {
+                          // Replace /librarian/ with /staff/ in the link
+                          targetLink = notif.link.replace('/librarian/', '/staff/');
+                        }
+                        navigate(targetLink);
+                      }
                       setShowDropdown(false);
                     }}
                     className={`p-4 border-b hover:bg-gray-50 cursor-pointer transition-colors active:bg-gray-100 ${
@@ -177,7 +185,9 @@ const UnifiedNotifications = () => {
                 <button
                   onClick={() => {
                     setShowDropdown(false);
-                    navigate(`/${user?.role}/notifications`);
+                    // Handle librarian role - redirect to staff notifications
+                    const role = user?.role === 'librarian' ? 'staff' : user?.role;
+                    navigate(`/${role}/notifications`);
                   }}
                   className="w-full text-center text-blue-600 hover:text-blue-800 text-sm font-medium py-2 hover:bg-blue-50 rounded transition-colors"
                 >

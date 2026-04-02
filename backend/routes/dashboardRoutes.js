@@ -1,5 +1,5 @@
 const express = require('express');
-const { getAdminStats, getStudentStats, getStaffStats, getSystemHealth, getCanteenStats } = require('../controllers/dashboardController');
+const { getAdminStats, getStudentStats, getStaffStats, getSystemHealth, getCanteenStats, getLibraryStats } = require('../controllers/dashboardController');
 const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
@@ -11,5 +11,6 @@ router.get('/student', authorize('student'), getStudentStats);
 router.get('/staff', authorize('staff'), getStaffStats);
 router.get('/system-health', authorize('admin'), getSystemHealth);
 router.get('/canteen', authorize('staff', 'canteen'), getCanteenStats);
+router.get('/library', authorize('staff', 'librarian'), getLibraryStats);
 
 module.exports = router;

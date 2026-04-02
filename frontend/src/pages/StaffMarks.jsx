@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Plus, Edit, Users, Search, Filter } from 'lucide-react';
 import Layout from '../components/Layout';
 import Table from '../components/Table';
 import Modal from '../components/Modal';
 import StudentDetailsModal from '../components/StudentDetailsModal';
-import { markAPI, userAPI, subjectAPI } from '../services/api';
+import { markAPI, userAPI, subjectAPI, classAPI } from '../services/api';
+import { AuthContext } from '../context/AuthContext';
 
 const StaffMarks = () => {
+  const { user } = useContext(AuthContext);
   const [marks, setMarks] = useState([]);
   const [students, setStudents] = useState([]);
   const [subjects, setSubjects] = useState([]);
@@ -27,12 +29,23 @@ const StaffMarks = () => {
 
   useEffect(() => {
     fetchMarks();
-    userAPI.getUsers({ role: 'student' }).then(res => {
+    fetchMyStudents();
+    subjectAPI.getSubjects().then(res => setSubjects(res.data));
+  }, [user]);
+
+  const fetchMyStudents = async () => {
+    try {
+      const params = { role: 'student' };
+      if (user?._id) {
+        params.staffId = user._id;
+      }
+      const res = await userAPI.getUsers(params);
       const studentData = res.data.data || res.data || [];
       setStudents(Array.isArray(studentData) ? studentData : []);
-    });
-    subjectAPI.getSubjects().then(res => setSubjects(res.data));
-  }, []);
+    } catch (error) {
+      console.error('Error fetching students:', error);
+    }
+  };
 
   useEffect(() => {
     if (selectedClass && selectedSection) {
@@ -103,7 +116,16 @@ const StaffMarks = () => {
 
   const getUniqueClasses = () => {
     if (!Array.isArray(students)) return [];
-    return [...new Set(students.map(s => s.class).filter(Boolean))].sort();
+    const uniqueClasses = [...new Set(students.map(s => s.class).filter(Boolean))];
+    // Sort numerically instead of alphabetically
+    return uniqueClasses.sort((a, b) => {
+      const numA = parseInt(a);
+      const numB = parseInt(b);
+      if (!isNaN(numA) && !isNaN(numB)) {
+        return numA - numB;
+      }
+      return a.localeCompare(b);
+    });
   };
 
   const getUniqueSections = () => {

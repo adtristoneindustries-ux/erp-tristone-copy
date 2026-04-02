@@ -36,16 +36,19 @@ const AdminClasses = () => {
   const fetchClasses = async () => {
     try {
       const res = await classAPI.getClasses();
-      setClasses(res.data);
+      const classData = res.data?.data || res.data || [];
+      setClasses(Array.isArray(classData) ? classData : []);
     } catch (error) {
       console.error('Error fetching classes:', error);
+      setClasses([]);
     }
   };
 
   const fetchStudents = async () => {
     try {
       const res = await userAPI.getUsers({ role: 'student' });
-      setStudents(Array.isArray(res.data) ? res.data : []);
+      const studentData = res.data?.data || res.data || [];
+      setStudents(Array.isArray(studentData) ? studentData : []);
     } catch (error) {
       console.error('Error fetching students:', error);
       setStudents([]);
@@ -55,7 +58,9 @@ const AdminClasses = () => {
   const fetchTeachers = async () => {
     try {
       const res = await userAPI.getUsers({ role: 'staff' });
-      setTeachers(Array.isArray(res.data) ? res.data : []);
+      const teacherData = res.data?.data || res.data || [];
+      setTeachers(Array.isArray(teacherData) ? teacherData : []);
+      console.log('Teachers loaded:', teacherData.length);
     } catch (error) {
       console.error('Error fetching teachers:', error);
       setTeachers([]);
@@ -64,15 +69,19 @@ const AdminClasses = () => {
 
   const getStudentCount = (className, section) => {
     if (!Array.isArray(students)) return 0;
-    return students.filter(student => 
-      student.class === className && student.section === section
-    ).length;
+    return students.filter(student => {
+      const studentClass = student.class || student.className;
+      const studentSection = student.section;
+      return studentClass === className && studentSection === section;
+    }).length;
   };
 
   const viewClassStudents = (classItem) => {
-    const classStudents = Array.isArray(students) ? students.filter(student => 
-      student.class === classItem.className && student.section === classItem.section
-    ) : [];
+    const classStudents = Array.isArray(students) ? students.filter(student => {
+      const studentClass = student.class || student.className;
+      const studentSection = student.section;
+      return studentClass === classItem.className && studentSection === classItem.section;
+    }) : [];
     setSelectedClassStudents(classStudents);
     setViewingClass(classItem);
     setIsStudentModalOpen(true);
@@ -379,15 +388,25 @@ const AdminClasses = () => {
                 </div>
                 <p className="text-xs text-gray-500 mt-1">Selected: {formData.sections.join(', ') || 'None'}</p>
               </div>
-              <select
-                value={formData.classTeacher}
-                onChange={(e) => setFormData({ ...formData, classTeacher: e.target.value })}
-                className="w-full mb-3 px-4 py-3 min-h-[48px] text-base border rounded-lg focus:ring-2 focus:ring-blue-500"
-                required
-              >
-                <option value="">Select Class Teacher *</option>
-                {teachers.map(t => <option key={t._id} value={t._id}>{t.name}</option>)}
-              </select>
+              <div className="mb-3">
+                <label className="block text-sm font-medium mb-2">Select Class Teacher *</label>
+                <select
+                  value={formData.classTeacher}
+                  onChange={(e) => setFormData({ ...formData, classTeacher: e.target.value })}
+                  className="w-full px-4 py-3 min-h-[48px] text-base border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Select Class Teacher</option>
+                  {Array.isArray(teachers) && teachers.length > 0 ? (
+                    teachers.map(t => <option key={t._id} value={t._id}>{t.name}</option>)
+                  ) : (
+                    <option value="" disabled>No teachers available</option>
+                  )}
+                </select>
+                {Array.isArray(teachers) && teachers.length === 0 && (
+                  <p className="text-xs text-red-500 mt-1">No staff members found. Please add staff first.</p>
+                )}
+              </div>
 
               <button type="submit" className="w-full bg-blue-500 text-white py-3 min-h-[48px] text-base font-medium rounded-lg hover:bg-blue-600 active:bg-blue-700 transition-colors">
                 {editingClass ? 'Update' : 'Create'}
