@@ -22,8 +22,9 @@ import {
   Trash2,
   UtensilsCrossed,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import api from "../services/api";
 import {
   timetableAPI,
   staffAttendanceAPI,
@@ -38,6 +39,9 @@ import { toast } from 'react-hot-toast';
 
 const StaffDashboard = () => {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [isCanteenStaff, setIsCanteenStaff] = useState(false);
+  const [checkingStaff, setCheckingStaff] = useState(true);
 
   // State for dashboard data
   const [todayClasses, setTodayClasses] = useState(0);
@@ -56,8 +60,24 @@ const StaffDashboard = () => {
 
 
   useEffect(() => {
-    fetchDashboardData();
+    checkCanteenStaff();
   }, []);
+
+  const checkCanteenStaff = async () => {
+    if (user?.role === 'staff') {
+      try {
+        const res = await api.get('/cafeteria/check-staff');
+        if (res.data.isCanteenStaff) {
+          navigate('/staff/cafeteria');
+          return;
+        }
+      } catch (error) {
+        console.error('Error checking canteen staff:', error);
+      }
+    }
+    setCheckingStaff(false);
+    fetchDashboardData();
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -264,6 +284,17 @@ const StaffDashboard = () => {
       color: "green",
     },
   ];
+
+  if (checkingStaff) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-50">

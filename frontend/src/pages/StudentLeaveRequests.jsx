@@ -259,16 +259,15 @@ const StudentLeaveRequests = () => {
                   </div>
                 </div>
                 
-                {request.staffReason && (
+                {(request.status === 'approved' || request.status === 'rejected') && (
                   <div className={`rounded-xl p-4 border-l-4 ${
-                    request.status === 'approved' ? 'bg-green-50 border-green-400' :
-                    request.status === 'rejected' ? 'bg-red-50 border-red-400' : 'bg-blue-50 border-blue-400'
+                    request.status === 'approved' ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400'
                   }`}>
                     <div className="flex items-start gap-2">
                       <User size={16} className="text-gray-500 mt-1 flex-shrink-0" />
                       <div>
                         <p className="text-sm font-semibold text-gray-700 mb-1">Staff Response:</p>
-                        <p className="text-gray-800 mb-2">{request.staffReason}</p>
+                        <p className="text-gray-800 mb-2">{request.staffReason || 'No message provided'}</p>
                         {request.reviewedBy && (
                           <p className="text-xs text-gray-500">
                             Reviewed by: <span className="font-medium">{request.reviewedBy.name}</span>

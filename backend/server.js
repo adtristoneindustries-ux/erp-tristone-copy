@@ -77,6 +77,8 @@ app.use('/api/courses', require('./routes/courseRoutes'));
 app.use('/api/library', require('./routes/libraryRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/badges', require('./routes/badgeRoutes'));
+app.use('/api/events', require('./routes/eventRoutes'));
+app.use('/api/stem', require('./routes/stemRoutes'));
 app.use('/api/fee-structures', require('./routes/feeStructureRoutes'));
 app.use('/api/payroll', require('./routes/payrollRoutes'));
 app.use('/api/academic-calendar', require('./routes/academicCalendarRoutes'));

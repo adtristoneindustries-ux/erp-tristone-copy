@@ -63,7 +63,7 @@ exports.createUser = async (req, res) => {
 
 exports.getUsers = async (req, res) => {
   try {
-    const { role, search, class: className, section } = req.query;
+    const { role, search, class: className, section, staffId } = req.query;
     let query = {};
 
     if (role) query.role = role;
@@ -75,6 +75,27 @@ exports.getUsers = async (req, res) => {
         { email: { $regex: search, $options: "i" } },
         { rollNumber: { $regex: search, $options: "i" } },
       ];
+    }
+
+    // If staffId is provided, filter students by classes where this staff is class teacher
+    if (staffId && role === 'student') {
+      const Class = require('../models/Class');
+      const assignedClasses = await Class.find({ 
+        classTeacher: staffId,
+        isActive: true 
+      }).select('className section');
+      
+      if (assignedClasses.length > 0) {
+        const classFilters = assignedClasses.map(cls => ({
+          class: cls.className,
+          section: cls.section
+        }));
+        query.$and = query.$and || [];
+        query.$and.push({ $or: classFilters });
+      } else {
+        // Staff has no assigned classes, return empty array
+        return res.json({ success: true, data: [] });
+      }
     }
 
     const users = await User.find(query)

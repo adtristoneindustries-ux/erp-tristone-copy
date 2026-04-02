@@ -5,6 +5,7 @@ const StaffAttendance = require('../models/StaffAttendance');
 const LeaveRequest = require('../models/LeaveRequest');
 const Timetable = require('../models/Timetable');
 const Fee = require('../models/Fee');
+const Class = require('../models/Class');
 const os = require('os');
 const Book = require('../models/Book');
 const BookIssue = require('../models/BookIssue');
@@ -237,11 +238,30 @@ exports.getStaffStats = async (req, res) => {
       date: today 
     });
     
-    // Get pending leave requests to approve
-    const pendingLeaves = await LeaveRequest.countDocuments({ 
-      approver: staffId,
-      status: 'pending' 
-    });
+    // Get pending leave requests from assigned classes ONLY
+    const assignedClasses = await Class.find({ 
+      classTeacher: staffId,
+      isActive: true 
+    }).select('className section');
+    
+    let pendingLeaves = 0;
+    if (assignedClasses.length > 0) {
+      const classFilters = assignedClasses.map(cls => ({
+        class: cls.className,
+        section: cls.section
+      }));
+      
+      const students = await User.find({ 
+        role: 'student',
+        $or: classFilters
+      }).select('_id');
+      
+      const studentIds = students.map(user => user._id);
+      pendingLeaves = await LeaveRequest.countDocuments({ 
+        user: { $in: studentIds },
+        status: 'pending' 
+      });
+    }
     
     // Materials feature removed
     const materialsUploaded = 0;

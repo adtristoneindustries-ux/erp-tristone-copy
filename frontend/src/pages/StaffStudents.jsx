@@ -20,7 +20,7 @@ const StaffStudents = () => {
   useEffect(() => {
     fetchStudents();
     fetchClasses();
-  }, [search]);
+  }, [search, user]);
 
   useEffect(() => {
     applyFilters();
@@ -29,15 +29,26 @@ const StaffStudents = () => {
   const fetchClasses = async () => {
     try {
       const res = await classAPI.getClasses();
-      setClasses(res.data);
+      const classData = res.data?.data || res.data || [];
+      // Filter classes to show only those assigned to this staff
+      const myClasses = Array.isArray(classData) 
+        ? classData.filter(cls => cls.classTeacher?._id === user?._id)
+        : [];
+      setClasses(myClasses);
     } catch (error) {
       console.error('Error fetching classes:', error);
+      setClasses([]);
     }
   };
 
   const fetchStudents = async () => {
     try {
-      const res = await userAPI.getUsers({ role: 'student', search });
+      const params = { role: 'student', search };
+      // Add staffId to filter students by assigned classes
+      if (user?._id) {
+        params.staffId = user._id;
+      }
+      const res = await userAPI.getUsers(params);
       const studentData = res.data.data || res.data || [];
       setStudents(Array.isArray(studentData) ? studentData : []);
       setFilteredStudents(Array.isArray(studentData) ? studentData : []);
@@ -57,12 +68,32 @@ const StaffStudents = () => {
   };
 
   const getUniqueClasses = () => {
-    if (!Array.isArray(students)) return [];
-    return [...new Set(students.map(s => s.class).filter(Boolean))].sort();
+    // Get classes from the classes state (assigned classes) instead of students
+    if (!Array.isArray(classes)) return [];
+    const uniqueClasses = [...new Set(classes.map(cls => cls.className).filter(Boolean))];
+    // Sort numerically instead of alphabetically
+    return uniqueClasses.sort((a, b) => {
+      const numA = parseInt(a);
+      const numB = parseInt(b);
+      if (!isNaN(numA) && !isNaN(numB)) {
+        return numA - numB;
+      }
+      return a.localeCompare(b);
+    });
   };
+  
   const getUniqueSections = () => {
-    if (!Array.isArray(students)) return [];
-    return [...new Set(students.map(s => s.section).filter(Boolean))].sort();
+    // Get sections from the classes state based on selected class
+    if (!Array.isArray(classes)) return [];
+    if (filterClass) {
+      // If a class is selected, show only sections for that class
+      return [...new Set(classes
+        .filter(cls => cls.className === filterClass)
+        .map(cls => cls.section)
+        .filter(Boolean))].sort();
+    }
+    // If no class selected, show all sections from assigned classes
+    return [...new Set(classes.map(cls => cls.section).filter(Boolean))].sort();
   };
 
   const openStudentDetails = (student) => {

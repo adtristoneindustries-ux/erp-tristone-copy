@@ -94,7 +94,7 @@ const StudentExamSchedule = () => {
       const data = schedule.exams.map(exam => [
         new Date(exam.date).toLocaleDateString('en-IN'),
         exam.subject?.name || 'N/A',
-        `${exam.startTime} - ${exam.endTime}`,
+        `${formatTime(exam.startTime)} - ${formatTime(exam.endTime)}`,
         exam.hall
       ]);
       
@@ -156,6 +156,14 @@ const StudentExamSchedule = () => {
       </Layout>
     );
   }
+
+  const formatTime = (time) => {
+    if (!time) return 'N/A';
+    const [h, m] = time.split(':').map(Number);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const hour = h % 12 || 12;
+    return `${hour}:${String(m).padStart(2, '0')} ${ampm}`;
+  };
 
   const upcomingSchedule = examSchedules.find(s => new Date(s.endDate) >= new Date());
 
@@ -227,7 +235,7 @@ const StudentExamSchedule = () => {
                         })}
                       </td>
                       <td className="border border-gray-300 px-4 py-3 font-medium">{exam.subject?.name || 'N/A'}</td>
-                      <td className="border border-gray-300 px-4 py-3">{exam.startTime} - {exam.endTime}</td>
+                      <td className="border border-gray-300 px-4 py-3">{formatTime(exam.startTime)} - {formatTime(exam.endTime)}</td>
                       <td className="border border-gray-300 px-4 py-3">{exam.duration} hrs</td>
                       <td className="border border-gray-300 px-4 py-3">{exam.hall}</td>
                     </tr>

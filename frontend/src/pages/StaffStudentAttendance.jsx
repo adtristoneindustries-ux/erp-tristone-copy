@@ -1,29 +1,58 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Calendar, Users, Check, X } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
-import { attendanceAPI, userAPI } from '../services/api';
+import { attendanceAPI, userAPI, classAPI } from '../services/api';
+import { AuthContext } from '../context/AuthContext';
 
 const StaffStudentAttendance = () => {
+  const { user } = useContext(AuthContext);
   const [students, setStudents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [selectedClass, setSelectedClass] = useState('10A');
+  const [selectedClass, setSelectedClass] = useState('');
   const [attendance, setAttendance] = useState({});
   const [attendanceRecords, setAttendanceRecords] = useState({});
   const [loading, setLoading] = useState(false);
-
-  const classes = ['10A', '10B'];
+  const [myClasses, setMyClasses] = useState([]);
 
   useEffect(() => {
-    fetchStudents();
-    fetchAttendance();
+    fetchMyClasses();
+  }, [user]);
+
+  useEffect(() => {
+    if (selectedClass) {
+      fetchStudents();
+      fetchAttendance();
+    }
   }, [selectedClass, selectedDate]);
+
+  const fetchMyClasses = async () => {
+    try {
+      const res = await classAPI.getClasses();
+      const classData = res.data?.data || res.data || [];
+      const assignedClasses = Array.isArray(classData)
+        ? classData.filter(cls => cls.classTeacher?._id === user?._id)
+        : [];
+      setMyClasses(assignedClasses);
+      if (assignedClasses.length > 0 && !selectedClass) {
+        setSelectedClass(`${assignedClasses[0].className}${assignedClasses[0].section}`);
+      }
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+    }
+  };
 
   const fetchStudents = async () => {
     try {
-      const res = await userAPI.getUsers({ role: 'student' });
-      const [classNum, section] = selectedClass.split('');
-      const classStudents = res.data.filter(student => 
+      const params = { role: 'student' };
+      if (user?._id) {
+        params.staffId = user._id;
+      }
+      const res = await userAPI.getUsers(params);
+      const studentData = res.data?.data || res.data || [];
+      const [classNum, ...sectionArr] = selectedClass.split('');
+      const section = sectionArr.join('');
+      const classStudents = studentData.filter(student => 
         student.class === classNum && student.section === section
       );
       setStudents(classStudents);
@@ -118,9 +147,15 @@ const StaffStudentAttendance = () => {
                 onChange={(e) => setSelectedClass(e.target.value)}
                 className="px-4 py-2 border rounded-lg"
               >
-                {classes.map(cls => (
-                  <option key={cls} value={cls}>Class {cls}</option>
-                ))}
+                {myClasses.length === 0 ? (
+                  <option value="">No classes assigned</option>
+                ) : (
+                  myClasses.map(cls => (
+                    <option key={cls._id} value={`${cls.className}${cls.section}`}>
+                      Class {cls.className} - Section {cls.section}
+                    </option>
+                  ))
+                )}
               </select>
             </div>
           </div>

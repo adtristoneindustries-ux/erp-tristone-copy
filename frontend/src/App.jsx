@@ -27,6 +27,8 @@ import AdminFinance from "./pages/AdminFinance";
 import AdminFinanceManagement from "./pages/AdminFinanceManagement";
 import AdminDiscipline from "./pages/AdminDiscipline";
 import AdminEvents from "./pages/AdminEvents";
+import EventsPage from "./pages/EventsPage";
+import LibraryPortal from "./pages/LibraryPortal";
 import AdminSettings from "./pages/AdminSettings";
 import AdminScholarship from "./pages/AdminScholarship";
 import AdminPlacement from "./pages/AdminPlacement";
@@ -110,6 +112,9 @@ import StudentNotifications from "./pages/StudentNotifications";
 import AdminReports from "./pages/AdminReports";
 import AdminSystemHealth from "./pages/AdminSystemHealth";
 import AdminBulkOperations from "./pages/AdminBulkOperations";
+import AdminStem from "./pages/AdminStem";
+import StaffStem from "./pages/StaffStem";
+import StudentStem from "./pages/StudentStem";
 import AdminFeeStructure from "./pages/AdminFeeStructure";
 import AdminPayroll from "./pages/AdminPayroll";
 import AdminAcademicCalendar from "./pages/AdminAcademicCalendar";
@@ -404,6 +409,14 @@ function App() {
           }
         />
         <Route
+          path="/admin/library-portal"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <LibraryPortal />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/library"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
@@ -476,6 +489,10 @@ function App() {
           }
         />
         <Route
+          path="/admin/stem"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminStem />
           path="/admin/fee-structure"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
@@ -521,6 +538,22 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["canteen"]}>
               <CanteenDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/events"
+          element={
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
+              <EventsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/events"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <EventsPage />
             </ProtectedRoute>
           }
         />
@@ -765,6 +798,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/staff/stem"
+          element={
+            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
+              <StaffStem />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/student"
@@ -988,6 +1029,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentNotifications />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/stem"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentStem />
             </ProtectedRoute>
           }
         />

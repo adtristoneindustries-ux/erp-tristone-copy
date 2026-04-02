@@ -87,6 +87,29 @@ exports.createCategory = async (req, res) => {
   }
 };
 
+exports.updateCategory = async (req, res) => {
+  try {
+    const category = await BookCategory.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!category) return res.status(404).json({ success: false, message: 'Category not found' });
+    res.json({ success: true, data: category });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.deleteCategory = async (req, res) => {
+  try {
+    const booksInCategory = await Book.countDocuments({ category: req.params.id, status: 'active' });
+    if (booksInCategory > 0) {
+      return res.status(400).json({ success: false, message: `Cannot delete: ${booksInCategory} book(s) exist in this category` });
+    }
+    await BookCategory.findByIdAndUpdate(req.params.id, { status: 'inactive' });
+    res.json({ success: true, message: 'Category deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // Issue Management
 exports.issueBook = async (req, res) => {
   try {
@@ -114,6 +137,12 @@ exports.issueBook = async (req, res) => {
     
     book.available_copies -= 1;
     await book.save();
+
+    // Auto-fulfill any pending/approved reservation for this member+book
+    await BookReservation.findOneAndUpdate(
+      { book_id, member_id, status: { $in: ['pending', 'approved'] } },
+      { status: 'fulfilled', processed_by: req.user.id, processed_date: new Date() }
+    );
     
     res.status(201).json({ success: true, data: issue });
   } catch (error) {
@@ -204,23 +233,45 @@ exports.collectFine = async (req, res) => {
 exports.createReservation = async (req, res) => {
   try {
     const { book_id } = req.body;
-    
+
+    // Check if already issued to this member
+    const alreadyIssued = await BookIssue.findOne({
+      book_id,
+      member_id: req.user.id,
+      status: { $in: ['issued', 'renewed'] }
+    });
+    if (alreadyIssued) {
+      return res.status(400).json({ success: false, message: 'You already have this book issued' });
+    }
+
+    // Check duplicate pending/approved request
     const existing = await BookReservation.findOne({
       book_id,
       member_id: req.user.id,
+      status: { $in: ['pending', 'approved'] }
+    });
+    if (existing) {
+      return res.status(400).json({ success: false, message: 'You already have a pending request for this book' });
+    }
+
+    const reservation = await BookReservation.create({ book_id, member_id: req.user.id });
+    res.status(201).json({ success: true, data: reservation });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.cancelReservation = async (req, res) => {
+  try {
+    const reservation = await BookReservation.findOne({
+      _id: req.params.id,
+      member_id: req.user.id,
       status: 'pending'
     });
-    
-    if (existing) {
-      return res.status(400).json({ success: false, message: 'Already reserved' });
-    }
-    
-    const reservation = await BookReservation.create({
-      book_id,
-      member_id: req.user.id
-    });
-    
-    res.status(201).json({ success: true, data: reservation });
+    if (!reservation) return res.status(404).json({ success: false, message: 'Reservation not found or cannot be cancelled' });
+    reservation.status = 'cancelled';
+    await reservation.save();
+    res.json({ success: true, message: 'Reservation cancelled' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -228,12 +279,12 @@ exports.createReservation = async (req, res) => {
 
 exports.getReservations = async (req, res) => {
   try {
-    const query = req.user.role === 'student' ? { member_id: req.user.id } : {};
+    // student, staff, admin — show own requests; librarian — show all
+    const query = (req.user.role === 'librarian') ? {} : { member_id: req.user.id };
     const reservations = await BookReservation.find(query)
       .populate('book_id')
-      .populate('member_id', 'name email')
+      .populate('member_id', 'name email class section role rollNumber')
       .sort({ createdAt: -1 });
-    
     res.json({ success: true, data: reservations });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -242,12 +293,54 @@ exports.getReservations = async (req, res) => {
 
 exports.updateReservation = async (req, res) => {
   try {
-    const { status } = req.body;
-    const reservation = await BookReservation.findByIdAndUpdate(
-      req.params.id,
-      { status, processed_by: req.user.id, processed_date: Date.now() },
-      { new: true }
-    );
+    const { status, due_date } = req.body;
+
+    const reservation = await BookReservation.findById(req.params.id)
+      .populate('book_id')
+      .populate('member_id');
+    if (!reservation) return res.status(404).json({ success: false, message: 'Reservation not found' });
+
+    // If approving → auto issue the book
+    if (status === 'approved') {
+      const book = await Book.findById(reservation.book_id._id || reservation.book_id);
+      if (!book || book.available_copies <= 0) {
+        return res.status(400).json({ success: false, message: 'Book not available to issue' });
+      }
+      const memberId = reservation.member_id._id || reservation.member_id;
+      const member = await User.findById(memberId);
+      const maxBooks = member.role === 'student' ? 3 : 5;
+      const activeIssues = await BookIssue.countDocuments({ member_id: memberId, status: { $in: ['issued','renewed'] } });
+      if (activeIssues >= maxBooks) {
+        return res.status(400).json({ success: false, message: `Member has reached maximum book limit (${maxBooks})` });
+      }
+
+      const issueDate = new Date();
+      const dueDate = due_date ? new Date(due_date) : new Date(issueDate.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+      await BookIssue.create({
+        book_id: book._id,
+        member_id: memberId,
+        issued_by: req.user.id,
+        due_date: dueDate
+      });
+
+      book.available_copies -= 1;
+      await book.save();
+
+      reservation.status = 'fulfilled';
+      reservation.processed_by = req.user.id;
+      reservation.processed_date = new Date();
+      await reservation.save();
+
+      return res.json({ success: true, data: reservation, message: 'Book approved and issued successfully' });
+    }
+
+    // For reject / other status updates
+    reservation.status = status;
+    reservation.processed_by = req.user.id;
+    reservation.processed_date = new Date();
+    await reservation.save();
+
     res.json({ success: true, data: reservation });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
