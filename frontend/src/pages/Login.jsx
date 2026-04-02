@@ -125,14 +125,31 @@ const Login = () => {
             <path d="M0,680 C300,620 600,750 900,690 C1100,650 1300,710 1440,680 L1440,900 L0,900 Z" fill="url(#wg2)" />
           </svg>
         )}
+        
+        {/* Abstract Tech Grid Background */}
+        {!settings.loginBackgroundUrl && (
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSIjY2JkNWUxIiBmaWxsLW9wYWNpdHk9IjAuMiIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMCAwaDQwdjQwSDBWMHptMjAgMjBjNS41MjMgMCAxMC00LjQ3NyAxMC0xMHMtNC40NzctMTAtMTAtMTAtMTAgNC40NzctMTAgMTAgNC40NzcgMTAgMTAgMTB6Ii8+PC9nPjwvc3ZnPg==')] opacity-30 mix-blend-multiply pointer-events-none"></div>
+        )}
+
         <div className="relative w-full max-w-6xl" style={{ zIndex: 1 }}>
-          <div className="text-center mb-12">
+          <div className="text-center mb-16 relative z-10">
             {settings.logoUrl ? (
-              <img src={settings.logoUrl} alt={settings.schoolName} className="h-16 w-auto mx-auto mb-4 object-contain" />
+              <img src={settings.logoUrl} alt={settings.schoolName} className="h-20 w-auto mx-auto mb-6 object-contain filter drop-shadow-md transition-transform duration-500 hover:scale-105" />
             ) : (
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">{settings.schoolName}</h1>
+              <div className="inline-block mb-6">
+                <div className="flex items-center justify-center gap-3">
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg transform rotate-3 hover:rotate-0 transition-transform duration-300">
+                    <GraduationCap className="text-white w-8 h-8" />
+                  </div>
+                  <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-800 to-gray-600 tracking-tight">
+                    {settings.schoolName}
+                  </h1>
+                </div>
+              </div>
             )}
-            <p className="text-lg text-gray-600">{settings.tagline}</p>
+            <p className="text-lg md:text-xl text-gray-600 font-medium max-w-2xl mx-auto px-4 bg-white/40 backdrop-blur-sm rounded-full py-2 border border-white/50 shadow-sm inline-block">
+              {settings.tagline}
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
@@ -140,17 +157,50 @@ const Login = () => {
               <div
                 key={card.role}
                 onClick={() => handleRoleSelect(card.role)}
-                className={`bg-gradient-to-br ${card.gradient} text-white rounded-xl shadow-lg cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl p-8`}
+                className="group relative h-full rounded-3xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl cursor-pointer"
               >
-                <div className="text-center">
-                  <div className="mb-6">
-                    <card.icon size={64} className="mx-auto" />
+                {/* Animated Glow Effect */}
+                <div className={`absolute -inset-0.5 bg-gradient-to-br ${card.gradient} rounded-3xl opacity-0 group-hover:opacity-40 blur-xl transition duration-500`}></div>
+                
+                {/* Glassmorphism Card */}
+                <div className="relative h-full bg-white/70 backdrop-blur-xl border border-white/60 p-8 rounded-3xl flex flex-col items-center justify-center overflow-hidden z-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+                  
+                  {/* Decorative Background Elements */}
+                  <div className={`absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br ${card.gradient} rounded-full opacity-10 blur-2xl group-hover:scale-150 transition-transform duration-700`}></div>
+                  <div className={`absolute -bottom-24 -left-24 w-48 h-48 bg-gradient-to-br ${card.gradient} rounded-full opacity-10 blur-2xl group-hover:scale-150 transition-transform duration-700 delay-100`}></div>
+                  
+                  {/* Icon */}
+                  <div className="relative mb-6">
+                    <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} blur-md opacity-30 rounded-full group-hover:scale-125 transition-transform duration-500`}></div>
+                    <div className={`relative w-24 h-24 rounded-full bg-white flex items-center justify-center shadow-lg border border-gray-100 transform transition-transform duration-500 group-hover:-translate-y-2`}>
+                      <card.icon size={40} className={
+                        card.role === 'admin' ? 'text-red-500' :
+                        card.role === 'staff' ? 'text-emerald-500' :
+                        'text-indigo-500'
+                      } />
+                    </div>
                   </div>
-                  <h3 className="text-2xl font-bold mb-3">{card.title}</h3>
-                  <p className="text-white/90 mb-6">{card.description}</p>
-                  <div className="bg-white/20 rounded-lg p-3 backdrop-blur-sm">
-                    <p className="text-sm font-medium">Click to Login</p>
+
+                  {/* Text Content */}
+                  <div className="text-center relative z-10 mb-8 flex-grow">
+                    <h3 className="text-2xl font-bold text-gray-800 mb-3 tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-gray-900 group-hover:to-gray-600 transition-colors duration-300">
+                      {card.title}
+                    </h3>
+                    <p className="text-gray-500 font-medium leading-relaxed px-2">
+                      {card.description}
+                    </p>
                   </div>
+
+                  {/* Action Button */}
+                  <div className="w-full relative z-10 mt-auto">
+                    <div className="w-full py-3.5 rounded-xl bg-gray-50 text-gray-700 font-semibold text-sm flex items-center justify-center gap-2 group-hover:bg-white group-hover:shadow-md border border-gray-200 group-hover:border-transparent transition-all duration-300">
+                      <span>Access Portal</span>
+                      <div className={`w-6 h-6 rounded-full bg-gradient-to-r ${card.gradient} flex items-center justify-center transform transition-transform duration-300 group-hover:translate-x-1`}>
+                        <ArrowLeft className="w-3 h-3 text-white rotate-180" />
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             ))}
