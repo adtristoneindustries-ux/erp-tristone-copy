@@ -346,4 +346,33 @@ export const badgeAPI = {
   assignBadge: (data) => API.post('/badges/assign', data)
 };
 
+export const feeStructureAPI = {
+  getAll: () => API.get('/fee-structures'),
+  create: (data) => API.post('/fee-structures', data),
+  update: (id, data) => API.put(`/fee-structures/${id}`, data),
+  delete: (id) => API.delete(`/fee-structures/${id}`)
+};
+
+export const payrollAPI = {
+  getAll: (params) => API.get('/payroll', { params }),
+  create: (data) => API.post('/payroll', data),
+  generate: (data) => API.post('/payroll/generate', data),
+  update: (id, data) => API.put(`/payroll/${id}`, data),
+  delete: (id) => API.delete(`/payroll/${id}`)
+};
+
+export const academicCalendarAPI = {
+  getAll: (params) => API.get('/academic-calendar', { params }),
+  create: (data) => API.post('/academic-calendar', data),
+  update: (id, data) => API.put(`/academic-calendar/${id}`, data),
+  delete: (id) => API.delete(`/academic-calendar/${id}`)
+};
+
+export const admissionAPI = {
+  getAll: (params) => API.get('/admissions', { params }),
+  create: (data) => API.post('/admissions', data),
+  update: (id, data) => API.put(`/admissions/${id}`, data),
+  delete: (id) => API.delete(`/admissions/${id}`)
+};
+
 export default API;
