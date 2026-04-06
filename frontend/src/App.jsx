@@ -493,6 +493,10 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminStem />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/fee-structure"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
