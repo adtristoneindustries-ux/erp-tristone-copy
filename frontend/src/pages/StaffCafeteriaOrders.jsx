@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { Search, Filter, Clock, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 
 const StaffCafeteriaOrders = () => {
-  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -14,28 +12,12 @@ const StaffCafeteriaOrders = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkAccess();
+    fetchOrders();
   }, []);
 
   useEffect(() => {
     filterOrders();
   }, [searchTerm, statusFilter, orders]);
-
-  const checkAccess = async () => {
-    const token = localStorage.getItem('token');
-    try {
-      const res = await axios.get('http://localhost:5000/api/cafeteria/check-staff', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.data.isCanteenStaff) {
-        navigate('/staff');
-        return;
-      }
-      fetchOrders();
-    } catch (error) {
-      navigate('/staff');
-    }
-  };
 
   const fetchOrders = async () => {
     const token = localStorage.getItem('token');
