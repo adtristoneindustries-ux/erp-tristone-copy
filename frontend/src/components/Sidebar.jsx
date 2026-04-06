@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck , DollarSign, AlertTriangle, Settings, MessageCircle, Briefcase, Book, Lightbulb, BarChart2, Server, Upload, GraduationCap } from 'lucide-react';
+import { Home, Users, BookOpen, Calendar, FileText, Bell, LogOut, ClipboardList, Award, Menu, X, UtensilsCrossed, Bus, Building2, User, Activity, MessageSquare, Monitor, FileCheck, DollarSign, AlertTriangle, Settings, MessageCircle, Briefcase, Book, Lightbulb, BarChart2, Server, Upload, GraduationCap } from 'lucide-react';
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { SettingsContext } from '../context/SettingsContext';
@@ -14,25 +14,17 @@ const Sidebar = () => {
   useEffect(() => {
     const checkStaff = async () => {
       if (user?.role === 'staff') {
-        // Check localStorage first for cached result
-        const cachedStatus = localStorage.getItem(`canteenStaff_${user.id}`);
-        if (cachedStatus !== null) {
-          setIsCanteenStaff(cachedStatus === 'true');
-          return;
-        }
-
         try {
           const res = await fetch('http://localhost:5000/api/cafeteria/check-staff', {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
           });
           const data = await res.json();
-          setIsCanteenStaff(data.isCanteenStaff);
-          // Cache the result
-          localStorage.setItem(`canteenStaff_${user.id}`, data.isCanteenStaff.toString());
+          setIsCanteenStaff(data.isCanteenStaff || false);
         } catch (error) {
           setIsCanteenStaff(false);
-          localStorage.setItem(`canteenStaff_${user.id}`, 'false');
         }
+      } else {
+        setIsCanteenStaff(false);
       }
     };
     checkStaff();
@@ -54,8 +46,8 @@ const Sidebar = () => {
     { to: '/admin/finance', icon: DollarSign, label: 'Finance Management' },
     { to: '/admin/fee-structure', icon: DollarSign, label: 'Fee Structure Builder' },
     { to: '/admin/payroll', icon: DollarSign, label: 'Payroll Management' },
-    //{ to: '/admin/academic-calendar', icon: Calendar, label: 'Academic Calendar' },
-    //{ to: '/admin/admissions', icon: GraduationCap, label: 'Admissions' },
+    // { to: '/admin/academic-calendar', icon: Calendar, label: 'Academic Calendar' },
+    // { to: '/admin/admissions', icon: GraduationCap, label: 'Admissions' },
     { to: '/admin/fee-scholarships', icon: DollarSign, label: 'Fee & Scholarships' },
     { to: '/admin/scholarships', icon: Award, label: 'Scholarships' },
     { to: '/admin/discipline', icon: AlertTriangle, label: 'Discipline Oversight' },
