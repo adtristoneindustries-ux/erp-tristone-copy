@@ -27,6 +27,8 @@ const Login = () => {
     if (redirectUrl && redirectUrl !== '/login' && redirectUrl !== '/') {
       if (redirectUrl.startsWith('/admin')) setSelectedRole('admin');
       else if (redirectUrl.startsWith('/staff')) setSelectedRole('staff');
+      else if (redirectUrl.startsWith('/librarian')) setSelectedRole('staff');
+      else if (redirectUrl.startsWith('/canteen')) setSelectedRole('staff');
       else if (redirectUrl.startsWith('/student')) setSelectedRole('student');
     }
   }, []);

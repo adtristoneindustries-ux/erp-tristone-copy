@@ -33,8 +33,8 @@ exports.authorize = (...roles) => {
       return next();
     }
     
-    // Allow staff with Cafeteria department to access canteen routes
-    if (allowedRoles.includes('canteen') && userRole === 'staff' && req.user.department === 'Cafeteria') {
+    // Allow canteen role to access staff routes
+    if (allowedRoles.includes('staff') && userRole === 'canteen') {
       return next();
     }
     

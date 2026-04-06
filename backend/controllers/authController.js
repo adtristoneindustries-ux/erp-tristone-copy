@@ -26,9 +26,9 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid password' });
     }
 
-    // If role was specified, verify it matches (allow librarian to login as staff)
+    // If role was specified, verify it matches (allow librarian/canteen to login as staff)
     if (role && user.role !== role) {
-      if (!(role === 'staff' && user.role === 'librarian')) {
+      if (!(role === 'staff' && (user.role === 'librarian' || user.role === 'canteen'))) {
         return res.status(401).json({ message: `User is not a ${role}` });
       }
     }

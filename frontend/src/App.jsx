@@ -152,7 +152,8 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/login" replace />;
+    const dashboardMap = { admin: '/admin', staff: '/staff', student: '/student', librarian: '/librarian', canteen: '/canteen' };
+    return <Navigate to={dashboardMap[user.role] || '/login'} replace />;
   }
 
   return children;
@@ -564,7 +565,7 @@ function App() {
         <Route
           path="/staff"
           element={
-            <ProtectedRoute allowedRoles={["staff", "librarian", "canteen"]}>
+            <ProtectedRoute allowedRoles={["staff"]}>
               <StaffDashboard />
             </ProtectedRoute>
           }
