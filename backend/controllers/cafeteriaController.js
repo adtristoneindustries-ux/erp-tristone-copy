@@ -432,7 +432,7 @@ async function updateAverageRating(foodItemId) {
 exports.checkCanteenStaff = async (req, res) => {
   try {
     const canteenStaff = await CanteenStaff.findOne({ user: req.user.id, isActive: true });
-    const isCanteenStaff = !!canteenStaff || (req.user.role === 'staff' && req.user.department === 'Cafeteria');
+    const isCanteenStaff = !!canteenStaff;
     res.json({ success: true, isCanteenStaff });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
