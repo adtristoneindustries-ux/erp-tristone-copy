@@ -21,11 +21,19 @@ export const AuthProvider = ({ children }) => {
       
       // Ensure user stays within their role's routes
       const currentPath = window.location.pathname;
-      // Allow librarian to access staff routes
-      const allowedPath = currentRole === 'staff' ? '/staff' : `/${currentRole}`;
-      if (!currentPath.startsWith(allowedPath) && currentPath !== '/login') {
-        window.history.replaceState(null, '', allowedPath);
-        window.location.href = allowedPath;
+      const allowedPaths = {
+        admin: ['/admin'],
+        staff: ['/staff'],
+        student: ['/student'],
+        librarian: ['/librarian', '/staff/library'],
+        canteen: ['/canteen', '/staff/cafeteria', '/staff/profile', '/staff/my-attendance', '/staff/leaves', '/staff/announcements', '/staff/feedback', '/cafeteria']
+      };
+      const paths = allowedPaths[currentRole] || [`/${currentRole}`];
+      const isAllowed = paths.some(p => currentPath.startsWith(p)) || currentPath === '/login';
+      if (!isAllowed) {
+        const home = `/${currentRole}`;
+        window.history.replaceState(null, '', home);
+        window.location.href = home;
       }
     };
 
@@ -42,15 +50,12 @@ export const AuthProvider = ({ children }) => {
           // Verify session consistency - allow librarian to use staff routes
           const currentRole = sessionStorage.getItem('currentUserRole');
           if (currentRole && currentRole !== res.data.role) {
-            // Allow librarian to access staff routes
-            if (!(currentRole === 'staff' && res.data.role === 'librarian')) {
-              // Role mismatch - clear everything and redirect to login
-              localStorage.removeItem('token');
-              sessionStorage.clear();
-              setUser(null);
-              window.history.replaceState(null, '', '/login');
-              return;
-            }
+            // Role mismatch - clear everything and redirect to login
+            localStorage.removeItem('token');
+            sessionStorage.clear();
+            setUser(null);
+            window.history.replaceState(null, '', '/login');
+            return;
           }
           setUser(res.data);
         } catch (error) {
@@ -76,17 +81,16 @@ export const AuthProvider = ({ children }) => {
       console.log('API response:', res.data);
       
       // Validate that the returned user role matches the requested role
-      // Allow librarian to login as staff
+      // Allow librarian/canteen to login via staff portal
       if (res.data.user.role !== credentials.role) {
-        if (!(credentials.role === 'staff' && res.data.user.role === 'librarian')) {
+        if (!(credentials.role === 'staff' && (res.data.user.role === 'librarian' || res.data.user.role === 'canteen'))) {
           throw new Error('Invalid credentials for selected role');
         }
       }
       
       localStorage.setItem('token', res.data.token);
-      // Store current session info to prevent cross-session access
-      // Use actual user role for routing, not requested role
-      const routeRole = res.data.user.role === 'librarian' ? 'staff' : res.data.user.role;
+      // Store actual role for routing
+      const routeRole = res.data.user.role;
       sessionStorage.setItem('currentUserRole', routeRole);
       sessionStorage.setItem('sessionId', Date.now().toString());
       setUser(res.data.user);

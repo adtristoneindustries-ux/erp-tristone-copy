@@ -9,26 +9,6 @@ const Sidebar = () => {
   const { settings } = useContext(SettingsContext);
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isCanteenStaff, setIsCanteenStaff] = useState(false);
-
-  useEffect(() => {
-    const checkStaff = async () => {
-      if (user?.role === 'staff') {
-        try {
-          const res = await fetch('http://localhost:5000/api/cafeteria/check-staff', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-          });
-          const data = await res.json();
-          setIsCanteenStaff(data.isCanteenStaff || false);
-        } catch (error) {
-          setIsCanteenStaff(false);
-        }
-      } else {
-        setIsCanteenStaff(false);
-      }
-    };
-    checkStaff();
-  }, [user]);
 
   const adminLinks = [
     { to: '/admin', icon: Home, label: 'Dashboard' },
@@ -85,7 +65,7 @@ const Sidebar = () => {
   ];
 
   const canteenStaffLinks = [
-    { to: '/staff/cafeteria', icon: Home, label: 'Dashboard' },
+    { to: '/canteen', icon: Home, label: 'Dashboard' },
     { to: '/staff/profile', icon: User, label: 'My Profile' },
     { to: '/staff/cafeteria/orders', icon: ClipboardList, label: 'Orders' },
     { to: '/staff/cafeteria/menu', icon: FileText, label: 'Menu Management' },
@@ -98,7 +78,7 @@ const Sidebar = () => {
   ];
 
   const librarianLinks = [
-    { to: '/staff', icon: Home, label: 'Dashboard' },
+    { to: '/librarian', icon: Home, label: 'Dashboard' },
     { to: '/staff/library', icon: Book, label: 'Library' },
     { to: '/staff/library/books', icon: Book, label: 'Library Management' },
     { to: '/staff/library/issues', icon: BookOpen, label: 'Issue & Return Management' },
@@ -139,7 +119,8 @@ const Sidebar = () => {
 
   const links = user?.role === 'admin' ? adminLinks : 
                 user?.role === 'librarian' ? librarianLinks : 
-                user?.role === 'staff' ? (isCanteenStaff ? canteenStaffLinks : staffLinks) : 
+                user?.role === 'canteen' ? canteenStaffLinks :
+                user?.role === 'staff' ? staffLinks : 
                 studentLinks;
 
   // Close mobile menu on route change

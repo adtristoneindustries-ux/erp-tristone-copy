@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { Star, Filter, TrendingUp, MessageSquare } from 'lucide-react';
 
 const StaffCafeteriaRatings = () => {
-  const navigate = useNavigate();
   const [ratings, setRatings] = useState([]);
   const [filteredRatings, setFilteredRatings] = useState([]);
   const [filterRating, setFilterRating] = useState('all');
@@ -22,28 +20,12 @@ const StaffCafeteriaRatings = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkAccess();
+    fetchRatings();
   }, []);
 
   useEffect(() => {
     filterRatings();
   }, [filterRating, ratings]);
-
-  const checkAccess = async () => {
-    const token = localStorage.getItem('token');
-    try {
-      const res = await axios.get('http://localhost:5000/api/cafeteria/check-staff', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.data.isCanteenStaff) {
-        navigate('/staff');
-        return;
-      }
-      fetchRatings();
-    } catch (error) {
-      navigate('/staff');
-    }
-  };
 
   const fetchRatings = async () => {
     const token = localStorage.getItem('token');

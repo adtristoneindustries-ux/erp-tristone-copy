@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { Plus, Edit2, Trash2, Search, X } from 'lucide-react';
 
 const StaffCafeteriaMenu = () => {
-  const navigate = useNavigate();
   const [menuItems, setMenuItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,28 +22,12 @@ const StaffCafeteriaMenu = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkAccess();
+    fetchMenuItems();
   }, []);
 
   useEffect(() => {
     filterItems();
   }, [searchTerm, categoryFilter, menuItems]);
-
-  const checkAccess = async () => {
-    const token = localStorage.getItem('token');
-    try {
-      const res = await axios.get('http://localhost:5000/api/cafeteria/check-staff', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.data.isCanteenStaff) {
-        navigate('/staff');
-        return;
-      }
-      fetchMenuItems();
-    } catch (error) {
-      navigate('/staff');
-    }
-  };
 
   const fetchMenuItems = async () => {
     const token = localStorage.getItem('token');
