@@ -97,7 +97,20 @@ export default function StudentFees() {
           </div>
         </div>
 
-        {showDetails && fee.payments.length > 0 && (
+        {showDetails && fee.components && fee.components.length > 0 && (
+          <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t">
+            <h4 className="font-semibold mb-2 text-xs sm:text-sm">Fee Components</h4>
+            <div className="space-y-2">
+              {fee.components.map((comp, idx) => (
+                <div key={idx} className="flex justify-between text-xs sm:text-sm bg-gray-50 p-2 sm:p-3 rounded">
+                  <span className="text-gray-700">{comp.name}</span>
+                  <span className="font-semibold">₹{comp.amount.toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {showDetails && !fee.fromStructure && fee.payments && fee.payments.length > 0 && (
           <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t">
             <h4 className="font-semibold mb-2 text-xs sm:text-sm">Payment History</h4>
             <div className="space-y-2">

@@ -59,12 +59,11 @@ const AdminStaff = () => {
   const permissionLevels = ['Admin', 'Staff', 'ReadOnly'];
 
   useEffect(() => {
+    console.log('AdminStaff component mounted');
     fetchStaff();
     
-    // Handle view staff from navigation state
     if (location.state?.viewStaff) {
       openViewModal(location.state.viewStaff);
-      // Clear the state
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, []);
@@ -100,19 +99,24 @@ const AdminStaff = () => {
   }, [staff, searchTerm, filterDepartment, filterRole, filterStatus]);
 
   const fetchStaff = async () => {
+    console.log('AdminStaff component mounted');
     try {
       const res = await userAPI.getUsers();
+      console.log('API response:', res);
       const allUsers = res.data.data || res.data || [];
-      // Filter to show both staff and librarian roles
-      const staffData = allUsers.filter(u => u.role === 'staff' || u.role === 'librarian');
+      console.log('All users:', allUsers);
+      const staffData = allUsers.filter(u => u.role === 'staff' || u.role === 'librarian' || u.role === 'canteen');
+      console.log('Filtered staff:', staffData);
       setStaff(staffData);
+      setFilteredStaff(staffData);
     } catch (error) {
+      console.error('Error fetching staff:', error);
       showError('Failed to fetch staff');
     }
   };
 
   const filterStaffData = () => {
-    if (!Array.isArray(staff)) {
+    if (!Array.isArray(staff) || staff.length === 0) {
       setFilteredStaff([]);
       return;
     }
@@ -408,6 +412,8 @@ const AdminStaff = () => {
   const currentRecords = filteredStaff.slice(indexOfFirstRecord, indexOfLastRecord);
   const totalPages = Math.ceil(filteredStaff.length / recordsPerPage);
 
+  console.log('Render - staff:', staff.length, 'filteredStaff:', filteredStaff.length, 'currentRecords:', currentRecords.length);
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
@@ -420,7 +426,11 @@ const AdminStaff = () => {
               <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage teaching and non-teaching staff</p>
             </div>
             <button
-              onClick={() => navigate('/admin/staff/add')}
+              onClick={() => {
+                console.log('Add Staff button clicked');
+                console.log('Navigating to /admin/staff/add');
+                navigate('/admin/staff/add');
+              }}
               className="bg-blue-500 text-white px-4 sm:px-6 py-3 min-h-[48px] rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600 active:bg-blue-700 transition-colors w-full sm:w-auto text-base font-medium shadow-sm"
             >
               <Plus size={20} /> Add Staff
@@ -1285,7 +1295,7 @@ const AdminStaff = () => {
               <div className="bg-white rounded-xl w-full max-w-6xl mx-auto my-2 sm:my-4 shadow-2xl min-h-0 max-h-[98vh] overflow-hidden">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 sm:p-6 border-b bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl gap-3 sm:gap-4">
                   <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                    {viewingStaff.passportPhoto && (
+                    {viewingStaff.passportPhoto && viewingStaff.passportPhoto.data && viewingStaff.passportPhoto.contentType && (
                       <img 
                         src={`data:${viewingStaff.passportPhoto.contentType};base64,${viewingStaff.passportPhoto.data}`}
                         alt="Staff Photo" 
@@ -1472,7 +1482,7 @@ const AdminStaff = () => {
                           <Image className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                           Passport Photo
                         </h4>
-                        {viewingStaff.passportPhoto ? (
+                        {viewingStaff.passportPhoto && viewingStaff.passportPhoto.data && viewingStaff.passportPhoto.contentType ? (
                           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                             <img 
                               src={`data:${viewingStaff.passportPhoto.contentType};base64,${viewingStaff.passportPhoto.data}`}

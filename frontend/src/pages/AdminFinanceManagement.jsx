@@ -40,12 +40,12 @@ const AdminFinanceManagement = () => {
         api.get('/classes'),
         api.get('/finance/fee-structure')
       ]);
-      setFinances(financeRes.data.data);
-      setAnalytics(analyticsRes.data.data);
-      setStudents(studentsRes.data.data || studentsRes.data.users || []);
+      setFinances(financeRes.data.data || financeRes.data || []);
+      setAnalytics(analyticsRes.data.data || analyticsRes.data || null);
+      setStudents(studentsRes.data.data || studentsRes.data.users || studentsRes.data || []);
       const classesData = Array.isArray(classesRes.data) ? classesRes.data : (classesRes.data.data || []);
       setClasses(classesData);
-      setFeeStructures(structuresRes.data.data || []);
+      setFeeStructures(structuresRes.data.data || structuresRes.data || []);
     } catch (error) {
       console.error(error);
     }
@@ -196,9 +196,9 @@ const AdminFinanceManagement = () => {
     a.click();
   };
 
-  const filteredFinances = finances.filter(f =>
-    f.student?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    f.student?.rollNumber.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredFinances = finances.filter(f => f.student).filter(f =>
+    (f.student?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (f.student?.rollNumber || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -320,6 +320,8 @@ const AdminFinanceManagement = () => {
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Student</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Class</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Section</th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Year</th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Total Fee</th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Scholarship</th>
@@ -335,10 +337,12 @@ const AdminFinanceManagement = () => {
                     <tr key={f._id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4">
                         <div>
-                          <div className="font-medium text-gray-900">{f.student?.name}</div>
-                          <div className="text-sm text-gray-500">{f.student?.rollNumber} • {f.student?.class}</div>
+                          <div className="font-medium text-gray-900">{f.student?.name || '-'}</div>
+                          <div className="text-sm text-gray-500">{f.student?.rollNumber || '-'}</div>
                         </div>
                       </td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{f.student?.class || '-'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{f.student?.section || '-'}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{f.academicYear}</td>
                       <td className="px-6 py-4 text-sm font-semibold text-gray-900">₹{f.totalFee.toLocaleString()}</td>
                       <td className="px-6 py-4">

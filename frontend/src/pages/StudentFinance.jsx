@@ -10,6 +10,10 @@ const StudentFinance = () => {
   const [finance, setFinance] = useState(null);
   const [feeStructure, setFeeStructure] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showPayModal, setShowPayModal] = useState(false);
+  const [payAmount, setPayAmount] = useState('');
+  const [payMethod, setPayMethod] = useState('Online');
+  const [paying, setPaying] = useState(false);
   const socket = useSocket();
 
   useEffect(() => {
@@ -25,13 +29,28 @@ const StudentFinance = () => {
         api.get('/auth/me')
       ]);
       const financeData = financeRes.data.data[0];
+      const userData = userRes.data;
       setFinance(financeData);
-      if (financeData && userRes.data.user && userRes.data.user.class) {
-        const userClass = userRes.data.user.class.split('-')[0];
-        const matchingStructure = structureRes.data.data.find(s =>
-          s.class === userClass && s.academicYear === financeData.academicYear
+
+      // Match fee structure by student class
+      const userClass = userData?.class;
+      if (userClass) {
+        const classBase = userClass.split('-')[0];
+        const match = structureRes.data.data.find(s =>
+          s.class === classBase || s.class === userClass
         );
-        setFeeStructure(matchingStructure);
+        setFeeStructure(match || null);
+
+        // If no finance record exists, auto-create from fee structure
+        if (!financeData && match) {
+          try {
+            await api.post('/finance/auto-assign', { studentId: userData.id || userData._id });
+            const refreshed = await api.get('/finance');
+            setFinance(refreshed.data.data[0] || null);
+          } catch (e) {
+            // auto-assign not available, show structure only
+          }
+        }
       }
       setLoading(false);
     } catch (error) {
@@ -41,7 +60,28 @@ const StudentFinance = () => {
   };
 
   const handleSimplePayment = () => {
-    alert('Payment feature will be integrated with your preferred payment gateway. Please contact administration for payment.');
+    setPayAmount(finance?.pendingAmount || '');
+    setShowPayModal(true);
+  };
+
+  const handlePaySubmit = async (e) => {
+    e.preventDefault();
+    if (!payAmount || payAmount <= 0) return;
+    setPaying(true);
+    try {
+      await api.post('/finance/record-payment', {
+        financeId: finance._id,
+        amount: Number(payAmount),
+        description: `${payMethod} Payment`,
+        paymentMethod: payMethod
+      });
+      setShowPayModal(false);
+      fetchFinance();
+    } catch (error) {
+      alert('Payment failed. Please try again.');
+    } finally {
+      setPaying(false);
+    }
   };
 
   const handleDownloadReceipt = async () => {
@@ -77,10 +117,40 @@ const StudentFinance = () => {
       <Sidebar />
       <div className="flex-1 lg:ml-64">
         <Navbar />
-        <div className="p-4 lg:p-6 text-center py-12">
-          <Receipt size={64} className="mx-auto text-gray-300 mb-4" />
-          <p className="text-gray-600 text-lg">No finance records available</p>
-          <p className="text-gray-500 text-sm mt-2">Please contact administration for fee structure setup</p>
+        <div className="p-4 lg:p-6">
+          {feeStructure ? (
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold mb-4">Fee &amp; Finance</h1>
+              <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4">
+                <h2 className="text-base font-bold mb-3 flex items-center gap-2">
+                  <Receipt className="text-blue-600" size={18} />
+                  Fee Structure - Class {feeStructure.class}
+                </h2>
+                <div className="space-y-2 mb-4">
+                  {feeStructure.components.map((comp, i) => (
+                    <div key={i} className="flex justify-between text-sm bg-gray-50 p-3 rounded">
+                      <span className="text-gray-700">{comp.name}</span>
+                      <span className="font-semibold">₹{comp.amount.toLocaleString()}</span>
+                    </div>
+                  ))}
+                  <div className="flex justify-between text-sm bg-blue-50 p-3 rounded border-2 border-blue-200">
+                    <span className="font-bold text-blue-800">Total Fee</span>
+                    <span className="font-bold text-blue-600">₹{feeStructure.totalAmount.toLocaleString()}</span>
+                  </div>
+                </div>
+                <p className="text-sm text-amber-600 flex items-center gap-2">
+                  <AlertCircle size={16} />
+                  Finance record is being processed. Please contact administration.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Receipt size={64} className="mx-auto text-gray-300 mb-4" />
+              <p className="text-gray-600 text-lg">No finance records available</p>
+              <p className="text-gray-500 text-sm mt-2">Please contact administration for fee structure setup</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -371,6 +441,58 @@ const StudentFinance = () => {
 
         </div>
       </div>
+
+      {/* Pay Modal */}
+      {showPayModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+            <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <CreditCard className="text-blue-600" size={20} />
+              Make Payment
+            </h2>
+            <form onSubmit={handlePaySubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Amount (₹)</label>
+                <input
+                  type="number"
+                  min="1"
+                  max={finance?.pendingAmount}
+                  value={payAmount}
+                  onChange={e => setPayAmount(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">Pending: ₹{finance?.pendingAmount?.toLocaleString()}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                <select
+                  value={payMethod}
+                  onChange={e => setPayMethod(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                  <option value="Online">Online</option>
+                  <option value="Offline">Offline</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                  <option value="UPI">UPI</option>
+                  <option value="Card">Card</option>
+                </select>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => setShowPayModal(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                  Cancel
+                </button>
+                <button type="submit" disabled={paying}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                  {paying ? 'Processing...' : 'Pay Now'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

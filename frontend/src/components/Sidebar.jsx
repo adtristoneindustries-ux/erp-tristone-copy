@@ -13,21 +13,21 @@ const Sidebar = () => {
   const adminLinks = [
     { to: '/admin', icon: Home, label: 'Dashboard' },
     { to: '/admin/users', icon: Users, label: 'User Management' },
+   
     { to: '/admin/subjects', icon: BookOpen, label: 'Subjects' },
     { to: '/admin/classes', icon: Users, label: 'Classes' },
     { to: '/admin/attendance-management', icon: ClipboardList, label: 'Attendance Management' },
     { to: '/admin/marks', icon: Award, label: 'Marks' },
     { to: '/admin/achievements', icon: Award, label: 'Achievements' },
+   
     { to: '/admin/leaves', icon: Calendar, label: 'Leave Requests' },
     { to: '/admin/timetable', icon: Calendar, label: 'Timetable Module' },
     { to: '/admin/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
     { to: '/admin/announcements', icon: Bell, label: 'Announcements' },
+    { to: '/admin/notifications', icon: Bell, label: 'Notifications' },
     { to: '/admin/feedback', icon: MessageSquare, label: 'Feedback' },
     { to: '/admin/finance', icon: DollarSign, label: 'Finance Management' },
-    { to: '/admin/fee-structure', icon: DollarSign, label: 'Fee Structure Builder' },
     { to: '/admin/payroll', icon: DollarSign, label: 'Payroll Management' },
-    // { to: '/admin/academic-calendar', icon: Calendar, label: 'Academic Calendar' },
-    // { to: '/admin/admissions', icon: GraduationCap, label: 'Admissions' },
     { to: '/admin/fee-scholarships', icon: DollarSign, label: 'Fee & Scholarships' },
     { to: '/admin/scholarships', icon: Award, label: 'Scholarships' },
     { to: '/admin/discipline', icon: AlertTriangle, label: 'Discipline Oversight' },
@@ -36,31 +36,36 @@ const Sidebar = () => {
     { to: '/admin/library', icon: Book, label: 'Library Management' },
     { to: '/admin/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria Management' },
     { to: '/admin/stem', icon: Lightbulb, label: 'Innovation & STEM' },
+    { to: '/admin/reports', icon: BarChart2, label: 'Reports' },
+    { to: '/admin/system-health', icon: Server, label: 'System Health' },
+    { to: '/admin/bulk-operations', icon: Upload, label: 'Bulk Operations' },
     { to: '/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },
     { to: '/admin/settings', icon: Settings, label: 'Settings' }
   ];
 
   const staffLinks = [
     { to: '/staff', icon: Home, label: 'Dashboard' },
+    { to: '/staff/profile', icon: User, label: 'My Profile' },
     { to: '/staff/students', icon: Users, label: 'My Students' },
-    { to: '/staff/profile', icon: Users, label: 'My Profile' },
     { to: '/staff/attendance', icon: ClipboardList, label: 'Mark Attendance' },
     { to: '/staff/my-attendance', icon: Calendar, label: 'My Attendance' },
     { to: '/staff/marks', icon: Award, label: 'Marks' },
     { to: '/staff/homework', icon: FileText, label: 'Homework' },
     { to: '/staff/courses', icon: Activity, label: 'Courses & Activities' },
+    { to: '/staff/digital-classroom', icon: Monitor, label: 'Digital Classroom' },
+    { to: '/staff/timetable', icon: Calendar, label: 'My Timetable' },
+    { to: '/staff/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
     { to: '/staff/leaves', icon: Calendar, label: 'My Leaves' },
     { to: '/staff/student-leaves', icon: ClipboardList, label: 'Student Leaves' },
-    { to: '/staff/digital-classroom', icon: Monitor, label: 'Digital Classroom' },
-    { to: '/staff/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
     { to: '/staff/scholarships', icon: Award, label: 'Scholarships' },
+   
     ...(user?.hasPlacementAccess ? [{ to: '/staff/placement', icon: Briefcase, label: 'Placement' }] : []),
     { to: '/staff/library', icon: Book, label: 'Library' },
     { to: '/staff/stem', icon: Lightbulb, label: 'Innovation & STEM' },
     { to: '/cafeteria', icon: UtensilsCrossed, label: 'Cafeteria' },
     { to: '/staff/chat', icon: MessageCircle, label: 'Chat with Students' },
     { to: '/staff/announcements', icon: Bell, label: 'Announcements' },
-    { to: '/staff/timetable', icon: Calendar, label: 'My Timetable' },
+    { to: '/staff/notifications', icon: Bell, label: 'Notifications' },
     { to: '/staff/feedback', icon: MessageSquare, label: 'Feedback' }
   ];
 
@@ -99,11 +104,13 @@ const Sidebar = () => {
     { to: '/student/homework', icon: FileText, label: 'Homework' },
     { to: '/student/courses', icon: Activity, label: 'Courses & Activities' },
     { to: '/student/achievements', icon: Award, label: 'Badges & Achievements' },
-    { to: '/student/leave-requests', icon: Calendar, label: 'Leave Requests' },
-    { to: '/student/scholarships', icon: Award, label: 'Scholarships' },
-    { to: '/student/finance', icon: DollarSign, label: 'Fee & Finance' },
+    
     { to: '/student/timetable', icon: Calendar, label: 'Timetable' },
     { to: '/student/exam-schedule', icon: FileCheck, label: 'Exam Schedule' },
+    { to: '/student/leave-requests', icon: Calendar, label: 'Leave Requests' },
+    { to: '/student/scholarships', icon: Award, label: 'Scholarships' },
+    
+    { to: '/student/finance', icon: DollarSign, label: 'Fee & Finance' },
     { to: '/student/digital-classroom', icon: Monitor, label: 'Digital Classroom' },
     { to: '/student/chat', icon: MessageCircle, label: 'Chat with Teacher' },
     { to: '/student/medical-reports', icon: Activity, label: 'Medical Reports' },
@@ -113,6 +120,7 @@ const Sidebar = () => {
     { to: '/student/transport', icon: Bus, label: 'Transport' },
     { to: '/student/hostel', icon: Building2, label: 'Hostel' },
     { to: '/student/announcements', icon: Bell, label: 'Announcements' },
+    { to: '/student/notifications', icon: Bell, label: 'Notifications' },
     { to: '/student/placement', icon: Briefcase, label: 'Placement' },
     { to: '/student/library', icon: Book, label: 'Library' }
   ];

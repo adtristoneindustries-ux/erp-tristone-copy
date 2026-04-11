@@ -1,4 +1,6 @@
 const Fee = require('../models/Fee');
+const FeeStructure = require('../models/FeeStructure');
+const User = require('../models/User');
 const Hostel = require('../models/Hostel');
 const { StudentTransport } = require('../models/Transport');
 
@@ -16,16 +18,44 @@ exports.getFees = async (req, res) => {
 exports.getStudentFees = async (req, res) => {
   try {
     const studentId = req.user._id;
-    
-    // Get all fees for student
-    const fees = await Fee.find({ student: studentId });
-    
-    // Check if student has hostel
+
+    // Get direct fee records
+    let fees = await Fee.find({ student: studentId });
+
+    // If no direct fee records, build from FeeStructure
+    if (fees.length === 0) {
+      const student = await User.findById(studentId).select('class');
+      if (student?.class) {
+        const currentYear = new Date().getFullYear();
+        const academicYear = `${currentYear}-${currentYear + 1}`;
+        const structure = await FeeStructure.findOne({
+          class: student.class,
+          isActive: true
+        }).sort({ createdAt: -1 });
+
+        if (structure) {
+          // Build a virtual fee object from the structure
+          fees = [{
+            _id: structure._id,
+            feeType: 'Tuition',
+            academicYear: structure.academicYear || academicYear,
+            totalAmount: structure.totalAmount,
+            paidAmount: 0,
+            dueAmount: structure.totalAmount,
+            dueDate: new Date(`${currentYear}-12-31`),
+            status: 'Pending',
+            payments: [],
+            components: structure.components,
+            fromStructure: true
+          }];
+        }
+      }
+    }
+
+    // Check hostel and transport
     const hostel = await Hostel.findOne({ student: studentId });
-    
-    // Check if student has transport
     const transport = await StudentTransport.findOne({ student: studentId }).populate('route');
-    
+
     res.json({
       fees,
       hasHostel: !!hostel,

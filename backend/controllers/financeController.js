@@ -19,7 +19,7 @@ try {
 exports.getFinance = async (req, res) => {
   try {
     let query = {};
-    if (req.user.role === 'student') query.student = req.user.id;
+    if (req.user.role === 'student') query.student = req.user._id || req.user.id;
     else if (req.query.studentId) query.student = req.query.studentId;
     if (req.query.academicYear) query.academicYear = req.query.academicYear;
 
@@ -63,13 +63,18 @@ exports.updateFinance = async (req, res) => {
 
 exports.recordPayment = async (req, res) => {
   try {
-    const { financeId, amount, description } = req.body;
+    const { financeId, amount, description, paymentMethod } = req.body;
     const finance = await Finance.findById(financeId);
     if (!finance) return res.status(404).json({ success: false, message: 'Finance record not found' });
 
     finance.paidAmount += amount;
     finance.pendingAmount = finance.finalPayableFee - finance.paidAmount;
-    finance.transactions.push({ type: 'Payment', amount, description: description || 'Fee Payment' });
+    finance.transactions.push({
+      type: 'Payment',
+      amount,
+      description: description || 'Fee Payment',
+      paymentMethod: paymentMethod || 'Offline'
+    });
 
     await finance.save();
     req.app.get('io').emit('financeUpdate', { studentId: finance.student });

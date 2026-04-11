@@ -1,14 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const { getScholarships, createScholarship, updateScholarship, applyScholarship, updateApplication, deleteScholarship, getAnalytics } = require('../controllers/scholarshipController');
-const { protect } = require('../middleware/auth');
+const {
+  getScholarships, createScholarship, updateScholarship, deleteScholarship,
+  applyScholarship, getMyApplications, getAllApplications, reviewApplication, getAnalytics
+} = require('../controllers/scholarshipController');
+const { protect, authorize } = require('../middleware/auth');
+
+router.get('/analytics', protect, authorize('admin', 'staff'), getAnalytics);
+router.get('/applications', protect, authorize('admin', 'staff'), getAllApplications);
+router.get('/my-applications', protect, authorize('student'), getMyApplications);
+router.post('/apply', protect, authorize('student'), applyScholarship);
+router.put('/applications/:id/review', protect, authorize('admin'), reviewApplication);
 
 router.get('/', protect, getScholarships);
-router.get('/analytics', protect, getAnalytics);
-router.post('/', protect, createScholarship);
-router.put('/:id', protect, updateScholarship);
-router.post('/:id/apply', protect, applyScholarship);
-router.put('/:id/application/:appId', protect, updateApplication);
-router.delete('/:id', protect, deleteScholarship);
+router.post('/', protect, authorize('admin'), createScholarship);
+router.put('/:id', protect, authorize('admin'), updateScholarship);
+router.delete('/:id', protect, authorize('admin'), deleteScholarship);
 
 module.exports = router;

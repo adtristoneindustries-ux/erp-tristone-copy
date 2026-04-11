@@ -19,7 +19,7 @@ const financeSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now },
     description: String,
     reference: String,
-    paymentMethod: { type: String, enum: ['Online', 'Offline', 'Cash', 'Bank Transfer', 'Cheque'] },
+    paymentMethod: { type: String, enum: ['Online', 'Offline', 'Cash', 'Bank Transfer', 'Cheque', 'N/A', 'UPI', 'Card'] },
     paymentId: String,
     orderId: String,
     recordedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }

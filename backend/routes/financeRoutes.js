@@ -18,6 +18,7 @@ const {
 
 router.get('/', protect, getFinance);
 router.post('/', protect, authorize('admin'), updateFinance);
+router.post('/record-payment', protect, recordPayment);
 router.post('/payment', protect, authorize('admin', 'staff'), recordPayment);
 router.post('/offline-payment', protect, authorize('admin', 'staff'), recordOfflinePayment);
 router.post('/create-order', protect, createOrder);
