@@ -342,8 +342,7 @@ const StaffTab = () => {
         </div>
         <button
           onClick={() => {
-            console.log('Navigating to /admin/staff/add');
-            navigate('/admin/staff/add');
+            navigate('/admin/users/add-staff');
           }}
           className="bg-blue-500 text-white px-4 sm:px-6 py-3 min-h-[48px] rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600 active:bg-blue-700 transition-colors w-full sm:w-auto text-base font-medium shadow-sm"
         >

@@ -13,7 +13,7 @@ const StaffLeaves = () => {
   const [formData, setFormData] = useState({
     startDate: '',
     endDate: '',
-    leaveType: 'casual',
+    leaveType: 'personal',
     reason: ''
   });
 
@@ -50,7 +50,7 @@ const StaffLeaves = () => {
     try {
       await leaveRequestAPI.createLeaveRequest(formData);
       setShowModal(false);
-      setFormData({ startDate: '', endDate: '', leaveType: 'casual', reason: '' });
+      setFormData({ startDate: '', endDate: '', leaveType: 'personal', reason: '' });
       fetchLeaves();
     } catch (error) {
       console.error('Error creating leave request:', error);
@@ -164,11 +164,14 @@ const StaffLeaves = () => {
                     onChange={(e) => setFormData({...formData, leaveType: e.target.value})}
                     className="w-full p-2 lg:p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm lg:text-base"
                   >
-                    <option value="casual">Casual</option>
-                    <option value="sick">Sick</option>
-                    <option value="emergency">Emergency</option>
-                    <option value="personal">Personal</option>
-                    <option value="maternity">Maternity</option>
+                    <option value="sick">Sick Leave</option>
+                    <option value="personal">Personal Leave</option>
+                    <option value="family">Family Leave</option>
+                    <option value="emergency">Emergency Leave</option>
+                    <option value="maternity">Maternity Leave</option>
+                    <option value="paternity">Paternity Leave</option>
+                    <option value="vacation">Vacation Leave</option>
+                    <option value="medical">Medical Leave</option>
                     <option value="other">Other</option>
                   </select>
                 </div>

@@ -226,6 +226,14 @@ function App() {
           }
         />
         <Route
+          path="/admin/users/add-staff"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminAddStaff />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/subjects"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>

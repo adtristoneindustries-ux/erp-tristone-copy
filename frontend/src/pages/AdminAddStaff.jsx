@@ -278,7 +278,7 @@ const AdminAddStaff = () => {
         localStorage.removeItem('staffDraft');
       }
       
-      navigate('/admin/staff');
+      navigate('/admin/users');
     } catch (error) {
       alert(error.response?.data?.message || 'Error processing staff');
     } finally {
@@ -303,7 +303,7 @@ const AdminAddStaff = () => {
               <button onClick={clearDraft} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
                 Clear Draft
               </button>
-              <button onClick={() => navigate('/admin/staff')} className="text-gray-600 hover:text-gray-800">
+              <button onClick={() => navigate('/admin/users')} className="text-gray-600 hover:text-gray-800">
                 ✕ Close
               </button>
             </div>

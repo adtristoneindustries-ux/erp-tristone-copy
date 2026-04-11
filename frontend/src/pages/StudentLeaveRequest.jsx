@@ -10,7 +10,7 @@ const StudentLeaveRequest = () => {
     startDate: '',
     endDate: '',
     reason: '',
-    type: 'sick'
+    leaveType: 'sick'
   });
 
   useEffect(() => {
@@ -31,7 +31,7 @@ const StudentLeaveRequest = () => {
     try {
       await leaveRequestAPI.createLeaveRequest(formData);
       setShowForm(false);
-      setFormData({ startDate: '', endDate: '', reason: '', type: 'sick' });
+      setFormData({ startDate: '', endDate: '', reason: '', leaveType: 'sick' });
       fetchLeaveRequests();
     } catch (error) {
       console.error('Error submitting leave request:', error);
@@ -65,13 +65,16 @@ const StudentLeaveRequest = () => {
                 <div>
                   <label className="block text-sm font-medium mb-2">Leave Type</label>
                   <select
-                    value={formData.type}
-                    onChange={(e) => setFormData({...formData, type: e.target.value})}
+                    value={formData.leaveType}
+                    onChange={(e) => setFormData({...formData, leaveType: e.target.value})}
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="sick">Sick Leave</option>
                     <option value="personal">Personal Leave</option>
+                    <option value="family">Family Leave</option>
                     <option value="emergency">Emergency Leave</option>
+                    <option value="medical">Medical Leave</option>
+                    <option value="other">Other</option>
                   </select>
                 </div>
                 <div>
@@ -145,7 +148,7 @@ const StudentLeaveRequest = () => {
                 {leaveRequests.map(request => (
                   <tr key={request._id} className="hover:bg-gray-50">
                     <td className="px-4 py-3">
-                      <span className="capitalize font-medium">{request.type}</span>
+                      <span className="capitalize font-medium">{request.leaveType}</span>
                     </td>
                     <td className="px-4 py-3 text-sm">
                       {new Date(request.startDate).toLocaleDateString()} - {new Date(request.endDate).toLocaleDateString()}
